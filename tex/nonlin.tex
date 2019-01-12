@@ -1,0 +1,104 @@
+% !TeX root = ./apxthy.tex
+
+\section{Nonlinear Approximation}
+%
+\label{sec:nonlin}
+%
+
+\subsection{Best polynomial approximation}
+%
+\label{sec:poly:bestapprox}
+%
+Best approximation in Hilbert spaces is a linear operation, indeed an orthogonal
+projection. By contrast best approximation max-norms is far less trivial. This
+section concerns the best approximation of continuous functions with polynomials
+in the $L^\infty$-norm. Although this norm is not strictly convex, it turns out
+that the best-approximant is still unique. Moreover, its characterisation leads
+to an algorithm (the Remez algorithm). The high cost of the Remez algorithm an
+together with the fact that Chebyshev interpolation (or projection) typically
+gives accuracy very close to best-approximation means this is rarely used in
+practise, however the mathematics is still interesting and worth studying.
+Moreover, this is our first non-trivial example of a {\em non-linear
+approximation algorithm}.
+
+\alert{maybe move this to a section on "nonlinear approximation"?}
+
+\begin{theorem} \label{th:poly:bestapprox}
+   Let $f \in C([-1,1])$, then there exists a unique best approximation 
+   $p \in \Poly_N$ such that $\|f - p \|_\infty \leq \|f-q\|_\infty$ for 
+   all $q \in \Poly_N$. 
+
+   A polynomial $p \in \Poly_N$ is the best approximation if and only if 
+   it equioscillates at (at least) $N+2$ points $y_0 < \dots < y_{N+1}$; 
+   that is, 
+   \[
+      (f-p)(y_j) = \pm (-1)^j \|f-p\|_\infty.
+   \] 
+\end{theorem}
+\begin{proof}
+   test
+   {\it 1. Existence: } This is covered in
+   Exercise~\ref{exr:prelims:bestapprox}. Let $E := \inf_{p \in \Poly_N}
+   \|f-p\|_\infty$.
+   
+   {\it 2. Equi-oscillation implies optimality: } Suppose $p$ satisfies 
+   the equi-oscillation property and $q \in \Poly_N$ such that 
+   $\|f-q\|_\infty < \|f-p\|_\infty$. Without loss of generality, we then have 
+   \begin{align*}
+      (f-q)(y_j) &< (f-p)(x_j), \qquad j \text{ even},  \\ 
+      (f-q)(y_j) &> (f-p)(x_j), \qquad j \text{ odd}, \\ 
+   \end{align*}
+   and hence 
+   \begin{align*}
+      (p-q)(y_j) &> 0, \qquad j \text{ odd}, \\ 
+      (p-q)(y_j) &< 0, \qquad j \text{ even}.  \\ 
+   \end{align*}
+   Consequently $p-q$ has at least $N+1$ roots, which means that $p - q = 0$.
+      
+   {\it 3. Optimality implies equi-oscillation: } Let $p \in \Poly_N$ and
+   suppose there exist {\em at most} $M < N+2$ points $y_1 < \dots y_M$ at which
+   $f-p$ equi-oscillates. Without loss of generality, assume that $(f-p)(y_1) =
+   -E$, then we can find points  
+   \[ 
+      z_1 \in (-1, y_1), z_2 \in (y_1, y_2), \dots, 
+      z_M \in (y_{M-1}, y_M), z_{M+1} \in (y_M, 1)
+   \]
+   such that 
+   \begin{align*}
+      (f-p) &< E, \qquad \text{in } [-1, z_1], [z_2, z_3], \dots 
+      (f-p) &> E, \qquad \text{in } [z_1, z_2], [z_3, z_4], \dots 
+   \end{align*}
+   Now, let 
+   \[
+      \delta p(x) := (z_1 - x)(z_2-x)\cdots(z_{M+1}-1), 
+   \]
+   then we readily see that 
+   \[
+      \|f - (p + \eps \delta p)\|_\infty < \|f - p\|_\infty
+      \qquad \text{for $\eps$ sufficiently small.}
+   \]
+   Thus, $p$ was not optimal. 
+   
+   {\it 4. Uniqueness: } Suppose that $p, q$ are both best approximations, then
+   $r := (p+q)/2$ is a best approximation as well. Let $y_j$ be the
+   equi-oscillation points. $|r(y_j)| = E$ is only possible if $p(y_j) = q(y_j)
+   = \pm E$. Thus $q, p$ agree at $N+2$ points and are therefore equal.
+\end{proof}
+
+Interestingly, then proof is semi-constructive and with a bit of immagination 
+gives rise to the following (not quite an) algorithm:
+
+{\bf Remez Algorithm:} Input: $f, N$
+\begin{enumerate}
+\item Choose initial interpolation nodes $x_0 < \dots < x_N$. E.g., Chebyshev 
+nodes are a canonical choice. 
+\item Solve the system 
+\[
+      b_0 + b_1 x_j + \dots + b_{N} x_{j}^{N} + (-1)^j E = f(x_j), 
+      \qquad j = 0, \dots, N+1
+\]
+for the $n+2$ unknowns $b_i, E$.
+\item 
+\end{enumerate}
+
+% A complete analysis of the Remez algorithm is a little involved

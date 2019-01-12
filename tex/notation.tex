@@ -1,0 +1,79 @@
+% !TeX root = ./apxthy.tex
+
+% bracket sizes
+\def\b{\big}
+\def\B{\Big}
+\def\bg{\bigg}
+\def\Bg{\Bigg}
+
+% set separator
+\def\sep{|}
+\def\bsep{\b|}
+\def\Bsep{\B|}
+
+
+
+% fields
+\def\R{\mathbb{R}}
+\def\N{\mathbb{N}}
+\def\Z{\mathbb{Z}}
+\def\C{\mathbb{C}}
+
+
+% duality pairing
+\def\<{\langle}
+\def\>{\rangle}
+
+% linear algebra
+\def\SL{{\rm SL}}
+\def\SO{{\rm SO}}
+\def\Id{\mathbbm{1}}
+
+\def\diag{{\rm diag}}
+\def\cof{{\rm cof}}
+\def\det{{\rm det}}
+\def\trace{{\rm tr}}
+\def\argmin{{\rm argmin}}
+
+
+\def\eps{\varepsilon}
+
+
+\def\Ms{\mathcal{M}}
+\def\Xs{\mathcal{X}}
+\def\Us{\mathcal{U}}
+\def\Fs{\mathcal{F}}
+
+\newcommand{\comment}[1]{{\color{red} \bf[[#1]]}}
+\newcommand{\remove}[1]{}
+\renewcommand{\cases}[1]{\left\{ \begin{array}{ll} #1 \end{array}
+  \right.}
+\newcommand{\smfrac}[2]{{\textstyle \frac{#1}{#2}}}
+\renewcommand{\vec}[1]{\left( \begin{array}{c} #1 \end{array} \right)}
+\newcommand{\mat}[2]{\left( \begin{array}{#1} #2 \end{array} \right)}
+
+
+
+% mean integral
+\def\Xint#1{\mathchoice
+{\XXint\displaystyle\textstyle{#1}}%
+{\XXint\textstyle\scriptstyle{#1}}%
+{\XXint\scriptstyle\scriptscriptstyle{#1}}%
+{\XXint\scriptscriptstyle\scriptscriptstyle{#1}}%
+\!\int}
+\def\XXint#1#2#3{{\setbox0=\hbox{$#1{#2#3}{\int}$ }
+\vcenter{\hbox{$#2#3$ }}\kern-.6\wd0}}
+% \def\ddashint{\Xint=}
+\def\mint{\Xint-}
+\def\cint{\Xint {\sf O}}
+
+
+\def\TT{\mathbb{T}}
+\def\Trig{\mathcal{T}}
+\def\AC{{\rm AC}}
+
+\def\SS{\mathbb{S}}
+\def\for{\text{ for }}
+\def\PCheb{\tilde{\Pi}}
+\def\Poly{\mathcal{P}}
+\def\fl{{\rm fl}}

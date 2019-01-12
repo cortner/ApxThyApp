@@ -1,0 +1,848 @@
+% !TEX root = apxthy.tex
+
+
+\section{Algebraic Polynomials}
+%
+\label{sec:poly}
+%
+Our second major topic concerns approximation of functions defined on an
+interval $f : [-1, 1] \to \R$, without loss of generality. But contrary to
+\S~\ref{sec:trig} we no longer assume periodicity. Instead we will approximate
+$f$ by algebraic polynomials,
+\[
+      f(x) \approx p_N \in \Poly_N
+\]
+where $\Poly_N$ denotes the space of degree $N$ polynomials,
+\[
+   \Poly_N := \bg\{ \sum_{n = 0}^N c_n x^n \bsep c_n \in \R \bg\}.
+\]
+
+It is a standard fact (and easy to prove) that for any $N+1$ distinct 
+points $x_0, \dots, x_N \in \R$ and values $f_0, \dots, f_N$ there exists exactly one polynomial 
+$p_N \in \Poly_N$ interpolating those values, i.e., 
+\[
+   p_N(x_j) = f_j, \qquad j = 0, \dots, N.
+\]
+(Indeed, the same is even true for $x_j \in \C$.) These equations form 
+a linear system for the coefficients $c_n$, which can be solved to obtain 
+the interpolation polynomial, which in turn can be easily readily 
+numerically. 
+
+A key question is how to choose the interpolation points $x_j$? It may seem
+intuitive to take equispaced nodes, $x_j = -1 + 2j/N$.  We start this section by
+exploring precisely this approach to approximate some smooth functions on
+$[-1,1]$; see \nbpoly for some motivating examples. In this Julia notebook we
+clearly observe that this yields a divergent sequence of polynomials, but by
+exploring also other kinds of fits we also see that this does not preclude the
+possibility of computing a (very) good approximation. We therefore focus
+initially by deriving a ``good'' set of interpolation nodes. The same idea will
+also naturally lead to the Chebyshev polynomials.
+
+\subsection{Chebyshev Points, Chebyshev Polynomials and Chebyshev Series}
+%
+We can motivate the idea of the Chebyshev points by mapping the polynomial
+approximation problem to the trigonometric approximation problem:
+
+Let $f\in C([-1,1])$, then let $g \in C(\TT)$ be defined by
+\[
+   g(\theta) = f(\cos\theta).
+\]
+Note that $g$ ``traverses'' $f$ twice!
+
+We will later see that $g$ inherits the regularity of $f$ even across domain
+boundaries; for now let us understand the consequence of this observation. We
+know from \S~\ref{sec:trig} that equispaced interpolation of $g$ yields an
+excellent trigonometric interpolant, i.e., we choose $\theta_j = -\pi + 2\pi
+j/N$ and we choose coefficients $\hat{g}_k$ such that
+\[
+   t_N(\theta_j) = \sum_{-N}^N \hat{g}_k e^{ik \theta_j} = g(\theta_j)
+\]
+%
+We may ask to interpolate $f$ at the analogous points, $x_j = \cos(\theta_j)$
+but since $g$ contains ``two copies'' we only take half of the nodes.
+This gives the Chebyshev nodes 
+%
+\begin{equation} \label{eq:poly:chebnodes}
+   x_j := \cos\b( \pi j / N \b) \qquad j = 0, \dots, N.
+\end{equation}
+
+We can readily test our hypothesis that these yield much better approximations;
+see again \nbpoly. Thus, for future reference we define the Chebyshev
+interpolant $I_N f$ to be the unique function $I_ f \in \Poly_N$ such that
+\[
+   I_N f(x_j) = f(x_j) \qquad \for j = 0, \dots, N,
+\]
+where $x_j$ are the Chebyshev nodes \eqref{eq:poly:chebnodes}.
+
+
+Next, we ask what the analogue of the Fourier series is. We write
+\[
+   g(\theta) = \sum_{k \in \Z} \hat{f}_k e^{ik\theta},
+\]
+then using that $g$ is real and $g(-\theta)=g(\theta)$,
+\[
+   g(\theta) = \hat{g}_0 + 2 \sum_{k = 1}^N \hat{g}_k \cos(k\theta)
+\]
+It is therefore natural to define the {\em Chebyshev polynomials}
+%
+\begin{equation} \label{eq:poly:defn_Tk}
+   T_k(\cos\theta) = \cos(k\theta), \qquad k \in \N := \{0,1,2,\dots\}.
+\end{equation}
+%
+A wide-ranging consequence of this definition is that
+\[
+      |T_k(x)| \leq 1 \qquad \forall k.
+\]
+
+\begin{lemma} \label{th:poly:chebpolys}
+   The functions $T_k : [-1,1] \to \R$ are indeed polynomials and
+   satisfy the recursion
+   \begin{equation} \label{eq:poly:chebrecursion}
+      T_{k+1}(x) = 2 x T_k(x) - T_{k-1}(x),
+   \end{equation}
+   with initial conditions $T_0(x) = 1, T_1(x) = x$.
+\end{lemma}
+\begin{proof}
+   The identities $T_0(x) = 1, T_1(x) = x$ follow immediately from
+   \eqref{eq:poly:defn_Tk}. If we can prove the recursion, then
+   the fact that $T_k$ are polynomials follows as well.
+
+   To that end, we introduce another representation,
+   \[
+      T_k\B( \smfrac{z + z^{-1}}{2} \B)
+      = T_k(\Re z)
+      = \Re z^k = \frac{z^k + z^{-k}}{2},
+   \]
+   where $|z| = 1$. Then,
+   \begin{align*}
+      & \hspace{-1cm} T_{k+1}(\Re z) - 2 \Re z T_k(\Re z) + T_{k-1}(\Re z) \\
+      &= \smfrac12 \B(
+         z^{k+1} + z^{-k-1}  - (z+z^{-1}) (z^k+z^{-k})
+         + z^{k-1} + z^{-k+1} \B) \\
+      &= \smfrac12 \B( z^{k+1} + z^{-k-1}
+               - z^{k+1} - z^{k-1} - z^{1-k} - z^{-1-k}
+               + z^{k-1} + z^{-k+1} \B) \\
+      &=0. \qedhere
+   \end{align*}
+\end{proof}
+
+For future reference we define the Joukowsky map
+\[
+   \phi(z) = \frac{z+z^{-1}}{2}.
+\]
+and note that it is analytic in $\C \setminus \{0\}$.
+
+We now know that $T_k(x)$ are indeed polynomials of degree $k$ and in light of
+the foregoing motivating discussion, we have the following result.
+
+\begin{lemma}
+   Let $f \in C([-1,1])$ is uniformly continuous, then there exists {\em
+   Chebyshev coefficients} $\tilde{f}_k \in \R$ such that the {\em Chebyshev
+   series}
+   \begin{equation} \label{eq:poly:chebseries}
+      f(x) = \sum_{k = 0}^\infty \tilde{f}_k T_k(x)
+   \end{equation}
+   is absolutely and uniformly convergent.
+
+   The Chebyshev coefficients are given by the following equivalent formulas,
+   \begin{align*}
+      \tilde{f}_k
+      &=  \frac{2}{\pi} \int_{-1}^1 \frac{f(x) T_k(x)}{\sqrt{1-x^2}} \,dx \\
+      &=  \frac{1}{2\pi i} \oint_{\SS} \,\,\b(z^{-1+k} + z^{-1-k}\b) f(\phi(z))
+                  \, dz \\
+      &= \frac{1}{\pi i} \oint_{\SS} \,\, z^{-1+k} f(\phi(z)) \, dz \\
+      &= \frac{1}{\pi i} \oint_{\SS} \,\, z^{-1-k} f(\phi(z)) \, dz.
+   \end{align*}
+   For $k = 0$ a factor $1/2$ must be applied.
+\end{lemma}
+\begin{proof}
+   If $f \in C([-1,1])$ with modulus of continuous $\omega$, then $g \in C(\TT)$
+   also has a modulus of continuity and hence the Fourier series converges
+   uniformly and equivalently, the Chebyshev series does as well.
+
+   The expressions for $\tilde{f}_k$ are simply transplanting the fourier
+   coefficients $\hat{g}_k$ to Chebyshev coefficients $\tilde{f}_k$.
+\end{proof}
+
+In analogy with the truncation of the Fourier series $\Pi_N g$ (which
+is the $L^2(\TT)$-projection or best-approximation we define
+the Chebyshev projection
+\[
+   \PCheb_N f(x) := \sum_{k = 0}^N \tilde{f}_k T_k(x).
+\]
+
+
+\subsection{Convergence rates}
+%
+\label{sec:poly:rates}
+%
+As we have learned in \S~\ref{sec:trig}, the real power of polynomials is in
+the approximation of analytic functions, hence we begin again with this
+setting.
+
+Intuitively, the idea is that analyticity of $f$ on $[-1,1]$ translates into
+analyticity of the corresponding periodic function $g(\theta) = f(\cos\theta)$.
+Exponential decay of the Fourier coefficients $\hat{g}_k$ then translates into
+exponential decay of the Chebyshev coefficients  $\tilde{f}_k$. But we can prove
+this exponential decay directly with a relatively straightforward variation of
+the argument we used in \S~\ref{sec:trip:pw}, which is interesting to see the
+analogies.
+
+
+We begin by defining
+\[
+   F(z) := f(\Re z) = f\b( \smfrac12(z+z^{-1}) \b)
+         = f(\phi(z)) \qquad \for z \in \SS := \{|z|=1\}.
+\]
+%
+where $\phi(z) = \smfrac12 (z+z^{-1})$ is also called Joukowsky map. $\phi$ is
+clearly analytic in $\C \setminus \{0\}$. Thus, if $f$ is analytic on $[-1,1]$
+then $F$ must be analytic on $\SS$. Next, we note that analyticity of $g(\theta)$
+on the strip $\Omega_\alpha$ is equivalent to analyticity of $F$ on the annulus
+%
+\[
+   \SS_\rho := \{ z \in \C \sep \rho^{-1} \leq |z| \leq \rho \},
+\]
+%
+with $\rho = 1+\alpha$. Let the corresponding {\em Bernstein ellipse} be the
+pre-image of $\SS_\rho$ under the Joukowsky map,
+%
+\[
+   E_\rho := \phi^{-1}(S_\rho),
+\]
+%
+then analyticity of $f$ in $E_\rho$ implies analyticity of $F$ in $\SS_\rho$.
+
+Finally, we recall from the derivation of the Chebyshev polynomials $T_k(x)$
+that they can also be written as
+\[
+   \smfrac12 (z^k + z^{-k}) = T_k(\phi(z)).
+\]
+
+After these preparations, we can prove the following result.
+
+
+\begin{theorem}[Decay of Chebyshev coefficients]
+   Let $\rho > 1$ and $f \in A(E_\rho)$ with  $M := \|f\|_{L^\infty(E_\rho)} <
+   \infty$, then the Chebyshev coefficients of $f$ satisfy
+   \[
+      |\tilde{f}_k| \leq 2 M \rho^{-k}, \qquad k \geq 1.
+   \]
+\end{theorem}
+\begin{proof}
+   We start with
+   \[
+      \tilde{f}_k = \frac{1}{\pi i} \oint_{\SS} z^{-1-k} F(z) \, dz
+   \]
+   Since $F$ is analytic on $\SS_\rho$ (and hence in the neighbourhood of $\SS_\rho$)
+   we can expand the contour to {\it (Exercise: explain why this can be done using
+   Cauchy's integral formula and a suitable sketch!)}
+   \[
+      \tilde{f}_k = \frac{1}{\pi i} \oint_{|z|=\rho} z^{-1-k} F(z) \, dz
+   \]
+   and hence we immediately obtain
+   \[
+      |\tilde{f}_k| \leq \frac{2\pi \rho \rho^{-1-k} M}{\pi} = 2 M \rho^{-k}.
+      \qedhere
+   \]
+\end{proof}
+
+Decay of Chebyshev coefficients gives the following approximation error
+estimates.
+
+\begin{theorem}[Chebyshev Projection and Interpolation Error]
+   %
+   \label{th:poly:err_analytic}
+   %
+   Let $\rho > 1$ and $f \in A(E_\rho)$ with $M := \|f\|_{L^\infty(E_\rho)} <
+   \infty$, then
+   \begin{align}
+      \label{eq:poly:projerror}
+      \| f - \PCheb_N f \|_{L^\infty(-1,1)} &\leq \frac{2M \rho^{-N}}{\rho-1}, \\
+      \label{eq:poly:interperror}
+      \| f - I_N f \|_{L^\infty(-1,1)} &\leq C M \log N \rho^{-N},
+   \end{align}
+   where $C$ is a generic constant.
+\end{theorem}
+\begin{proof}
+   For the proof of \eqref{eq:poly:projerror} we use the fact that
+   $\|T_k\|_\infty \leq 1$ to estimate
+   \begin{align*}
+      \| f - \PCheb_N f \|_\infty
+      &\leq
+      \sum_{k = N+1}^\infty |\tilde{f}_k|  \\
+      &\leq
+      2M \sum_{k = N+1}^\infty \rho^{-k} \\
+      &=
+      \frac{2M \rho^{-N}}{\rho-1}.
+   \end{align*}
+   The estimate \eqref{eq:poly:interperror} follows from the bound on the
+   Lebesgue constant
+   \[
+      \| I_N \|_{L(L^\infty)} \leq C \log N,
+   \]
+   which follows from the analogous bound for trigonometric interpolation
+   given in Theorem~\ref{th:trig:lebesgue}.
+
+   (For a sharp bound, it is in fact known that $\Lambda_N \leq \frac{2}{\pi}
+   \log(N+1) + 1$.)
+\end{proof}
+
+\begin{remark}
+   One can in fact prove that
+   \[
+      \| f - I_N f \|_{L^\infty(-1,1)} \leq \frac{4M \rho^{-N}}{\rho-1},
+   \]
+   using an aliasing argument; see \cite[Thm. 8.2]{Trefethen2013-rg},
+   somewhat similar to the argument we used for our convergence estimate of
+   the trapezoidal rule in Exercise~\ref{exr:trig:trapezoidal rule}.
+\end{remark}
+
+\begin{example}[Fermi-Dirac Function]
+   %
+   \label{exa:poly:fermi-dirac}
+   %
+   Consider the Fermi-Dirac function
+   \begin{equation}
+     f_\beta(x) = \frac{1}{1 + e^{\beta x}},
+   \end{equation}
+   where $\beta > 0$.
+ 
+   {\it REMARK: The Fermi--Dirac function describes the distribution of particles
+   over energy states in systems consisting of many identical particles that obey
+   the Pauli exclusion principle, e.g., electrons. A broad range of important
+   algorithms in computational physics are fundamentally about approximating the
+   Fermi--Dirac function. The parameters $\beta$ is inverse proportional to
+   temperature (that is, Fermi-temperature).}
+ 
+   Extending $f_\beta$ to the complex plane simply involves replacing $x$ with
+   $z$, i.e.,
+   \[
+     f_\beta(z) = \frac{1}{1 + e^{\beta z}},
+   \]
+   which is well-defined {\em except at the poles}
+   \[
+       z_j = \pm i  \frac{(1+2j)\pi}{\beta}.
+   \]
+   \alert{add the analysis of the Bernstein ellipse}
+ \end{example}
+
+
+For convergence rates for $C^{j,\sigma}([-1,1])$ and similar functions, we
+want to adapt the Jackson theorems. We could again "transplant" the argument
+from the Fourier to the Chebyshev setting, but it will be more convenient
+this time to simply apply the Fourier results directly. The details
+are carried out in Exercise~\ref{exr:poly:convergence}. We obtain
+the following result.
+
+\begin{theorem}[Jackson's Theorems]
+   Let $f \in C^{(j)}([-1,1])$, $j \geq 0$, where $f^{(j)}$ has modulus of
+   continuity $\omega$, then
+   \begin{equation}
+      \label{eq:poly:jackson1}
+      \inf_{p_N \in \Poly_N} \| f - p_N \|_{L^\infty} \leq
+      C N^{-j} \omega\b(N^{-1}\b).
+   \end{equation}
+\end{theorem}
+\begin{proof}
+   See Exercise~\ref{exr:poly:convergence}.
+\end{proof}
+
+We cannot yet test these predictions numerically, since we don't yet have 
+a numerically stable way to evaluate the Chebyshev interpolants (or projections). 
+We will remedy this in the next two sections. 
+ 
+
+\subsection{Chebyshev transform}
+%
+We have seen in \nbpoly that naive evaluation of the Chebyshev interpolant leads
+to highly unstable numerical results. The emphasis here is on the term
+``naive''. Indeed, there exist at least two natural and numerically stable way
+to evaluate the Chebyshev interpolant.
+
+The first approach we consider is the Discrete Chebyshev transform (DCT), an
+immediate analogy of the Discrete Fourier transform (DFT). As in the Fourier case, 
+once we have transformed the polynomial to the Chebyshev basis, we can 
+evaluate it in $O(N)$ operations. But in the Chebyshev case, this is even more 
+efficient due to the recursion formula \eqref{eq:poly:chebrecursion}. Moreover, 
+the polynomial derivatives are straightforward to compute in this case as well.
+
+
+Let $F = (F_j) \in \R^{N+1}$ (we immagine that $F_j = f(x_j)$ are nodal values
+of some $f \in C([-1,1])$ at the Chebyshev nodes), then there exists a unique
+polynomial $p_N \in \Poly_N$ such that $p_N(x_j) = F_j$. We write $p_N(x) =
+\sum_{k = 0}^N \tilde{F}_k T_k(x)$, then
+\begin{equation}
+   \label{eq:poly:chebtransform}
+   \tilde{F} := {\rm DCT}[F] := \b( \tilde{F}_k \b)_{k = 0}^N.
+\end{equation}
+Since polynomial interpolation is linear and unique the operator is
+an invertible linear mapping, with inverse (obviously) given by
+\begin{equation}
+   \b({\rm IDCT}[\tilde{F}]\b)_j = \sum_{k = 0}^N \tilde{F}_k T_k(x_j).
+\end{equation}
+
+\begin{lemma} \label{th:poly:dct_explicit}
+   Let $\tilde{F} = {\rm DCT}[F]$, then
+   \[
+      \tilde{F}_k = \frac{p_k}{N}\bg\{
+            \smfrac12 \b( (-1)^k F_0 + F_N \b)
+            + \sum_{k = 1}^{N-1} F_k T_k(x_j)
+         \bg\}.
+   \]
+\end{lemma}
+
+We won't prove \Cref{th:poly:dct_explicit} since we won't need this expression. 
+It is only stated here for the sake of completeness. The interested reader 
+will be able to check it by a direct computation; it is also implicitly 
+contained in the following discussion. 
+
+
+{\it A priori} the cost of evaluating the DCT and IDCT is $O(N^2)$, but the 
+connection between the Fourier and Chebyshev settings gives us an $O(N\log N)$
+algorithm which we now derive. Let $F = {\rm IDCT}[\tilde{F}]$, then writing 
+\[
+   T_k(x_j) = T_k(\cos(j\pi/N)) = \cos(kj\pi/N) 
+\]
+we obtain 
+\begin{align}
+   \label{eq:poly:costtransform}
+   F_j 
+   &= 
+   \sum_{k = 0}^N \tilde{F}_k \cos(kj\pi/N) 
+   \\ \notag &= 
+   \sum_{k = 0}^N \tilde{F}_k \smfrac12 \b( e^{i2\pi kj/ (2N)} + e^{-i2\pi kj/(2N)}),
+\end{align}
+which looks {\em almost} like a IDFT on the grid $\{-N, \dots, N\}$. We 
+can rewrite this a little more, 
+\begin{align*}
+   F_j
+   &= 
+   \tilde{F}_0 + \sum_{k = 1}^{N-1} \b[\smfrac12 \tilde{F}_k\b] e^{i2\pi kj/ (2N)}
+   + \tilde{F}_N \smfrac12 \b( e^{i2\pi N j/ (2N)} + e^{-i2\pi N j/ (2N)} \b) 
+   \\  & \qquad 
+   + \sum_{k = -N+1}^{-1} \b[\smfrac12 \tilde{F}_{-k}\b] e^{i2\pi kj/ (2N)}
+   \\ &= 
+   \tilde{F}_0 + \sum_{k = 1}^{N-1} \b[\smfrac12 \tilde{F}_k\b] e^{i2\pi kj/ (2N)}
+   + \tilde{F}_N e^{i2\pi N j/ (2N)}
+   + \sum_{k = N+1}^{2N-1} \b[\smfrac12 \tilde{F}_{2N-k}\b] e^{i2\pi kj/ (2N)}
+   \\ &=: 
+   \sum_{k = 0}^{2N-1} \hat{G}_k e^{i2\pi kj/ (2N)},
+\end{align*}
+where we have defined 
+\[
+   \hat{G}_k := \cases{
+      \tilde{F}_k, & k = 0, \\ 
+      \smfrac12 \tilde{F}_k, & k = 1, \dots, N-1, \\ 
+      \tilde{F}_k, & k = N, \\ 
+      \smfrac12 \tilde{F}_{2N-k}, & k = N+1, \dots, 2N-1.
+   }
+\] 
+Let $\hat{G}[\tilde{F}]$ be defined by this expression, then we have shown 
+that 
+\[
+   F_j = \b({\rm IDCT}[\tilde{F}]\b)_j = 
+   \b( {\rm IDFT}[\hat{G}[\tilde{F}]] \b)_j, \qquad j = 0, \dots, N.
+\]
+After determining $F_j$ for $j = N+1, \dots, 2N-1$ we can then evaluate the 
+DCT via the DFT.  From the expression \eqref{eq:poly:costtransform} we 
+immediately see that 
+\begin{align*}
+   F_{j}
+   &= 
+   \sum_{k = 0}^N \tilde{F}_k \cos(kj\pi/N - 2\pi k) 
+   \\ &= 
+   \sum_{k = 0}^N \tilde{F}_k \cos(k2\pi(j-2N)/2N) 
+   \\ &= 
+   \sum_{k = 0}^N \tilde{F}_k \cos(k2\pi(2N-j)/2N)
+   \\ &= 
+   F_{2N-j}
+\end{align*}
+That is, if we define 
+\[
+   G_j := \cases{
+      F_j, & j = 0, \dots, N, \\ 
+      F_{2N-j}, & j = N+1, \dots, 2N-1
+   }
+\]
+then we obtain 
+\[
+   {\rm DFT}[G] = \hat{G},   
+\]
+from which we can readily obtain $\tilde{F}$. 
+
+In {\tt Julia} code an $O(N\log N)$ scaling Chebyshev transform might 
+look as follows: 
+
+\begin{verbatim}
+   "fast Chebyshev transform"
+   function fct(F)
+      N = length(F)-1
+      G = [ F; F[N:-1:2] ]
+      Ghat = real.(fft(F))
+      return [Ghat[1]; 2 * Ghat[2:N]; Ghat[N+1]]
+   end 
+
+   "fast inverse Chebyshev transform"
+   function ifct(Ftil)
+      N = length(Ftil)-1
+      Ghat = [Ftil[1]; 0.5 * Ftil[2:N]; Ftil[N+1]; 0.5*Ftil[N:-1:2]]
+      G = real.(ifft(Ghat))
+      return G[1:N+1]
+   end
+\end{verbatim}
+
+
+\begin{remark}
+   The expression \eqref{eq:poly:costtransform} is in fact another kind of 
+   well-known transform, the {\em Discrete Cosine Transform} (one of several 
+   variants). A practical implementation of the fast Chebyshev transform 
+   should therefore use an efficient implementation of the fast cosine transform 
+   rather than the FFT.
+   For the sake  of simplicity (to avoid studying yet another transformation) 
+   we did not study this transform in detail, but there is plenty of literature 
+   and software available on this topic. 
+\end{remark}
+
+
+
+\subsection{Barycentric interpolation formula}
+%
+\label{sec:poly:bary}
+%
+The second method we discuss is the {\em barycentric interpolation formula}.
+After precomputing some ``weights'' it gives another $O(N)$ method to evaluate
+the Chebyshev interpolant (or indeed {\em any} polynomial interpolant) in a
+numerically stable manner. This method entirely avoids the transformation to the
+Chebyshev basis. (This section is taken almost verbatim from
+\cite{Trefethen2013-rg}; see also \cite[Ch. 5]{Trefethen2013-rg} for a more
+detailed, incl historical, discussion).
+
+We begin with the usual Lagrange formula for the nodal interpolant. 
+Let $p(x_j) = f_j, j = 0, \dots, N$ where $p \in \Poly_N$, then  
+\[
+   p(x) = \sum_{j = 0}^N f_j \ell_j(x), 
+   \qquad \text{where} \quad 
+   \ell_j(x) = \frac{ \prod_{n \neq j} (x - x_n)}{\prod_{n \neq j} (x_j-x_n)}.
+\]
+This formula has the downside that it costs $O(N^2)$ to evaluate $p$ at a 
+single point $x$. 
+
+But we observe that $\ell_j(x)$ have a lot of terms in common. This can be 
+exploited by defining the {\em node polynomial}
+\[
+   \ell(x) := \prod_{n = 0}^N (x-x_n),
+\]
+then we obtain 
+\begin{equation} \label{eq:poly:bary_weights}
+   \ell_j(x) = \ell(x) \frac{\lambda_j}{x - x_j} 
+   \qquad \text{where}  \qquad 
+   \lambda_j = \frac{1}{\prod_{n \neq j} (x_j - x_n)}.
+\end{equation}
+The ``weights'' $\lambda_j$ still cost $O(N^2)$, but they are independent of $x$
+and can therefore be precomputed (Moreover, for various important sets of nodes
+there exist fast algorithms. For Chebyshev nodes there is an explicit
+experession; see below.). Since the common factor $\ell(x)$ does not depend on
+$j$ we can now evaluate all $\ell_j(x), j = 0, \dots, N$ at $O(N)$ cost and thus
+obtain the {\em first form of the barycentric interpolation formula}, 
+\begin{equation} \label{eq:poly:bary1}
+   p(x) = \ell(x) \sum_{j = 0}^n \frac{\lambda_j}{x - x_j} f_j.
+\end{equation}
+Once the weights $\lambda_j$ have been precomputed, the cost of evaluating 
+$p(x)$ becomes $O(N)$. However, \eqref{eq:poly:bary1} has a different 
+shortcoming: in floating point arithmetic it is prone to overflow or underflow.
+Specifically, suppose that $x = -1$ and we compute $\ell(x)$ with $x_j$ 
+ordered decreasingly as defined in \eqref{eq:poly:chebnodes}, then after 
+approximately the first $M \approx N/4$ terms we have evaluated 
+\[
+   \bg|\prod_{n = 0}^M (x - x_j) \bg|
+   \geq \b( \smfrac34 \b)^{M+1} 
+\]
+which quickly becomes very large. The issue is also reflected in the
+coefficients $\lambda_j$, which for Chebyshev points are $O(2^N)$ (cf.
+Exercise~\ref{exr:poly:bary}). In practise, one typically gets overflow 
+beyond 100 or so grid points. 
+
+This can be avoided with the second form of the barycentric formula: observing
+that $\sum_{j = 0}^N \ell_j \equiv 1$ we obtain 
+\[
+   1 = \ell(x) \sum_{j = 0}^N \frac{\lambda_j}{x-x_j}, 
+\]
+and hence arrive at the second form of the barycentric interpolation formula:
+
+\begin{theorem}[Barycentric interpolation formula]
+   \label{th:poly:bary}
+   Let $p \in \Poly_N$, with $p(x_j) = f_j$ at $N+1$ distincts points 
+   $\{x_j\}$ then 
+   \[
+      p(x) = \frac{ 
+         \sum_{j = 0}^N \frac{\lambda_j f_j}{x-x_j} 
+      }{
+         \sum_{j = 0}^N \frac{\lambda_j}{x-x_j}
+      }, 
+      \qquad \text{where} \qquad 
+      \lambda_j = \frac{1}{ \prod_{n \neq j} (x_j-x_n)},
+   \] 
+   with the special case $p(x_j) = f_j$.
+\end{theorem}
+
+\begin{theorem}[Barycentric interpolation formula in Chebyshev Points]
+   \label{th:poly:barycheb}
+   Let $\{x_j\}$ be the Chebyshev points \eqref{eq:poly:chebnodes}, then 
+   the barycentric weights $\lambda_j$ from \Cref{th:poly:bary} 
+   may be chosen as 
+   \[
+       \lambda_j = \cases{ 
+          (-1)^j, & j = 1, \dots, N-1, \\ 
+          \frac12 (-1)^j, & j = 0, N. }
+   \]
+\end{theorem}
+\begin{proof}
+   See Exercise~\ref{exr:poly:bary}. 
+\end{proof}
+
+\subsubsection{Numerical stability of barycentric interpolation}
+%
+\label{sec:poly:barystab}
+%
+While the DFT is matrix multiplication with an othogonal matrix, and the FFT 
+an algorithm that even reduced the number of operations it is natural to 
+expect that these algorithms are numerically stable. By contrast, this is 
+not at all obvious {\it a priori} for the barycentric formula. We will therefore 
+spend a little time discussing this. 
+%
+To simplify this discussion we will only analyse the numerical stability 
+of the {\em first} barycentric formula \eqref{eq:poly:bary1}. Understanding 
+stability of the second barycentric formula is slightly more involved; 
+see \cite{Higham2004-fn} for the details. 
+
+We have to begin by explaining the standard model of floating point arithmetic. 
+Let $\otimes \in \{ +, -, *,  / \}$ be one of the standard four floating point 
+operations, then applying the operation $a \otimes b$  to two floating point
+numbers will give an error, which we express as 
+\[
+   {\rm fl}\b( a \otimes b \b) = (a\otimes b)(1+\delta),
+\]
+where $|\delta| \leq \eps$ and $\eps$ denotes machine precision (typically
+$10^{-6}$). That is, floating point arithmetic controls the {\em relative
+error}. For more on this topic, in particular additional subtleties that we are
+sweeping under the carpet here, see \cite{Higham2002-nk}.
+
+
+For example, consider the evaluation of an inner product of two vectors 
+${\bf a}, {\bf b} \in \R^2$, 
+\begin{align*}
+   \fl({\bf a} \cdot {\bf b})
+   &= \fl\b( \fl(a_1 b_1) + \fl(a_2b_2)\b) \\ 
+   &= \fl\b( a_1 b_1 (1+\delta_1) + a_2b_2 (1+\delta_2)) \\ 
+   &= \b( a_1 b_1 (1+\delta_1) + a_2b_2 (1+\delta_2))(1+\delta_3) \\ 
+   &= a_1 b_1 (1+\delta_1)(1+\delta_3)
+      + a_2b_2 (1+\delta_2)(1+\delta_3).
+\end{align*}
+Upon setting 
+\[
+   \tilde{a_1} = a_1 (1+\delta_1), \quad 
+   \tilde{b_1} = b_1 (1+\delta_3), \quad 
+   \tilde{a_2} = a_2 (1+\delta_2), \quad 
+   \tilde{b_2} = b_2 (1+\delta_3),
+\]
+we obtain 
+\[
+   \fl({\bf a} \cdot {\bf b}) = \tilde{\bf a} \cdot \tilde{\bf b},
+\]
+where $\|{\bf a} - \tilde{\bf a}\| = O(\eps)$ and $\|{\bf b} - \tilde{\bf b}\| =
+O(\eps)$. This is called {\em backward stability}: the numerically evaluated
+quantity is the exact quantity for an exact computation with perturbed data. 
+
+% As a second example we can consider 
+% \begin{align*}
+%    \fl\bg( \frac{f(x+h) - f(x)}{h} \bg)
+%    &= \frac{(f(x+h)(1+\delta_1) - f(x))(1+\delta_2)}{h} (1+\delta_3)  \\ 
+%    &= \frac{f(x+h) - f(x)}{h}(1+\delta_3) + 
+% \end{align*}
+
+We can now turn to the first barycentric formula. First we consider the 
+evalutation of a weight $\ell(x)$, 
+\begin{align}
+   \fl\B( \prod_{n=0}^N (x-x_n) \B) 
+   &= 
+   \fl\bg( \fl\bg( \prod_{n=0}^{N-1} (x-x_n)\bg) * \fl(x-x_N) \bg)  \\ 
+   &= 
+   \fl\bg( \prod_{n=0}^{N-1} (x-x_n)\bg) * (x-x_N) (1+\delta_{1}) (1+\delta_{2}),
+\end{align}
+and by induction 
+\begin{align}
+   \fl\bg( \prod_{n=0}^N (x-x_n) \bg) = 
+   \ell(x) \, \prod_{m = 1}^{2N+1} (1+\delta_m). 
+\end{align}
+The argument for $\lambda_j$ is of course analogous, hence we obtain
+with a little extra work:
+
+\begin{proposition} \label{th:poly:barystab}
+   Let 
+   \[
+      \tilde{p}_N(x) := \fl\bg( \ell(x) \sum_{j = 0}^N \frac{\lambda_j}{x - x_j} \bg)
+   \]
+   be the numerically evaluated polynomial in the standard model of 
+   floating point arithmetic, then 
+   \[
+      \tilde{p}_N(x) = 
+      \ell(x) \sum_{j = 0}^N \frac{\lambda_j f_j}{x - x_j}
+      \prod_{m = 1}^{5N+5} (1+\delta_{jm}).
+   \]
+\end{proposition}
+\begin{proof}
+   This is a straightforward continuation of the calculations above. 
+\end{proof}
+
+The key point of \Cref{th:poly:barystab} is that this is a {\em backward
+stability} result, i.e., let $\tilde{f}_j = f_j\prod_{m = 1}^{5N+5}
+(1+\delta_{jm})$, then $\hat{p}_N$ is interpolates the values $\tilde{f}_j$. 
+In particular, the error in the floating point polynomial $\hat{p}_N(x)$ 
+is no larger than if we had small errors in the nodal values $f_j$, which 
+we will normally have anyhow. 
+
+Finally, for the second barycentric formula, the numerical stability result is
+weaker, but one can still show that for interpolation nodes with moderate
+Lebesgue constant, and reasonable functions $f$ that we are interpolating, the
+numerical stability is of no concern; see \cite{Higham2004-fn} for more details.
+
+
+
+\subsection{Applications}
+
+\begin{itemize}
+   \item spectral methods; see Sec 21 in Tref book
+   \item computation of a special function?
+   \item Approximating a Matrix function
+   \item Chebyshev filtering 
+   \item conjugate gradients 
+\end{itemize}
+
+\subsection{Exercises}
+%
+% IDEAS FOR COMPUTATIONAL EXERCISES: 
+% - test instability of Vandermonde interpolation 
+% - super-exponential convergence for e^x
+%   http://www.chebfun.org/examples/approx/EntireBound.html
+
+
+% \begin{exercise}
+%    \label{exr:poly:vandermonde}
+%    The seemingly ``canonical'' approach to constructing a polynomial interpolant
+%    in the monomial basis is via the linear system 
+%    \[
+%       c_0 + c_1 x_j + c_2 x_j^2 + \cdots + c_N x_j^N = f_j.
+%    \]
+%    The system matrix $V = (x_j^n)_{j,n=0}^N$ is called a {\em Vandermonde matrix}. 
+   
+%    1. Suppose we take $x_j$ to be equispaced points on the complex unit circle, 
+%    i.e., $x_j = e^{i2\pi j/N}$, $j = 0, \dots, N-1$ (i.e., $N \to N-1$!, then 
+%    show that $V$ is the discrete Fourier transform operator, in particular it 
+%    is unitary (up to rescaling) and thus has condition number $\kappa(V) = 1$.
+
+%    2. 
+
+%    Show that 
+
+   
+%    \alert{condition number of the Vandermonde matrix}.
+% \end{exercise}
+
+\begin{exercise}[Clenshaw's Algorithm]
+   %
+   \label{exr:poly:clenshaw}
+   %
+   Let $p \in \Poly_N$ be given in the Chebyshev basis and let $x \in [-1,1]$. 
+   Show that $p(x)$ can be evaluated by Clenshaw's algorithm:
+   \begin{align*}
+      & u_{N+1} = 0, \qquad u_N = \tilde{f}_N; \\ 
+      & u_n = 2 x u_{n+1} - u_{n+2} + \tilde{f}_n, n = N-1, N-2, \dots, 0; \\ 
+      & p(x) = \smfrac12 \b( \tilde{f}_0 + u_0 - u_2).
+   \end{align*}
+\end{exercise}
+
+\begin{exercise}[Orthogonality of $T_k$]
+   Consider the weighted space 
+   \begin{align*}
+      L^2_C &:= \b\{ f : (-1,1) \to \R, \text{ measurable, } 
+            \|f\|_{L^2_C} < \infty \b\}, \qquad 
+            \text{where} \\  
+      \|f\|_{L^2_C}^2 &:= \int_{-1}^1 \frac{|f|^2}{1 - x^2} \,dx.
+   \end{align*}
+   Prove that $L^2_C$ is a Hilbert space and show that the Chebyshev 
+   polynomials are (up to scaling) and orthonormal basis of this space. 
+
+   Thus, conclude that the Chebyshev projection $\tilde\Pi_N$ is in fact that 
+   best-approximation with respect to the $\|\cdot\|_{L^2_C}$-norm. 
+\end{exercise}
+
+\begin{exercise}[Bernstein Ellipse] Prove that the Bernstein Ellipse $E_\rho$,
+   $\rho > 1$ is indeed an ellipse with centre $z = 0$, foci $\pm 1$, semi-major
+   axis $\frac12 (\rho+\rho^{-1})$ and semi-minor axis $\frac12
+   (\rho-\rho^{-1})$.
+\end{exercise}
+
+
+
+\begin{exercise}[Convergence Bounds]
+   \label{exr:poly:convergence}
+   \begin{enumerate} \ilist
+   \item Complete the proof of \eqref{eq:poly:interperror} by proving
+      \[
+         \| I_N \|_{L(L^\infty)} \leq C \log N,
+      \]
+      where $I_N$ is the Chebyshev nodal interpolation operator.
+
+   \item In preparation for the proofs of the best approximation error estimates
+      for differentiable (non-analytic) functions, prove that, if $f \in
+      C([-1,1])$ with modulus of continuity $\omega$, then $g \in C(\TT)$ and it
+      has the same modulus of continuity.
+
+   \item Prove that \alert{next theorem, first case}
+
+   \item prove the $f' / f$ error estimate improvement; does this even work here?
+   Yes, and this is where the $N (N-1) \cdots$ comes from.
+
+   \item Prove the general $C^{j,\omega}$ theorem.
+   \end{enumerate}
+\end{exercise}
+
+
+\begin{exercise}[Barycentric Chebyshev Interpolation]
+   %
+   \label{exr:poly:bary}
+   %
+   Let $x_j$ be the Chebyshev points on $[-1,1]$.
+   \begin{enumerate} \ilist
+   \item In general (not only for Chebyshev points), demonstrate that $\lambda_j
+      = 1 / \ell'(x_j)$.
+   \item Use the recursion formula (or otherwise) to prove that the 
+   node polynomial satisfies 
+   \[
+      \ell(x) = 2^{-N} \b(T_{N+1}(x) - T_{N-1}(x)\b)
+   \]
+   \item Show that 
+   \[
+      T_{N+1}'(x_j) - T_{N-1}'(x_j) = 
+      \cases{ 
+         2N(-1)^j, & 1 \leq j \leq N-1, \\
+         4N(-1)^j, & j = 0, N.
+      }
+   \]
+   \item Deduce that, if $\lambda_j$ is given by \eqref{eq:poly:bary_weights}, then 
+   \[
+      \lambda_j = \frac{2^{N-1}}{N} (-1)^j, \qquad j = 1, \dots, N-1,
+   \]
+   and suitably adjusted for $j = 0, N$. Deduce that we can rescale the weights
+   $\lambda_j$ without changing the validity of the barycentric formula, and
+   hence complete the proof of Theorem~\ref{th:poly:barycheb}.
+   \qedhere
+   \end{enumerate}
+\end{exercise}
+
+\begin{itemize}
+\item KPM??? seems a bit strange
+\item Runge Phenomenon
+\item Convergence acceleration
+\end{itemize}

@@ -1,0 +1,266 @@
+% - review of background, in particular function spaces, regularity of functions
+% Part 1: univariate approximation
+% - spline approximation of smooth functions in 1D
+% - polynomial and trigonometric approximation of analytic functions in 1D
+% - linear best approximation
+% - best n-term approximation (to be decided whether feasible)
+% - multi-variate approximation by tensor products (low dimension)
+% Part 2: Multi-variate approximation: cover a selection of the following:
+% - mixed regularity, splines and sparse grids, Smolyak algorithm
+% - radial basis functions and Gaussian processes
+% - ridge functions and neural networks
+% - compressed sensing and best n-term approximation
+%
+% Throughout the lecture each topic will cover (1) approximation rates, (2) algorithms, and (3) examples.
+
+% Approximation Theory and Methods, M. J. D. Powell
+% Approximation Theory and Approximation Practice, N. Trefethen
+% A course in approximation theory, E.W.Cheney and W.A.Light
+% Nonlinear approximation, R. DeVore  (Acta Numerica)
+
+
+
+\documentclass[a4paper, 11pt, reqno]{article}
+\usepackage{graphicx, epsfig, psfrag}
+\usepackage{amsfonts,amsmath,amssymb} % ,wasysym,amsbsy
+\usepackage[left=0.5cm,right=5.5cm,top=3cm,bottom=3cm]{geometry}
+% \usepackage[left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{theorem}
+\usepackage{color}
+\usepackage{subfigure}
+\usepackage{mathrsfs}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{cleveref}
+\usepackage{ams_proof}
+% \usepackage{showkeys}
+\usepackage{showlabels}
+
+% \usepackage{minted}
+
+
+\sloppy
+\frenchspacing
+
+\numberwithin{equation}{section}
+
+\newcommand{\examnote}[1]{{\color{red} \it [\![ #1 ]\!]}}
+\newcommand{\examrem}[1]{ \examnote{ removed non-examinable section }
+}
+% \newcommand{\examnote}[1]{}
+\def\notexam{{\color{red} \bf (NE) }}
+
+
+
+\newcommand{\alert}[1]{{\color{red} \it $\{$ #1 $\}$}}
+
+\def\nbintro{{\tt [Notebook 01]}}
+\def\nbtrig{{\tt [Notebook 02]}}
+\def\nbpoly{{\tt [Notebook 03]}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREM-STYLE-ENVIRONMENTS %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcounter{theorem}
+\numberwithin{theorem}{section}
+\def\openthm#1#2{\refstepcounter{theorem}\bigskip
+{\noindent\bf#1~\thetheorem\if#2!{. }\else{ (#2).}\fi}
+\it}
+\def\thmskip{}
+\newenvironment{theorem}[1][!]{\openthm{Theorem}{#1}}{\thmskip}
+\newenvironment{lemma}[1][!]{\openthm{Lemma}{#1}}{\thmskip}
+\newenvironment{corollary}[1][!]{\openthm{Corollary}{#1}}{\thmskip}
+\newenvironment{proposition}[1][!]{\openthm{Proposition}{#1}}{\thmskip}
+\newenvironment{definition}[1][!]{\openthm{Definition}{#1}}{\thmskip}
+\newenvironment{axiom}[1][!]{\openthm{Axiom}{#1}}{\thmskip}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% REMARK-STYLE-ENVIRONMENTS %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\openrem#1#2{\refstepcounter{theorem}\bigskip
+{\noindent\it\bfseries#1~\thetheorem\if#2!{. }\else{ (#2). }\fi} }
+\newenvironment{remark}[1][!]{\pushQED{\qed}
+  \openrem{Remark}{#1}}{\popQED \medskip}
+\newenvironment{example}[1][!]{\pushQED{\qed}
+  \openrem{Example}{#1}}{\popQED \medskip}
+
+
+\newcounter{exercise} \numberwithin{exercise}{section}
+\def\openex#1#2{\refstepcounter{exercise}\medskip \noindent
+  {\it\bfseries#1~\theexercise\if#2!{. }\else{ (#2). }\fi} }
+\newenvironment{exercise}[1][!]{\pushQED{\qed}\openex{Exercise}{#1}}{\popQED
+\medskip}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%    LISTS              %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\alist{\renewcommand{\labelenumi}{(\alph{enumi})}}
+\def\ilist{\renewcommand{\labelenumi}{(\roman{enumi})}}
+\def\deflist{\renewcommand{\labelenumi}{\arabic{enumi}.}}
+
+\newenvironment{longilist} %
+{\begin{list}{\hspace{1.4cm}{\it (\roman{enumi})}}{ %
+      \usecounter{enumi} %
+      \setlength{\leftmargin}{0mm} %
+      \setlength{\rightmargin}{0mm} %
+      \setlength{\listparindent}{\parindent}}
+  } %
+  {\end{list}} %
+
+
+
+\input notation.tex
+
+
+
+\begin{document}
+
+\begin{center}
+  \hfill \\[4cm]
+  {\Large \bf MA3J8} \\[1mm]
+  {\Large \bf Approximation Theory and Applications} \\[4mm]
+  {\large Christoph Ortner} \\
+  {\small \tt c.ortner@warwick.ac.uk} \\
+  {\small Zeeman Building, University of Warwick, Coventry CV4 7AL, UK} \\[4mm]
+  {\today}
+\end{center}
+
+\clearpage
+\quad
+\clearpage
+
+\tableofcontents
+
+\clearpage
+\input{intro.tex}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% PART I %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\vspace{5cm}
+
+{\huge Part I: Univariate Approximation}
+
+\clearpage
+\input{trig.tex}
+
+\clearpage
+\input{polys.tex}
+
+\clearpage
+\input{splines.tex}
+
+\clearpage
+\input{nonlin.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{alpha}
+\bibliography{apxthy}
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+\subsection{Rational Approximation by Example}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+
+
+\clearpage
+
+\section{Splines}
+
+\clearpage
+
+
+
+
+
+\section{Approximation with Tensor Products}
+
+
+
+\section{Fitting}
+
+\subsection{Least Squares}
+
+\subsection{Greedy Algorithms}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% PART II %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\vspace{5cm}
+
+{\huge Part II: Topics in Multivariate Approximation}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Sparse Grids and Tensor Networks}
+
+
+\section{Radial Basis Functions and GPs}
+
+
+\section{Ridge Functions and Neural Networks}
+
+
+
+
+% Exam Ideas:
+% - Q1: basic facts about Part I
+% - Qx: Something about the Fejer Kernel:
+%   https://en.wikipedia.org/wiki/Fejér_kernel
+% - spectral differentiation
+% - barycentric formula for trig interp
+
+
+% \begin{exercise}[Piecewise Smooth Functions] \label{exr:trig:pwsmooth}
+%   In this exercise we will develop an $L^2$-error estimate for
+%   piecewise smooth functions.
+%   \begin{enumerate} \ilist
+%     \item Let $g(x) := \sin(x/2)$, continued periodically. With a similar
+%     argument as in the previous exercise prove that
+%       $\|g - \Pi_N g \|_{L^2} \lesssim N^{-1/2}$.
+%     %
+%     \item Let $f \in C^{p-1}(\TT)$ with $f^(p-1)$ piecewise $C^{\infty}$
+%     (technically, $C^{p,1}$ suffices) with finitely many points $\{x_j\}_{j=1}^J
+%     \subset (-\pi, \pi]$ where $f^{(p)}$ jumps. Prove that there exist
+%     $a_j \in \C$ such that
+%     \[
+%       f(x) - \sum_{j = 1}^J g(x - x_j) \in C^{p,1}(\TT).
+%     \]
+%     %
+%     \item Deduce that
+%     \[
+%         \|f - \Pi_N f \|_{L^2} \lesssim N^{-p-1/2}. \qedhere
+%     \]
+%   \end{enumerate}
+% \end{exercise}

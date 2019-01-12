@@ -1,0 +1,508 @@
+% !TeX root = ./apxthy.tex
+
+\section{Introduction}
+%
+\label{sec:intro}
+%
+\begin{quote}
+In mathematics, approximation theory is concerned with how functions can best be
+approximated with simpler functions, and with quantitatively characterizing the
+errors introduced thereby. Note that what is meant by best and simpler will
+depend on the application. (Wikipedia)
+\end{quote}
+
+Approximation theory underpins much of numerical computation and arises also  in
+several other branches of mathematics. It is one of the most mature disciplines
+of computational mathematics, to the extent that is often treated as a
+sub-discipline of pure mathematics. This module takes a more computational
+perspective. While it still focuses primarily on mathematics and theory, the
+choice of material is with an eye to applications in numerical simulation and
+data science rather than purely for its own sake. The theory will be
+supplemented with numerical examples and it will allow us to explain what we
+observe numerically. We will often sacrifice optimality of the results for
+simplicity and to obtain good intuitions.
+
+The first question is to address what we mean by ``simple functions''. Briefly,
+we mean functions that are efficient and accurate (numerical stability!) to
+evaluate in (typically) floating point arithmetic on a modern processor. This
+simple  observation already shows that approximation theory cannot be detached
+from numerical analysis and computer simulation. In Part I we will focus on
+trigonometric polynomials ($\cos nx$, $\sin nx$), algebraic polynomials ($x^n$)
+and splines (piecewise algebraic polynomials). In some PDEs but in particular in
+data science the approximation problems are often high-dimensional; we will
+explore some examples in Part II of this module.
+
+
+Motivation / Applications:
+\begin{itemize}
+  \item Solving differential and integral equations
+  \item machine learning, data-driven modelling, data assembly: The recent
+  explosion in machine learning has given the field a new boost; indeed, many
+  machine learning problems can be interpreted as approximation problems.
+\end{itemize}
+
+
+Themes:
+\begin{enumerate}
+\item Approximation spaces: what are ``good'' functions that we can combine
+    to approximate general functions well.
+  \begin{itemize}
+    \item Global approximation: trigonometric and algebraic  polynomials
+    \item Piecewise approximation: splines
+    \item Ridge functions
+    \item Radial basis functions
+    \item sparse grids
+  \end{itemize}
+
+\item Algorithms, constructive approximation:
+  \begin{itemize}
+    \item best approximation, projection
+    \item interpolation
+    \item kernel methods
+    \item least squares
+    \item adaptive grids
+  \end{itemize}
+
+\item Miscellaneous
+  \begin{itemize}
+    \item Regularity
+    \item Numerical stability
+    \item Curse of dimensionality
+  \end{itemize}
+\end{enumerate}
+
+
+\subsection{Literature \& Acknowledgements}
+%
+\label{sec:acknowledgements}
+%
+Section~\ref{sec:trig} is largely based on random online available lecture notes
+but partly motivated by \cite{Trefethen2000-fr,Trefethen2013-rg}.
+
+Section~\ref{sec:poly} largely follows \cite{Trefethen2013-rg}, adding only the
+Chebyshev transform and Jackson's theorem which are natural consequences of the
+material on trigonometric approximation. The book \cite{Trefethen2013-rg} is
+available for free online at 
+\begin{quote}
+  {\tt http://www.chebfun.org/ATAP/}
+\end{quote}
+
+The section on splines is fairly standard material, but is based to some extend
+on the classical text \cite{Powell1981-bg}.
+
+Exercises are partly based on gaps in the lecture material, partly adapted from
+these references.
+
+All of these texts are good references for further reading.
+
+\section{Preliminaries}
+%
+\label{sec:prelims}
+%
+
+\subsection{Abstract Approximation Problems}
+%
+We are concerned with approximating specific functions given to us, or classes
+of functions with specific properties, such as some given regularity,
+periodicity, symmetries, etc. To study generic approximation schemes it is
+therefore useful to begin by specifying a class $Y \subset X$ of functions of
+interest. Typically $X$ will be an infinite-dimensional linear space,  and $Y$
+an infinite-dimensional non-trivial subset of $X$. $X$ will be endowed with
+a notion of distance $d$. We will later always assume this is given by a norm,
+but this is not important for now.
+
+In linear approximation (which is what most of this module is about)
+we are given a set $B_N \subset X$, consisting of $N$ linearly independent
+{\em basis functions}. Given some $f \in Y$ we then wish to find
+an approximation to $f$ from ${\rm span} B_N =: Y_N$.
+
+Fundamental questions/problem arising in this are, e.g.,
+\begin{itemize}
+\item Convergence: $\inf_{p \in Y_N} d(p, f) \to 0$ as $N \to \infty$
+\item Best approximation: Find $p_N \in Y_N$ such that $d(p_N, f)$ is minimal.
+\item Approximation to within some tolerance: given $\tau > 0$ find $N$ (minimal?)
+  and $p_N \in Y_N$ such that $d(p_N, f) < \tau$.
+\item Rates of approximation: $\inf_{p \in Y_N} d(p, f) \leq \epsilon_N$
+  and characterise the rate, possibly uniformly for all $f \in Y$
+\item Construction of approximations: Given $f$ give an algorithm to
+  construct an approximation $p_N$ e.g., the best approximant.
+\item Evaluation: efficient and numerically stable construction and
+  evaluation of $p_N$.
+\end{itemize}
+
+In the exercises of Section~\ref{sec:prelims} we will collect a few basic
+examples and generic facts.
+
+\subsection{Basics}
+%
+In this section we briefly review some fact from analysis and linear algebra,
+and most importantly, complex analysis.
+
+\subsubsection{$\R^N$}
+%
+The majority of the analysis in this module is for general
+$N$-dimensional systems of ODEs. We will use the structure of $\R^N$
+as a vector space, supplied with the Euclidean norm and inner product
+\begin{displaymath}
+  x \cdot y := x^T y = \sum_{i = 1}^N x_i y_i, \quad \text{and} \quad
+  |x| := \sqrt{x \cdot x}
+\end{displaymath}
+Key inequalities that we will use on a regular basis are the {\em
+  triangle inequality}
+\begin{equation}
+  \label{eq:triangle_ineq}
+  |x + y| \leq |x| + |y| \qquad \text{ for } x, y \in \R^N,
+\end{equation}
+the {\em Cauchy--Schwarz inequality}
+\begin{equation}
+  \label{eq:cauchyschwarz_ineq}
+  |x \cdot y| \leq |x| |y| \qquad \text{ for } x, y \in \R^N,
+\end{equation}
+and  {\em Cauchy's inequalities},
+\begin{align}
+  \label{eq:cauchy_ineq}
+  a b &\leq \smfrac12 a^2 + \smfrac12 b^2 \qquad \text{ for } a, b \in
+  \R, \\
+  \label{eq:cauchy_eps_ineq}
+  a b &\leq \smfrac\eps{2} a^2 + \smfrac1{2\eps} b^2 \qquad \text{ for
+  } a, b \in \R, \eps > 0.
+\end{align}
+
+
+\subsubsection{Smooth functions}
+%
+Recall from the introductory analysis modules the definitions of
+continuous functions and of uniform convergence. Here, we define the
+spaces, for an interval $D \subset \R$,
+\begin{align*}
+  C(D) &:= \b\{ f : D \to \R \bsep f \text{ is continuous on } D \b\}
+\end{align*}
+If $D$ is compact ($D = [a, b]$ for $a, b \in \R$), then $C(D)$
+is {\em complete} when equipped with the sup-norm
+\begin{align*}
+  \| f \|_{\infty} := \|f\|_{L^\infty} := \|f\|_{L^\infty(D)} := \sup_{x \in D} |f(x)|.
+\end{align*}
+We will more typically write $\|f\|_\infty$ if it is clear over which set the
+supremum is taken. Note also that $D$ need not be compact in the
+definition of $\|\cdot\|_{\infty, D}$.
+
+Moreover, we define the spaces of $j$ times continuously differentiable functions
+\[
+  C^j(D) := \b\{ f : D \to \R \bsep f \text{ is $j$ times continuously
+                differentiable on } D \b\},
+\]
+and the associated norms
+\[
+   \|f \|_{C^j} :=  \|f \|_{C^j(D)} :=
+    \max_{n = 0, \dots j} \| f^{(n)} \|_{\infty, D},
+\]
+where $f^{(n)}$ denotes the $n$th derivative.
+
+We also define $C^\infty(D) := \bigcup_{j > 0} C^j(D)$.
+
+We say $f : D \to \R$ is H\"{o}lder continuous if there exists $\sigma \in (0, 1]$
+such that
+\[
+    |f(x) - f(x')| \leq C |x - x'|^\sigma \qquad \forall x, x' \in D.
+\]
+The associated space is denoted by $C^{0,\sigma}$. If $\sigma = 1$ then
+we call $f$ {\em Lipschitz continuous}. Further, we define the space
+$C^{j,\sigma}(D) := \{ u \in C^j(D) \sep u^{(j)} \in C^{0,\sigma}(D)\}$.
+
+The right-hand side in the definition of H\"{o}lder  continuity is 
+a special case of a {\em modulus of continuity}. We say that $f \in C([a,b])$ has a 
+{\em modulus of continuity} $\omega : [0, \infty) \to \R$ if 
+$\omega$ is monotonically increasing, $\omega(r) \to 0$ as $r \to 0$ and 
+\[
+  |f(x) - f(x')| \leq \omega(|x-x'|) \qquad \forall x, x' \in [a,b].
+\]
+
+
+\subsubsection{Integrable functions}
+%
+Sometimes it will be convenient to consider measurable functions, and
+for the sake of precision we briefly review the relevant definitions.
+For $D = (a, b)$ an interval and $f : D \to \R$ measurable (i.e.,
+$f^{-1}(B)$ is a Lebesgue set whenever $B$ is a Lebesgue set), we define
+\[
+    \| f \|_{L^p} := \|f \|_{L^p(D)} :=
+      \left(\int_D |f|^p \,dx\right)^{1/p}, \qquad 1 \leq p < \infty,
+\]
+and
+\[
+    \|f\|_{L^\infty} := \|f\|_{L^\infty(D)} :=
+    {\rm ess.}\sup_{x \in D} |f(x)|.
+\]
+Finally, we define the spaces
+\[
+  L^p(D) := \big\{ f : D \to \R \bsep \text{$f$ is measureable
+                  and $\|f\|_{L^p(D)} < \infty$} \b\}.
+\]
+
+% \alert{Introduce $\AC$??? Not if we can avoid it.}
+
+\subsubsection{Normed Spaces and Hilbert spaces}
+%
+A tuple $(X, \|\cdot\|)$ is called a normed space or normed vector space if
+it is a linear space over the field $\mathbb{F}$ and
+$\|\cdot\| : X \to \R$ defines a norm, i.e., for all $f, g \in X, \lambda \in \mathbb{F}$
+\begin{itemize}
+  \item $\|f + \lambda g\| \leq \|f\| + |\lambda| \|g\|$
+  \item $\|f\| \geq 0$ and $\|f\| = 0$ iff $f = 0$.
+\end{itemize}
+$X$ is called a Banach space if it is complete (i.e. all Cauchy sequences
+in $X$ have a limit in $X$).
+
+If $D$ is compact then the spaces $(C^j, \|\cdot\|_{C^j})$ and
+$(L^p, \|\cdot\|_{L^p})$ are Banach spaces. $C^{j,\sigma}$ may also be made
+into Banach spaces, though we won't need this.
+
+A tuple $(X, \<\cdot, \cdot\>)$ is called a Hilbert space over $\mathbb{F} \in
+\{\R, \C\}$ if the following conditions are satisfied:
+\begin{itemize}
+  \item $X$ is a linear vector space
+  \item $\<\cdot, \cdot\> : X \times X \to \mathbb{F}$ is an inner product, i.e.,
+  for all $f, g, h \in X, \lambda \in \mathbb{F}$ we have
+  \begin{itemize}
+      \item $\<f, g\> = \overline{\< g, f\>}$
+      \item $\< f + \lambda g, h \> = \<f, h \> + \lambda \< g, h \>$
+      \item $\< f, f \> \geq 0$
+      \item $\< f,f \> = 0$ iff. $f = 0$.
+  \end{itemize}
+  \item $X$ is complete under the norm $\|f\| := \<f,f\>^{1/2}$.
+\end{itemize}
+
+The most common example we will encounter are $L^2$-type spaces. In particular,
+if $D$ is an interval (or in fact any measurable set), then $L^2(D)$ equipped
+with the inner product
+\[
+  \< f, g \>_{L^2} := \int_D f \overline{g} \,dx
+\]
+is a Hilbert space.
+
+% avoid $H^k$, $H^s$??? Or make this an exercise???
+
+
+\subsection{Analytic functions}
+%
+A proper study of analytic functions requires far more time than we have
+available. But some basics will suffice for the most important ideas.
+To save time (and unfortunately skip some beautiful structures of
+complex numbers) we will work exclusively with the definitions via power
+series.
+
+Recall therefore that each power series
+\[
+    \sum_{n = 0}^\infty c_n (z - z_0)^n
+\]
+has a radius of convergence
+\[
+    r = \frac{1}{\limsup_{n \to \infty} \sqrt[n]{|c_n|}}
+\]
+
+\begin{definition}
+  Let $D \subset \C$ be open and $f : D \to \C$. We say that $f$ is
+  analytic at a point $z_0 \in D$ if there exists a power series
+  $\sum_{n = 0}^\infty c_n (z - z_0)^n$ with  positive radius
+  of convergence $r > 0$ such that
+  \[
+    f(z) = \sum_{n = 0}^\infty c_n (z - z_0)^n \qquad \forall
+    z \in D, |z - z_0| < r.
+  \]
+  We say $f$ is analytic in $D$ if it is analytic in each point
+  $z_0 \in D$.
+\end{definition}
+
+We will need two simple concepts around analytic functions: (1) continuations;
+and (2) path integrals. We will formulate simplified versions that are
+sufficient for our purposes and only give rough ideas of the proofs
+in the lectures (these are not contained in these lecture notes).
+
+\begin{proposition}[Analytic Continuation]
+  \begin{enumerate} \ilist
+    %
+    \item Let $D \subset \C$ be open, $f : D \to \C$ and let $D' \subset D$ be the
+    set of points in which $f$ is analytic. Then $D'$ is open.
+    %
+    \item Let $D' \subset D \subset \C$, with $D$ open and connected and $D'$
+    contains a line segment $\{(1-t) z_0 + t z_1 | t \in [0,1] \}$ with $z_0
+    \neq z_1$. Let $f : D' \to \C$ be analytic and let $f_1, f_2 : D \to \C$ be
+    two analytic continuations of $f$ to $D$ i.e., $f_j$ are analytic on $D$ and
+    $f_j = f$ on $D'$. Then, $f_1 = f_2$.
+
+    (Note: this result can be significantly generalised.)
+    %
+    \item Let $f \in A([a, b])$ then there exists $D \supset [a,b]$ open in $\C$
+    such that $f$ can be uniquely extended to a function $f \in A(D)$.
+  \end{enumerate}
+\end{proposition}
+
+\def\calC{\mathcal{C}}
+
+Concerning path integrals, let $\calC$ be a continuous and piecewise smooth
+oriented  curve in $\C$, i.e., we identify $\calC$ with a parametrisation $(\zeta(t))_{t \in [0, 1]}$
+\[
+    \int_{\calC} f(z) \, dz := \int_{t = 0}^1 f(\zeta(t)) \zeta'(t) \, dt.
+\]
+Note that this definition makes sense even if $\zeta$ is not $C^1$, but
+only piecewise $C^1$ (with finitely many pieces!).
+
+If $\calC$ is a Jordan curve (simple and closed), then we assume that the orientation is counter-clockwise and we will write
+\[
+    \oint_{\calC} f(z) \,dz := \int_{\calC} f(z) \, dz
+    = \int_{t = 0}^1 f(\zeta(t)) \zeta'(t) \, dt
+\]
+for this {\em contour integral}.
+
+\begin{proposition}[Cauchy's Integral Theorem]
+  Let $D \subset \C$ be simply connected, $f$ analytic in $D$ and
+    $\calC \subset D$ a Jordan curve, then
+    \[
+        \oint_{\calC} f(z) \, dz = 0.
+    \]
+    %
+\end{proposition}
+
+
+
+\subsection{Exercises}
+
+\begin{exercise}[Best Approximations]
+  \label{exr:prelims:bestapprox}
+  \begin{enumerate} \ilist
+  \item Let $X$ be a vector space endowed with a norm $\|\cdot\|$,
+  $X_N \subset X$ with ${\rm dim} X_N = N < \infty$ and let
+  $Y_N \subset X_N$ be closed. (E.g. $Y_N=X_N$ is admissible.)
+  Prove that for all $f \in X$ there exists a best approximation
+  $p_N \in Y_N$, i.e.,
+  \[
+    \| p_N - f \|  = \inf_{y_N \in Y_N} \|y_N - f\|.
+  \]
+
+  \item Suppose $\|\cdot\|$ is strictly convex, i.e., for $f_0, f_1 \in X, \lambda \in (0, 1)$,
+  \[
+    \| (1-\lambda) f_0 + \lambda f_1 \| \leq (1-\lambda) \|f_0\| + \lambda \|f_1 \|
+  \]
+  with equality if and only if $f_0 \propto f_1$. Suppose also that $Y_N$ is
+  convex. Under these two conditions prove that the best approximation from (i)
+  is unique.
+
+  \item Suppose that the {\em best approximation operator}
+    $\Pi_N : f \mapsto p_N$ where $p_N$ is the unique best approximation to $f$
+    is well-defined (e.g. in the setting of (ii)). Prove that $\Pi_N : X \to
+    Y_N$ is continuous.
+  \end{enumerate}
+\end{exercise}
+
+\begin{exercise}[Best Approx. in max-norms]
+  \label{exr:prelims:bestapprox_maxnorms}
+  \begin{enumerate}\ilist
+  \item Consider $X = \R^2$ equipped with the $\ell^\infty$-norm. Show that
+  this norm is {\em not} strictly convex. Consider the best approximation
+  from $Y_N := \{ x \in \R^2 | |x|_\infty \leq 1 \}$. Show that
+  \begin{itemize}
+    \item $f = (2, 0)$, then the best-approximation is non-unique.
+    \item $f = (2,2)$, then the best-approximation is unique.
+  \end{itemize}
+
+  \item Now consider $X = C([-1,1])$ and
+  \[
+    X_0 = Y_0 = \{ x \mapsto a | a \in \R \}
+  \]
+  i.e., approximation by constant functions. Prove that $\|\cdot\|_C =
+  \|\cdot\|_{L^\infty}$ is {\em not} strictly convex, but nevertheless the best
+  approximation problem for $Y_0, Y_1$ has a unique solution.
+
+  {\it Hint: An easy way to see this is that $X_0$ is one-dimensional hence,
+  any norm is strictly convex on $X_0$. But an alternative way to prove this is
+  to simply construct the best approximation operator explicitly, which also
+  helps with (iii).}
+
+  \item {Bonus: } Now carry out (ii) for
+  \[
+      X_1 = Y_1 = \{ x \mapsto a + bx | a,b \in \R \},
+  \]
+  i.e., best approximation by affine functions.
+
+  {\it Hint: One can still ``guess'' from geometric intuition an explicit characterisation of the
+  best approximation operator by first choosing $b$ and then $a$. Then prove
+  that $\|f - (a+bx)\|_\infty$ is attained at three points $x_1 < x_2 < x_3$.
+  This can be used to prove uniqueness of the best approximation.
+
+  This proof is not entirely trivial (at least I don't see a simple way to
+  prove it) and we will revisit this in \S~\ref{sec:poly}.
+  } \qedhere
+  \end{enumerate}
+\end{exercise}
+
+\begin{exercise}[Best Approximation in a Hilbert Space]
+  \label{exr:prelims:bestapprox_hilbert}
+  Let $X$ be a Hilbert space with inner product $\<\cdot,\cdot\>$ and
+  $Y_N = X_N \subset X$ an $N$-dimensional subspace.
+  \begin{enumerate} \ilist
+  \item Show that the best approximation $p_N$ of $f \in X$ in $X_N$ is characterised
+    by the variational equation
+    \[
+         \< p_N, u \> = \< f, u \> \qquad \forall u \in X_N.
+    \]
+    Show that this has a unique solution.
+
+    \item Let $\Pi_N f = p_N$ denote the best approximation operator. Show
+    that it is an orthogonal projection.
+
+    \item Deduce that
+    \[
+        \| f - \Pi_N f \|^2 = \|f\|^2 - \| \Pi_N f \|^2.
+    \]
+
+    \item {\bf Linear Approximation: }  Let $\{ e_j \}_{j \in \N}$ be an
+    orthonormal basis of $X$, i.e., $\<e_j, e_n \> = \delta_{jn}$ and ${\rm
+    clos}{\rm span}\{e_j\}_j = X$. Let $X_N := {\rm space}\{e_1, \dots, e_N\}$,
+    \[
+        \Pi_N f = \sum_{j = 1}^N \< f, e_j \> e_j. \qedhere
+    \]
+  \end{enumerate}
+\end{exercise}
+
+
+\begin{exercise} \label{exr:prelims:inequalities}
+  \begin{enumerate} \ilist
+  \item Prove \eqref{eq:cauchy_ineq} and
+  \eqref{eq:cauchy_eps_ineq}.
+  \item Use \eqref{eq:cauchy_ineq} to prove
+  \eqref{eq:cauchyschwarz_ineq}.
+  \item Use \eqref{eq:cauchyschwarz_ineq} to prove \eqref{eq:triangle_ineq}.
+  \qedhere
+  \end{enumerate}
+\end{exercise}
+
+
+\begin{exercise}   \label{exr:prelims:functions}
+  For the following functions $f$, specify to which of the following
+  spaces they belong: $C^{j,\sigma}([-1,1])$ (specify $j$ and $\sigma$),
+  $C^\infty([-1,1])$, $A([-1,1])$, $L^p(-1,1)$. No rigorous proofs are
+  required.
+  %
+  \begin{enumerate} \ilist
+    \item $f(x) = x^n$, $n \in \N$
+    \item $f(x) = |x|$
+    \item $f(x) = |x|^{3}$
+    \item $f(x) = |x|^{3/2}$
+    \item $f(x) = (1+x^2)^{-1}$
+    \item $f(x) = \exp( - 1 / (1/2-x) ) \chi_{[-1,1/2)}(x)$
+    \item $f(x) = e^{-x^2}$
+    \item $f(x) = \cos(1.23 x)$ \qedhere
+  \end{enumerate}
+\end{exercise}
+
+\begin{exercise} \label{exr:prelims:extensions}
+  Construct the analytic extensions of the following functions
+  to a maximal set $D$ in  the complex plane, which you should specify:
+  \begin{enumerate} \ilist
+    \item $f(x) = e^{-x^2}$ on $\R$
+    \item $f(x) = (1+x^2)^{-1}$ on $\R$
+    \item $f(x) = \sum_{j = 0}^\infty x^j$ for $x \in (-1,1)$
+    \item $f(x) = \int_0^\infty e^{-t (1-x)} \,dt$ for $x < 1$
+  \end{enumerate}
+\end{exercise}
+

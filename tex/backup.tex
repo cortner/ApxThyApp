@@ -1,0 +1,540 @@
+\subsubsection{Review of matrix norms}
+%
+\label{sec:matrix_norms}
+%
+Given a matrix $A \in \R^{N \times M}$, we define its {\em operator
+  norm}
+\begin{equation}
+  \label{eq:defn_matrix_norm}
+  \| A \| := \sup_{\substack{h \in \R^N \\ |h| = 1}} |A h| = \sup_{h
+    \in \R^N \setminus \{0\}} \frac{|Ah|}{|h|}.
+\end{equation}
+
+\begin{proposition}
+  \label{th:matrix_norm}
+  (a) $\|\cdot\|$ is a norm on $\R^{N \times M}$:
+  \begin{enumerate}\ilist
+  \item $\| A \| \geq 0$
+  \item $\| A \| = 0$ if and only if $A = 0$
+  \item $\| A + \lambda B \| \leq \| A \| + |\lambda| \| B \|$ \\
+
+  (b) $\|\cdot\|$ is an operator norm:
+\item $| A h | \leq \| A \| |h| \qquad \forall A \in \R^{N \times M}, h
+  \in \R^M, \quad \text{and}$
+\item $\| A B \| \leq \| A \| \, \| B \| \qquad \forall A \in \R^{N
+    \times M}, B \in \R^{M \times P}.$
+  \end{enumerate}
+\end{proposition}
+\begin{exercise}
+  Prove Proposition \ref{th:matrix_norm}.
+\end{exercise}
+
+
+In addition to the canonical operator norm $\|\cdot\|$ we also define
+the Frobenius norm
+\begin{displaymath}
+  \| A \|_F := \bg(\sum_{i = 1}^N \sum_{j = 1}^M |A_{ij}|^2 \bg)^{1/2}
+  \qquad \text{ for } A \in \R^{N \times M}.
+\end{displaymath}
+Then we have the following relationship between $\|\cdot\|$ and
+$\|\cdot\|_F$. It is clear from its definition that $\|\cdot\|_F$ is a
+norm on $\R^{N \times M}$. In addition it is also an operator norm:
+
+\begin{lemma}
+  \label{th:opnrm_vs_frobnrm}
+  The Frobenius norm satisfies the following properties:
+  \begin{enumerate} \ilist
+  \item  $|A h | \leq \|A\|_F |h|$ for all $h \in \R^N$.
+
+  \item $\| A B \|_F \leq \|A \|_F \| B \|_F$ for all $A \in \R^{N
+      \times M}, B \in \R^{M \times P}$.
+
+  \item $\|A\| \leq \|A\|_F$ for all $A \in \R^{M \times N}$.
+\end{enumerate}
+\end{lemma}
+
+\begin{exercise}
+  Prove Lemma \ref{th:opnrm_vs_frobnrm}.\footnote{HINT: Show (i),
+    using the Cauchy--Schwarz inequality on $\R^N$. (ii), (iii) are
+    corollaries of (i).}
+\end{exercise}
+
+\begin{exercise}
+  (i) Show that $\| A \|_F = \sqrt{{\rm trace}(A^T A)}$.
+
+  (ii) Show that $(A, B) \mapsto {\rm trace}(A^T B)$ is an
+  inner product on $\R^{M \times N}$ (in fact, it is the standard
+  Euclidean inner product).
+\end{exercise}
+
+% If $A \in \R^{M \times N}$ is a matrix, then we define its operator norm
+% $\|A\|$ and its Frobenius norm, respectively, as
+% \begin{align*}
+%   \| A \| &:= \sup_{h \in \R^N \setminus \{h\}} \frac{|A h|}{|h|},
+%   \qquad \text{and} \\
+%   \| A\|_F &:= \bigg( \sum_{i=1}^M \sum_{j=1}^N |A_{ij}|^2
+%   \bigg)^{1/2}.
+% \end{align*}
+
+\subsubsection{Spectral decomposition}
+%
+Let $A \in \R^{N \times N}$ be symmetric, then there exists an
+orthonormal basis (ONB) $\{v_1, \dots, v_N\}$ of $\R^N$ and
+$\lambda_i \in \R, i = 1, \dots, N$
+\begin{displaymath}
+  A v_i = \lambda_i v_i.
+\end{displaymath}
+The $\lambda_i$ are called the eigenvalues of $A$ and $v_i$ the
+associated eigenvectors.
+
+\begin{remark}
+  In general, a matrix $A \in \mathbb{C}^{N \times N}$ is unitarily
+  diagonalisable if and only if it is {\em normal}: $A^* A = A A^*$,
+  where $A^* = (\bar{A})^T$.
+\end{remark}
+
+\begin{exercise}
+  (i) Prove the spectral decomposition theorem for symmetric matrices.
+
+  (ii**) Prove the spectral decoposition theorem for normal matrices.
+\end{exercise}
+
+
+We call a matrix $A \in \R^{N \times N}$ diagonalisable if there
+exists a basis $\{v_1, \dots, v_N\}$ of $\mathbb{C}^N$ (not
+necessarily ONB) and eigenvalues $\lambda_i \in \C$ such that $A v_i =
+\lambda_i v_i$.
+
+We call a matrix $A \in \R^{N \times N}$ positive definite if $x^T A x
+> 0$ for all $x \in \R^N \setminus \{0\}$. A symmetric and positive
+matrix is simply called spd.
+
+Not all matrices are diagonalisable, but all matrices have a {\em
+  Jordan normal form}. That is, there exists a basis $\{v_1, \dots,
+v_N\}$ of $\mathbb{C}^N$ such that, writing $V = (v_1, \dots, v_N)$ we
+have
+\begin{displaymath}
+  V A V^{-1} = \left( \begin{matrix}
+      J_1 & 0 & \cdots & \\
+      0 & J_2 & 0 & \cdots \\
+      \vdots & 0 & \ddots &
+      \end{matrix} \right) \quad \text{where} \quad
+      J_i = \left(\begin{matrix}
+      \lambda_i & 1 & & & \\
+            & \lambda_i & 1 & &   \\
+            &   & \ddots & \ddots &  \\
+            & & & \lambda_i & 1 \\
+            & & & &  \lambda_i
+    \end{matrix} \right).
+\end{displaymath}
+The $J_i$ are called {\em Jordan blocks}.
+
+
+\begin{exercise}
+  Prove that a matrix $C \in \R^{N \times N}$ is spd if and only if it
+  is symmetric and all its eigenvalues are positive.
+\end{exercise}
+
+
+\subsubsection{Convexity}
+%
+A set $U \subset \R^N$ is convex if, for $x, y \in U, \lambda \in [0,
+1]$, the point $(1-\lambda) x + \lambda y \in U$ as well.
+
+If $U$ is convex and $f : U \to \R$, then $f$ is convex if, for $x, y
+\in U, \lambda \in [0, 1]$, we have
+\begin{equation}
+  \label{eq:convex_f}
+  f\b( (1-\lambda) x + \lambda y \b) \leq (1-\lambda) f(x) + \lambda f(y).
+\end{equation}
+
+\begin{exercise}
+  (i) Prove that the functions $f(x) = |x|^n, n \in \N$, $f(x) =
+  \exp(x), f(x) = \min(0, x)$ are convex.
+
+  (ii) Prove that $f(x) = -x^2, f(x) = \cos(x), f(x) = \max(0, x)$ are
+  non-convex.
+
+  (iii) Prove that, if $C \in \R^{N \times N}$ and $b \in \R^N$, then
+  $f(x) = \smfrac12 x^T C x - b^T x$ is convex.
+\end{exercise}
+
+
+
+
+\subsection{Crash Course in Differentiation}
+
+\examnote{ The material of this section is understood as background and
+  can/should be used in the exam without proofs. }
+
+This section is intended as a rapid introduction into and reference
+for differentiation of multi-variate and/or vector valued functions as
+required in the remainder of the lecture notes.
+
+\subsubsection{Motivation and definition}
+%
+\paragraph{Univariate:}
+%
+Recall first the definition of differentiability in 1D. Let $f : (a,
+b) \to \R$ and $t \in (a, b)$. Then we say that $f$ is differentiable
+at $t$ if there exists $T \in \R$ such that
+\begin{displaymath}
+  % \label{eq:diff:diff_1d}
+  f(t+h) = f(t) + T h + o(h),
+\end{displaymath}
+where $o(h) / h \to 0$ as $h \to 0$. We write $T = f'(t)$. In words:
+$f$ can be ``well approximated'' in a small neighbourhood of $t$ by an
+affine function.
+
+For vector valued functions with scalar argument, nothing changes. $f
+: (a, b) \to \R^N$ is differentiable at $t$ if there exists $T \in
+\R^N$ such that
+\begin{displaymath}
+  f(t+h) = f(t) + T h + o(h),
+\end{displaymath}
+and we call $T = \dot{f}(t)$. Clearly this is equivalent to saying
+that $f_i$ is differentiable at $t$ for all $i = 1, \dots, N$.
+
+We define spaces of continuously differentiable functions. For an
+interval $A \subset \R$ and $j \geq 1$,
+\begin{align*}
+  C^j(A;\R^N) = \b\{ f \in C(A;\R^N) \bsep & \text{ $f$ is $j$ times
+    differentiable in ${\rm int}(A)$} \\
+  & \text{ and $f^{(k)} \in C(A;\R^N)$ for $k = 0, \dots, j$} \b\}.
+\end{align*}
+(Note that if $A$ contains one of its endpoints, then by $f^{(k)} \in
+C(A; \R^N)$ we mean that the derivative $f^{(k)}$ first defined on
+${\rm int}(A)$ can be {\em continuously extended} to $A$. This is
+subtle point that can in fact be ignored for the purpose of these
+lecture notes.)
+
+
+
+\paragraph{Multi-variate:} With this idea of differentiation in mind,
+the generalisation to functions with vectorial arguments is
+immediate. Let $U \subset \R^N$ be open and let $f : U \to \R^M$. We
+say that $f$ is (Fr\'echet) differentiable at $x \in U$ if there
+exists a matrix $T \in \R^{M \times N}$ (recall that every linear
+function from $\R^N$ to $\R^M$ is of the form $h \mapsto T h$ for some
+$T \in \R^{M \times N}$) such that
+\begin{displaymath}
+  f(x+h) = f(x) + T h + o(|h|), \qquad \text{as $h \to 0$,}
+\end{displaymath}
+and we write $T = \partial f(x)$.
+
+There is also a second notion of differentiability: We say that $f$ is
+Gateaux differentiable at $x \in U$ if there exists $T \in \R^{M
+  \times N}$ such that, for all $h \in \R^N$,
+\begin{displaymath}
+  f(x + s h) = f(x) + s T h + o(s) \qquad \text{as $s \to 0$.}
+\end{displaymath}
+We still write $T = \partial f(x)$. The subtle difference of letting
+the perturbation tend to zero in a straight line, or in an arbitrary
+fashion makes Gateaux differentiability a strictly weaker notion of
+differentiability.
+
+(WARNING: some authors define Gateaux derivative slightly
+differently. It is always useful to check what is meant. By contrast
+Frechet differentiability seems universally accepted as stated above.)
+
+\begin{exercise}[Frechet versus Gateaux]
+  \label{eq:diff:F_vs_G}
+  (i) Show that if $f$ is Frechet differentiable in $x$ then it is
+  continuous in $x$ as well as Gateaux differentiable in $x$.
+
+  (ii) Conversely, consider $f : \R^2 \to \R$,
+  \begin{displaymath}
+    f(x, y) = \cases{
+      \b(\frac{x^2 y}{x^4+y^2} \b)^2, & (x, y) \neq (0, 0), \\
+      0, & (x, y) = (0, 0),
+    }
+  \end{displaymath}
+  and show that $f$ is Gateaux differentiable at $(0, 0)$ but not even
+  continuous.
+
+  (iii) In other respects, Gateaux and Fr\'echet differentiability are
+  not so far from one another: If $f$ is Gateaux differentiable in $U$
+  and $\pp f$ is continuous at $x \in U$, then $f$ is Fr\'echet
+  differentiable at $x$. {\it (HINT: If you don't see this
+    immediately, do Exercise \ref{ex:diff:pd_frechet} first, from
+    which this results follows.)}
+\end{exercise}
+
+REMINDER: If we say $f$ is {\em differentiable}, then we mean the
+Frechet sense!
+
+\begin{definition}
+  If $U \subset \R^N$, with ${\rm int}(U) \neq \emptyset$, then we say
+  that $f \in C^1(U; \R^M)$ if $f : U \to \R^{M}$ is differentiable at
+  each point $x \in {\rm int}(U)$ and $\pp f \in C(U; \R^{M \times
+    N})$.
+
+  REMARK: From Exercise \ref{eq:diff:F_vs_G}(iii) it follows
+  immediately that $f \in C^1(U; \R^M)$ if and only if $f$ is Gateaux
+  differentiable at each point in $U$ and $\pp U \in C(U; \R^{M\times
+    N})$, that is, the definition of $C^1$ is in fact independent of
+  which of the two notions of differentiability we employ.
+\end{definition}
+
+\subsubsection{Jacobi matrix and gradient}
+%
+To actually compute the derivative $\pp f(x)$, we simply test the
+definition
+\begin{displaymath}
+  f(x + sh) = f(x) + s\partial f(x) h + o(s)
+\end{displaymath}
+with $h = e_j$ ($e_j$ is a canonical basis vector). Hence, we obtain
+that
+\begin{displaymath}
+  \frac{\pp f_i(x)}{\pp x_j} = \lim_{s \to 0} \frac{f_i(x+s e_j) -
+    f_i(x)}{s} = \b(\partial f(x) e_j\b)_i = \b( \partial f(x) \b)_{ij}.
+\end{displaymath}
+That is, $\pp f(x)$ is simply the matrix of partial derivatives, or,
+{\em Jacobi matrix},
+\begin{displaymath}
+  \pp f(x) = \left(
+    \begin{array}{cccc}
+      \frac{\pp f_1}{\pp x_1} & \frac{\pp f_1}{\pp x_2} & \cdots &
+      \frac{\pp f_1}{\pp x_N} \\
+      \frac{\pp f_2}{\pp x_1} & \frac{\pp f_2}{\pp x_2} & \cdots &
+      \frac{\pp f_2}{\pp x_N} \\
+      \vdots & \vdots & \ddots &  \vdots\\
+      \frac{\pp f_M}{\pp x_1} & \frac{\pp f_M}{\pp x_2} & \cdots &
+      \frac{\pp f_M}{\pp x_N}
+    \end{array} \right).
+\end{displaymath}
+
+If $M = 1$, i.e. $f : U \subset \R^N \to \R$ and $f$ is (Frechet or Gateaux)
+differentiable at $x \in U$ then we call
+\begin{displaymath}
+  \nabla f(x) := \pp f(x)^T
+\end{displaymath}
+the {\em gradient} of $f$ at $x$. Thus, in this case we can
+alternatively write Gateaux-differentiability in the form
+\begin{displaymath}
+  f(x+sh) = f(x) + s \nabla f(x) \cdot h + o(s),
+\end{displaymath}
+and similarly for F-differentiability.
+
+\examrem{
+\begin{remark}
+  \notexam
+  This remark is to explain why one makes a distinction between $\pp
+  f$ and $\nabla f$. It is mostly semantic, until one starts thinking
+  in terms of infinite-dimensional vector spaces, or different inner
+  products. (But then it can become very relevant.)
+
+  We can think of the gradient in terms of the Riesz representation
+  theorem (RRT). Namely, $\pp f(x)$ represents a linear functional
+  acting on $\R^N$, $\ell(h) = \pp f(x) h$, and according to the RRT
+  there exists an element of $\R^N$, namely $\nabla f(x)$, that {\em
+    represents} $\ell$ in terms of an inner product: $\ell(h) = \nabla
+  f(x) \cdot h$.
+
+  Suppose now that we change the inner product to $\< x, y \>_M = x^T
+  M y$ for some matrix $M$ (we need to check under which conditions
+  this defined an inner product: if and only if $M$ is symmetric and
+  positive definite). Then the gradient with respect to $\< \cdot,
+  \cdot\>_M$ is $\nabla_M f(x) = M^{-1} \nabla f(x)$, since $\partial
+  f(x) h = \< \nabla_M f(x), h \>_M$.
+\end{remark}
+}
+
+
+\begin{exercise}[Partial derivatives and differentiability]
+  \label{ex:diff:pd_frechet}
+  We conclude this discussion with a remark on the relationship
+  between partial derivatives and Frechet differentiability, which
+  extends Exercise \ref{eq:diff:F_vs_G} (iii):
+
+  Suppose that $f : U \subset \R^N \to \R^M$, $U$ open, has
+  well-defined partial derivatives $\pp f(x)$ at each point $x \in
+  U$. (I.e., $t \mapsto f(x+t e_i)$ is differentiable at $t = 0$ for
+  all $x \in U$.)  that $\partial f : U \to \R^{M \times N}$ is
+  continuous at a point $x \in U$. Then $f$ is Frechet differentiable
+  at $x$.
+\end{exercise}
+
+\subsubsection{Some useful properties}
+%
+\begin{exercise}
+  All the usual linearity properties of differentiation hold for
+  multivariate differentiation as well:
+
+  If $f, g$ are differentiable at $x$, then $f + \lambda g$ is
+  differentiable at $x$ for any $\lambda \in \R$.
+\end{exercise}
+
+The only other property we need is the chain rule. For scalar arguments, this reads
+\begin{displaymath}
+  \frac{\dd}{\dd t} f(g(t)) = \frac{\dd f}{\dd g} (g(t)) \cdot
+  \frac{\dd g}{\dd t}(t) \quad \text{or} \quad
+  (f \circ g)' = (f' \circ g) g'.
+\end{displaymath}
+Note also that the statement for scalar-valued functions immediately
+implies the same statement for vector-valued functions.
+
+The multi-variate version is formally identical,
+\begin{equation}
+  \label{eq:diff:chain_rule}
+  \pp \b( f(g(x)) \b) = (\pp f)(g(x)) \, \pp g(x), \quad \text{or}
+  \quad
+  \pp(f \circ g) = (\pp f) \circ g \, \pp g
+\end{equation}
+Another, possibly more memorable way to write this is
+\begin{align*}
+  \frac{\pp (f(g(x)))}{\pp x} &= \frac{\pp f(g)}{\pp g}\Big|_{g = g(x)} \,
+  \frac{\pp g(x)}{\pp x}
+\end{align*}
+
+\begin{proposition}
+  Let $f : U \subset \R^N \to \R^M$ and $g : V \subset \R^K \to
+  \R^N$. Suppose that $g$ is differentiable at $x \in V$ and $f$ is
+  differentiable at $g(x) \in U$, then $f \circ g$ is differentiable
+  at $x$ and \eqref{eq:diff:chain_rule} holds.
+
+  The same result holds if we replace ``differentiable'' with
+  ``Gateaux differentiable''.
+\end{proposition}
+\begin{proof}
+  \begin{align*}
+    f(g(x+h)) &= f\b( g(x) + \pp g(x) h + o(|h|) \b) \\
+    &= f(g(x)) + \pp f(g(x)) \, \b(\pp g(x) h + o(|h|)\b)
+    + o\b( |\pp g(x) h + o(|h|)| \b) \\
+    &= f(g(x)) + \pp f(g(x)) \, \pp g(x) h  + o(|h|).
+  \end{align*}
+
+  The proof for the Gateaux case is analogous.
+\end{proof}
+
+An important special case is the following: if $f \in C^1(U;\R^N)$, $U
+\subset \R^N$ open, and $g \in C^1(a, b; U)$, then
+\begin{displaymath}
+  \frac{\dd}{\dd t} f(g(t)) = \pp f(g(t)) \dot{g}(t).
+\end{displaymath}
+In particular, if $N = 1$, then
+\begin{displaymath}
+  \label{eq:chain_rule_nabla}
+  \frac{\dd}{\dd t} f(g(t)) =  \nabla f(g(t)) \cdot \dot{g}(t).
+\end{displaymath}
+
+
+\subsubsection{Differentiation and integration of $f : \R \to \R^N$}
+%
+We will not be concerned with integrating over $\R^N$, but we do need
+some results on integrating vector-valued functions defined on an
+interval.
+
+Let $f : [a, b] \to \R^N$ be continuous, then we define its integral
+componentwise:
+\begin{displaymath}
+  \int_a^b f(t) \dt = \bigg( \int_a^b f_i(t) \dt \bigg)_{i = 1}^N.
+\end{displaymath}
+Clearly, we get the fundamental theorem of calculus again: if $f \in
+C^1([a,b]; \R^N)$, then
+\begin{displaymath}
+  \int_a^b \dot f(t) \dt = f(b) - f(a).
+\end{displaymath}
+
+But other results can fail:
+
+\begin{exercise}
+  The integral mean value theorem is an example of a result that does
+  {\em not} translate (and hence the differential MVT does not
+  either):
+
+  (i) Vector-valued, scalar argument: Show the integral MVT fails for
+  $f : (0, 2\pi) \to \R^2$, $f(t) = (\cos t, \sin t)^T$.
+
+  \examrem{
+  (ii) \notexam For comparison, the integral MVT, scalar valued,
+  vectorial argument: Show that if $U \subset \R^N$ is the closed unit
+  cube (but any connected, measurable set with unit volume will do)
+  and if $f \in C(U; \R)$, then there exists $x_0 \in U$ such that
+  $\int_U f \dx = f(x_0)$. (Of course we haven't defined multi-variate
+  integration. Either use your immagination or look up the definition
+  in a suitable textbook.)}
+\end{exercise}
+
+
+An important consequence of the fundamental theorem are path
+integrals: If $\gamma \in C^1([a, b]; \R^N)$, then the intregal of $f$
+along its path is
+\begin{displaymath}
+  \int_a^b f(\gamma(t)) \dot\gamma(t) \dt.
+\end{displaymath}
+
+\begin{exercise}
+  (i) Show that, if $E \in C^1(U; \R)$ and $\gamma \in C^1((a, b);
+  \R^N)$, then $E \circ \gamma \in C^1((a,b); \R)$ and $\frac{\dd}{\dd
+    t} E(\gamma(t)) = \nabla E(\gamma(t)) \cdot \dot\gamma(t)$.
+
+  (ii) Therefore, if $f(x) = \nabla E(x)$, then the integral
+  \begin{displaymath}
+    \int_a^b f(\gamma(t)) \cdot \dot\gamma(t) \dt = E(\gamma(b)) - E(\gamma(a))
+  \end{displaymath}
+  depends only on the end-points but not on the entire path.
+
+  \examrem{
+  (iii) \notexam {\it (MORE DIFFICULT)} Show, conversely, that if $f \in C(U;
+  \R^N)$, where $U$ is open and simply connected, and if $f$ is {\em
+    conservative} i.e. integrals along closed paths all vanish,
+  \begin{displaymath}
+    \int_a^b f(\gamma(t)) \dot\gamma(t) \dt = 0 \qquad \forall \gamma \in
+    C^1([a,b]; U), \gamma(a) = \gamma(b),
+  \end{displaymath}
+  then there exists $E \in C^1(U; \R)$ such that $f = \nabla E$.
+
+  (iv) \notexam  {\it (MORE DIFFICULT)} If $f \in C^1(U; \R^N)$, where $U$ is
+  open and simply connected, show that $f$ is conservative if and only
+  if $\pp f(x)$ is symmetric for all $x \in U$. For $N = 3$ connect
+  this to the curl-free condition.
+}
+\end{exercise}
+
+
+\subsubsection{Higher derivatives}
+%
+The notation for higher derivatives can initially be confusing and we
+will therefore avoid their use as much as possible. However, there are
+some simple definitions and results that we require.
+
+
+For $U \subset \R^N$ with ${\rm int}(U) \neq \emptyset$ and for $k
+\geq 2$, we define (recursively)
+\begin{displaymath}
+  C^k(U; \R^M) := \b\{ f \in C^1(U; \R^M) \bsep \partial f \in
+  C^{k-1}(U; \R^{M \times N}) \b\}.
+\end{displaymath}
+
+A useful result is the following:
+
+\begin{exercise}
+  Let $f \in C^2(U; \R^M)$ where $U \subset \R^N$ is convex and
+  closed, then $\pp f : U \to \R^{M \times N}$ is Lipschitz
+  continuous, in the sense that
+  \begin{displaymath}
+    \| \pp f(x) - \pp f(y) \|_F \leq L |x - y| \qquad \text{ for } x,
+    y \in U. \qedhere
+  \end{displaymath}
+\end{exercise}
+
+There is a particularly important case: Let $U \subset \R^N$ be open
+and let $E \in C^2(U; \R)$, then we define the Hessian matrix
+\begin{displaymath}
+  \D^2 E(x) := \bg( \frac{\pp^2 E(x)}{\pp x_i \pp x_j}
+  \bg)_{i, j = 1, \dots, N}.
+\end{displaymath}
+
+\begin{exercise}
+  Let $E \in C^2(U)$, where $U \subset \R^N$ is open. Prove the
+  following statements:
+
+  (i) $\D^2 E(x) = \pp \D E(x)$.
+
+  (ii) $E(x+h) = E(x) + \D E(x) \cdot h + \smfrac12 h^T \D^2 E(x) h +
+  o(|h|^2)$.
+
+  (iii) If $E \in C^3(U)$, then $E(x+h) = E(x) + \D E(x) \cdot h +
+  \smfrac12 h^T \D^2 E(x) h + O(|h|^3)$.
+\end{exercise}

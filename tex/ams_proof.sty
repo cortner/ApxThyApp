@@ -1,0 +1,200 @@
+\DeclareRobustCommand{\qed}{%
+  \ifmmode \mathqed
+  \else
+    \leavevmode\unskip\penalty9999 \hbox{}\nobreak\hfill
+    \quad\hbox{\qedsymbol}%
+  \fi
+}
+\let\QED@stack\@empty
+\let\qed@elt\relax
+\newcommand{\pushQED}[1]{%
+  \toks@{\qed@elt{#1}}\@temptokena\expandafter{\QED@stack}%
+  \xdef\QED@stack{\the\toks@\the\@temptokena}%
+}
+\newcommand{\popQED}{%
+  \begingroup\let\qed@elt\popQED@elt \QED@stack\relax\relax\endgroup
+}
+\def\popQED@elt#1#2\relax{#1\gdef\QED@stack{#2}}
+\newcommand{\qedhere}{%
+  \begingroup \let\mathqed\math@qedhere
+    \let\qed@elt\setQED@elt \QED@stack\relax\relax \endgroup
+}
+\newif\ifmeasuring@
+\newif\iffirstchoice@ \firstchoice@true
+\def\setQED@elt#1#2\relax{%
+  \ifmeasuring@
+  \else \iffirstchoice@ \gdef\QED@stack{\qed@elt{}#2}\fi
+  \fi
+  #1%
+}
+\def\qed@warning{%
+  \PackageWarning{amsthm}{The \@nx\qedhere command may not work
+    correctly here}%
+}
+\newcommand{\mathqed}{\quad\hbox{\qedsymbol}}
+\def\linebox@qed{\hfil\hbox{\qedsymbol}\hfilneg}
+\@ifpackageloaded{amsmath}{%
+  \def\math@qedhere{%
+    \@ifundefined{\@currenvir @qed}{%
+      \qed@warning\quad\hbox{\qedsymbol}%
+    }{%
+      \@xp\aftergroup\csname\@currenvir @qed\endcsname
+    }%
+  }
+  \def\displaymath@qed{%
+    \relax
+    \ifmmode
+      \ifinner \aftergroup\linebox@qed
+      \else
+        \eqno
+        \let\eqno\relax \let\leqno\relax \let\veqno\relax
+        \hbox{\qedsymbol}%
+      \fi
+    \else
+       \aftergroup\linebox@qed
+    \fi
+  }
+  \@xp\let\csname equation*@qed\endcsname\displaymath@qed
+  \def\equation@qed{%
+    \iftagsleft@
+      \hbox{\phantom{\quad\qedsymbol}}%
+      \gdef\alt@tag{%
+        \rlap{\hbox to\displaywidth{\hfil\qedsymbol}}%
+        \global\let\alt@tag\@empty
+      }%
+    \else
+      \gdef\alt@tag{%
+        \global\let\alt@tag\@empty
+        \vtop{\ialign{\hfil####\cr
+                \tagform@\theequation\cr
+                \qedsymbol\cr}}%
+        \setbox\z@
+      }%
+    \fi
+  }
+  \def\qed@tag{%
+    \global\tag@true \nonumber
+    &\omit\setboxz@h {\strut@ \qedsymbol}\tagsleft@false
+    \place@tag@gather
+    \kern-\tabskip
+    \ifst@rred \else \global\@eqnswtrue \fi \global\advance\row@\@ne \cr
+  }
+  \def\split@qed{%
+    \def\endsplit{\crcr\egroup \egroup \ctagsplit@false \rendsplit@
+      \aftergroup\align@qed
+    }%
+  }
+  \def\align@qed{%
+    \ifmeasuring@ \tag*{\qedsymbol}%
+    \else \let\math@cr@@@\qed@tag
+    \fi
+  }
+  \@xp\let\csname align*@qed\endcsname\align@qed
+  \@xp\let\csname gather*@qed\endcsname\align@qed
+%% Needs some patching up for amsmath 1.2
+}{% end of amsmath branch, start plain LaTeX branch
+  \def\math@qedhere{%
+    \@ifundefined{\@currenvir @qed}{%
+      \qed@warning \aftergroup\displaymath@qed
+    }{%
+      \@xp\aftergroup\csname\@currenvir @qed\endcsname
+    }%
+  }
+  \def\displaymath@qed{%
+    \relax
+    \ifmmode
+      \ifinner \aftergroup\aftergroup\aftergroup\linebox@qed
+      \else
+        \eqno \def\@badmath{$$}%
+        \let\eqno\relax \let\leqno\relax \let\veqno\relax
+        \hbox{\qedsymbol}%
+      \fi
+    \else
+       \aftergroup\linebox@qed
+    \fi
+  }
+  \@ifundefined{ver@leqno.clo}{%
+    \def\equation@qed{\displaymath@qed \quad}%
+  }{%
+    \def\equation@qed{\displaymath@qed}%
+  }
+  \def\@tempa#1$#2#3\@nil{%
+    \def\[{#1$#2\def\@currenvir{displaymath}#3}%
+  }%
+  \expandafter\@tempa\[\@nil
+}
+\@ifpackageloaded{amstex}{%
+  \def\@tempa{TT}%
+}{%
+  \@ifpackageloaded{amsmath}{%
+    \def\@tempb#1 v#2.#3\@nil{#2}%
+    \ifnum\@xp\@xp\@xp\@tempb\csname ver@amsmath.sty\endcsname v0.0\@nil
+       <\tw@
+      \def\@tempa{TT}%
+    \else
+      \def\@tempa{TF}%
+    \fi
+  }{%
+    \def\@tempa{TF}
+  }%
+}
+\if\@tempa
+\renewcommand{\math@qedhere}{\quad\hbox{\qedsymbol}}%
+\fi
+\newcommand{\openbox}{\leavevmode
+  \hbox to.77778em{%
+  \hfil\vrule
+  \vbox to.675em{\hrule width.6em\vfil\hrule}%
+  \vrule\hfil}}
+\DeclareRobustCommand{\textsquare}{%
+  \begingroup \usefont{U}{msa}{m}{n}\thr@@\endgroup
+}
+% \@ifclasswith{\@classname}{noamsfonts}{%
+%   \providecommand{\qedsymbol}{\openbox}%
+% }{}
+\providecommand{\qedsymbol}{\textsquare}
+\newenvironment{proof}[1][\proofname]{\par
+  \pushQED{\qed}%
+  \normalfont \topsep6\p@\@plus6\p@\relax
+  \trivlist
+  \item[\hskip\labelsep
+        \itshape
+    #1\@addpunct{.}]\ignorespaces
+}{%
+  \popQED\endtrivlist\@endpefalse
+}
+\providecommand{\proofname}{Proof}
+\def\bb@skip#1{%
+  \skip@#1\relax \advance\skip@-\prevdepth \advance\skip@-\baselineskip
+  \vskip\skip@}
+\def\markleft#1{{\let\protect\noexpand
+    \let\label\relax \let\index\relax \let\glossary\relax
+    \expandafter\@markleft\@themark{#1}%
+    \mark{\@themark}}%
+  \if@nobreak\ifvmode\nobreak\fi\fi}
+\def\@markleft#1#2#3{\gdef\@themark{{#3}{#2}}}
+\def\@tempa{}
+\edef\@dh{%
+  \noexpand\mathhexbox{\hexnumber@\symAMSb}67}
+\DeclareTextCommand{\dh}{OT1}{%
+  \edef\@tempb{\scdefault}%
+  \ifx\f@shape\@tempb
+    \leavevmode
+    \raisebox{-.8ex}{\makebox[\z@][l]{\hskip-.08em\accent"16\hss}}d%
+  \else
+    \@dh
+  \fi
+}
+\DeclareTextCommand{\DH}{OT1}{%
+  \leavevmode\raisebox{-.5ex}{\makebox[\z@][l]{\hskip-.07em\accent"16\hss}}D}
+\DeclareTextCommand{\DJ}{OT1}{%
+  \leavevmode\raisebox{-.5ex}{\makebox[\z@][l]{\hskip-.07em\accent"16\hss}}D}
+\DeclareTextCommand{\dj}{OT1}{%
+  \edef\@tempa{\f@shape}\edef\@tempb{\scdefault}%
+  \ifx\@tempa\@tempb
+    \leavevmode
+    \raisebox{-.75ex}{\makebox[\z@][l]{\hskip-.08em\accent"16\hss}}d%
+  \else
+    \leavevmode\raisebox{.02ex}{\makebox[\z@][l]{\hskip.1em\accent"16\hss}}d%
+  \fi}
+

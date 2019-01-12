@@ -1,0 +1,1242 @@
+% !TEX root = apxthy.tex
+
+
+\section{Trigonometric Polynomials}
+%
+\label{sec:trig}
+%
+In this chapter we consider approximation of periodic functions by trigonometric
+polynomials (aka Fourier spectral methods). Throughout this chapter, let $\TT :=
+(-\pi, \pi]$ and we identify $C^j(\TT) = C^j_{\rm per}(\TT)$, $A_{\rm per}(\TT) =
+A(\TT)$, $L^p(\TT)$ to be the spaces of $2\pi$-periodic functions on $\R$ that
+are, respectively, $j$ times  continuously differentiable, analytic, belong
+to $L^p(-\pi, \pi)$. Similarly, $H^j_{\rm per}(\TT) = H^j(\TT)$ denotes the
+space of $2\pi$ periodic functions on $\R$ such that their restriction to {\em
+any} interval $(a, a+2\pi)$ belongs to $H^j(a,a+2\pi)$.
+
+Examples of periodic functions:
+\begin{itemize}
+  \item $\sin(nx) \in A(\TT)$
+  \item $|\sin(nx)| \in C^{0,1}(\TT)$
+  \item $|\sin(nx)|^3 \in C^{2,1}(\TT)$
+  \item $e^{-\cos x} \in A(\TT)$
+  \item $(c^2+\sin^2 x)^{-1} \in A(\TT)$
+  \item \dots
+\end{itemize}
+
+Applications:
+\begin{itemize}
+  \item BVPs with periodic boundary conditions and periodic data, e.g.,
+  \begin{align*}
+      - (p(x) u_{x})_x + q(x) u &= f(x), \qquad x \in (-\pi, \pi), \\
+      u(-\pi) &= u(\pi), \\
+      u'(-\pi) &= u'(\pi),
+  \end{align*}
+  where $p, q, f$ are $2\pi$-periodic, then under suitable conditions on
+  $p, q, f$ there exists a unique solution which is also $2\pi$-periodic.
+  %
+  \item Functions represented in polar coordinates: $u(x, y) = v(r, \theta)$
+  then, for $r$ fixed, $\theta \mapsto v(r, \theta)$ is periodic.
+
+  There are many other examples of naturally ``periodic'' coordinate systems,
+  including e.g. spherical coordinates, or the dihedral angle.
+  %
+  % \item Bond-angles and dihedral
+\end{itemize}
+
+Approximation by trigonometric polynomials is based on the idea of Fourier
+series representation of periodic functions. Talking about Fourier series
+becomes much more convenient if we extend the admissible range of all functions
+to $\C$. The following definition then becomes natural.
+
+\begin{definition}
+  A trigonometric polynomial of degree $N$ is any function of the form
+  \[
+    \sum_{k = -N}^N a_k e^{i k x}
+  \]
+  The space of all such polynomials is denoted by  $\Trig_N$.
+  The canonical basis is
+  \[
+     \b\{ e^{ikx} \bsep  k = -N, -N+1, \dots, N \b\}
+  \]
+\end{definition}
+
+\begin{definition}
+  Let $f \in L^1(\TT)$, then its {\em Fourier coefficients} are given by,
+  \begin{equation} \label{eq:trig:fourier coeffs}
+    \hat{f}_k := \mint_{-\pi}^\pi f(x) e^{- i kx} \,dx
+  \end{equation}
+  The $N$-th partial sum, is a trigonometric polynomial, which we
+  denote by
+  \[
+    \Pi_N f(x) := \sum_{n = -N}^N \hat{f}_k e^{i kx}.
+  \]
+\end{definition}
+
+
+
+\subsection{Approximation by $L^2$-projection}
+%
+\label{sec:trig:L2}
+%
+We will initially study approximation of functions in the $L^2$-norm.
+It can then be convenient to normalise the inner product, via
+\[
+  \< f, g \>_{L^2(\TT)} := \mint_{-\pi}^\pi f^* g \, dx.
+\]
+Equipped with this inner product, $L^2(\TT)$ is a Hilbert space.
+
+
+\begin{theorem} \label{th:trig:plancherel}
+  \begin{enumerate} \ilist
+  \item Convergence of Fourier Series: $\{ e^{ikx} \sep k \in \Z \}$ is an orthonormal basis for $L^2(\TT)$.
+  \item Plancherel Theorem: $\mathcal{F} : L^2(\TT; \C) \to \ell^2(\Z; \C)$ is an isomorphism;
+    i.e., $f \in L^2(\TT)$ then $\hat{f} \in \ell^2(\Z)$ and
+    \[
+       \sum_{k \in \Z} \hat{f}_k \hat{g}_k^* = \mint_\TT f g^* \,dx.
+    \]
+    In particular, $\|f\|_{L^2} = \|\hat{f} \|_{\ell^2}$.
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+  This is left as an exercise, to be completed after we
+  study kernel methods. The key point is that
+  \begin{equation}
+    \mint_{-\pi}^\pi  e^{-ikx} e^{i\ell x} \,dx
+    = \mint_{-\pi}^\pi e^{(\ell-i)x}
+    = \cases{
+      1, & \ell = k, \\
+      0, & \text{otherwise.}
+    }
+  \end{equation}
+\end{proof}
+
+\begin{remark}
+  There is a general theorem that all (separable) Hilbert spaces are
+  isometrically isomorphic to $\ell^2(\N)$ or equivalently to $\ell^2(\Z)$.
+  Explain why the Plancherel theorem simply shows that the Fourier series map
+  $f \mapsto \hat{f}$ is an the explicit construction of this isometry.
+\end{remark}
+
+
+\begin{proposition} \label{th:trig:PiNf-orthproj}
+  Let $f \in L^2(\TT)$, then
+  \begin{equation} \label{eq:trip:PiNf-orthproj}
+    \| \Pi_N f - f \|_{L^2}^2 = \sum_{|k| > N} |\hat{f}_k|^2.
+  \end{equation}
+  In particular, $\Pi_N f$ is the $L^2$-orthogonal
+  projection of $f$ onto $\Trig_N$, or equivalently, the
+  best approximation of $f$ from $\Trig_N$ w.r.t. $\|\cdot\|_{L^2}$.
+\end{proposition}
+\begin{proof}
+  By definition,
+  \begin{align*}
+    f(x) - \Pi_N f(x) = \sum_{|k|>N} \hat{f}_k e^{ikx},
+  \end{align*}
+  and Plancherel's theorem then implies \eqref{eq:trip:PiNf-orthproj}.
+
+  The fact that $\Pi_N f$ is the best approximation is a straightforward
+  consequence: if $g \in \Trig_N$, then
+  \begin{align*}
+    \b\|f(x) - \Pi_N f(x) - g\b\|_{L^2}^2
+    &= \sum_{|k| \leq N} |\hat{g}_k|^2 + \sum_{|k| > N} |\hat{f}_k|^2 \\
+    &\geq \sum_{|k| > N} |\hat{f}_k|^2 \\
+    &= \b\|f(x) - \Pi_N f(x) \b\|_{L^2}^2. \qedhere
+  \end{align*}
+\end{proof}
+
+The main point of Lemma~\ref{th:trig:PiNf-orthproj} is that, as in the
+introductory example, we can characterise the error in terms of the
+decay of the Fourier coefficients.
+
+
+
+\subsection{Decay of Fourier Coefficients}
+%
+\label{sec:trig:decay}
+%
+As we already saw in the introductory example, the ``smoother'' $f$ is, the
+faster $\hat{f}_k$ decay. The following results are not difficult to generalise
+in several ways; see remarks below, but in the spirit of valuing simplicity over
+optimality, we will formulate them only for $C^p$ regularity.
+
+\begin{theorem} \label{th:trig:decay}
+  \begin{enumerate} \ilist
+    \item Let $f \in C^{p}(\TT)$, then there exists $C > 0$ such that
+    \[
+        |\hat{f}_k| \lesssim C |k|^{-p}.
+    \]
+    %
+    \item {\it Paley--Wiener Theorem:} If $f \in A(\TT)$, then there exists
+    $a > 0$ such that
+    \[
+        |\hat{f}_k| \lesssim e^{-a N}.
+    \]
+  \end{enumerate}
+\end{theorem}
+\begin{proof}[Proof of Theorem~\ref{th:trig:decay}(1)]
+  Consider the case $p = 1$. Assume for the moment that we can exchange
+  summation and differentiation, then we simply have
+  \[
+    f'(x) = \sum_{k \in \Z} ik \hat{f}_k e^{ikx}.
+  \]
+  Since $f' \in C(\TT) \subset L^1(\TT)$, $\hat{(f')}_k = ik \hat{f}_k$ are
+  bounded and in particular, $|\hat{f}_k| \lesssim |k|^{-1}$. However, this
+  calculation requires that we justify the interchange of differentiation
+  and summation.
+
+  Instead, let $h > 0$ and consider the function $d_hf(x) :=
+  (f(x+h)-f(x)) / h$, then $d_h f(x) = f'(\xi)$ for some $\xi \in (x, x+h)$,
+  hence $\|d_h f(x)\|_{\infty}$ is bounded independently of $h$. In particular
+  the Fourier coefficients $\widehat{(d_h f)}_k$ are well-defined and bounded.
+  On the other hand, we can compute $\widehat{(d_h f)}_k$ explicitly,
+  \begin{align*}
+    d_hf(x)
+      &= \frac{f(x+h)-f(x)}{h} \\
+      &= \sum_{k \in \Z} \hat{f}_k \bigg( \frac{e^{i k (x+h)} - e^{ikx}}{h} \bigg) \\
+      &= \sum_{k \in \Z} \Big[\smfrac{e^{ikh} - 1}{h} \hat{f}_k\Big] e^{ikx},
+  \end{align*}
+  that is,
+  \[
+    \widehat{(d_h f)}_k = \Big[\smfrac{e^{ikh} - 1}{h} \hat{f}_k\Big].
+  \]
+  We know that $\widehat{(d_h f)}_k$ are uniformly bounded, hence we obtain
+  \[
+    C \geq \b|\widehat{(d_h f)}_k\b|
+      = \B| \smfrac{e^{ikh} - 1}{h} \hat{f}_k \B| \qquad \forall h > 0
+  \]
+  Let $h \to 0$ to obtain $|k \hat{f}_k| \leq C$. This completes the proof.
+\end{proof}
+
+We postpone the proof of the Paley--Wiener Theorem to
+Theorem~\ref{th:trig:pw-trefversion}, but instead first discuss the consequences
+of these results.
+
+A direct naive calculation shows that, if $f \in C^p(\TT)$, then
+\[
+    \|f - \Pi_N f \|_{L^2} \lesssim N^{1/2-p}.
+\]
+But we want to improve this a bit, by removing the $1/2$ factor. We can
+do this with the following slightly sharper result.
+
+\begin{lemma} \label{th:trig:fCp-coeffL2}
+  Let $f \in C^p(\TT)$, then $(\hat{f}_k |k|^p)_{k \in \Z} \in \ell^2(\Z)$
+\end{lemma}
+\begin{proof}
+  This is a relatively straightforward extension of the Proof of
+  Theorem~\ref{th:trig:decay}(1) and is left as an exercise.
+\end{proof}
+
+
+
+\begin{theorem} \label{th:trig:convergence_L2}
+  \begin{enumerate} \ilist
+  \item Let $f \in C^{p}(\TT)$ then
+  \[
+      \|f - \Pi_N f \|_{L^2} \lesssim N^{-p}
+  \]
+  \item Let $f \in C^\infty(\TT)$, then for each $p > 0$ there exists a
+  constant $C_p$ such that
+  \[
+      \|f - \Pi_N f \|_{L^2} \leq C_p N^{-p}.
+  \]
+  \item If $f \in A(\TT)$, then there exists $a > 0$ such that
+  \[
+       \| f - \Pi_N f \|_{L^2} \lesssim e^{-a N}.
+  \]
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+  We only prove (1); the results (2, 3) are left as an exercise.
+
+  From Lemma~\ref{th:trig:PiNf-orthproj} we have
+  \begin{align*}
+    \|f-\Pi_N f \|_{L^2}^2
+    &= \sum_{|k| > N} |\hat{f}_k|^2 \\
+    &= \sum_{|k| > N} |\hat{f}_k|^2 |k|^{2p} |k|^{-2p} \\
+    &\lesssim N^{-2p},
+  \end{align*}
+  where we used Lemma~\ref{th:trig:fCp-coeffL2} in the last step.
+\end{proof}
+
+See explore convergence rates through numerical tests in \nbtrig, where we
+see that our theory is not quite sharp.
+
+\subsubsection{Remarks}
+\begin{enumerate}
+  \item The algebraic convergence rates are not really sharp. In particular, the
+    precise structure of $f^{(p)}$ is extremely relevant. For example, one can
+    show that, if $f^{(p-1)}$ is absolutely continuous (or even just of bounded variatin)
+    then the decay rate $|\hat{f}_k| \leq \|f^{(p)}\|_{L^1} N^{-p}$ still holds.
+    In particular, if $f^{(p)} \in C(\TT)$ as we have assumed here, this gives
+    additional structure that we have not exploited.
+
+  \item The main message is still relevant: (1) $f \in C^p(\TT)$ regularity
+  gives algebraic decay of $\hat{f}_k$; (2) $f \in C^\infty(\TT)$ gives
+  super-algebraic decay; (3) $f \in A(\TT)$ gives exponential decay.
+
+  \item We can also derive uniform approximation error estimates which further
+  highlight that our results are not sharp, e.g.,  if $f \in C^p(\TT)$, then
+  \[
+    |f(x) - \Pi_N f(x)| \leq \sum_{|k| > N} |\hat{f}_k|
+        \lesssim \sum_{|k| > N} |k|^{-p}
+        \lesssim N^{1-p}.
+  \]
+  In the next section we will show how to construct much better uniform
+  approximations with sharp rates. Using a similar trick as in the proof of
+  Theorem~\ref{th:trig:convergence_L2} we can improve this to $\|f-\Pi_N f
+  \|_\infty \lesssim N^{1/2-p}$. Getting a little deeper into harmonic analysis
+  we may even prove that $|\hat f_k| |k|^p \in \ell^p$ for all $p > 1$, which
+  indeed implies that $\|f - \Pi_N f \|_\infty \lesssim N^{\epsilon - p}$ for
+  all $\epsilon > 0$. This give us a hint that the best approximation error in
+  the max-norm is in fact $O(N^{-p})$ when $f \in C^p$. We will choose a very
+  different route in \S~\ref{sec:trig:jackson} to prove this result.
+
+  \item The uniform convergence estimate for analytic functions arising from
+  the Paley--Wiener theorem is however qualitatively sharp,
+  \[
+       \|f - \Pi_N f \|_\infty \lesssim e^{- a' N} \qquad \forall a' < a.
+  \]
+\end{enumerate}
+
+
+
+
+\subsection{Approximation by convolution: Jackson's Theorem}
+%
+\label{sec:trig:jackson}
+%
+The overarching idea of kernel methods is, instead of using the
+$L^2$-projection $\Pi_N f$ to approximate $f$, we use a convolution operator,
+\[
+    (K_N \ast f)(x) := \int_{-\pi}^\pi K_N(t-x) f(t) \, dt.
+\]
+If $K_N(t)$ is a trigonometric polynomial, then $K_N \ast f$ will also be a trigonometric polynomial:
+
+\begin{lemma}
+  If $K_N \in C(\TT)$ and $K_N \in \Trig_N$, then $K_N \ast f \in \Trig_N$ for
+  all $f \in L^1(\TT)$.
+\end{lemma}
+\begin{proof}
+  \begin{align*}
+    \mint_{-\pi}^\pi K_N(x-t) f(t) \,dt
+    &=
+    \sum_{k =  -N}^N \sum_{k' \in \Z}
+        \hat{K}_{N,k} \hat{f}_{k'} \mint_{-\pi}^\pi e^{ik(x-t)} e^{ik't}\,dt
+    \\ &=
+    \sum_{k = -N}^N \hat{K}_{N,k} \hat{f}_{k} e^{ikx}. \qedhere
+  \end{align*}
+\end{proof}
+
+
+The ``original'' kernel is the Dirichlet kernel,
+\[
+    D_N(x) = \frac{\sin\b( (N+1/2) x \b)}{ \sin(x/2) },
+\]
+which is interesting in that it represents the $L^2$-projection, i.e.,
+$\Pi_N f = D_N \ast f$; cf. Exercise~\ref{exr:trig:dirichlet}.
+
+But there is considerable freedom in the choice of kernel. A particularly
+``felicitious'' choice is the Jackson kernel,
+\[
+    J_M(x) := \gamma_M \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4,
+    \qquad
+    \int_\TT J_M(x) = 1,
+\]
+where the second condition determines the normalisation constant $\gamma_M$.
+Constructing approximates via the Jackson kernel leads to elegant and
+sharp approximation error estimates in the max-norm.
+
+\begin{lemma}
+  $J_M \in \Trig_{2M-2}$.
+\end{lemma}
+\begin{proof}
+  Let $z = e^{ix/2}$, then
+  \[
+      J_M(x)
+      =
+      \left((z^M - z^{-M}) / (z - z^{-1})\right)^4.
+  \]
+  Further, we have
+  \begin{align*}
+    % J_M(x)
+    % &=
+    \frac{z^M - z^{-M}}{z - z^{-1}}
+    &= z^{M-1} + z^{M-3} z^{-1} + z^{M-3} z^{-2} + \dots
+      + z z^{-M+2} + z^{-M+1} \\
+    &= z^{M-1} + z^{M-3} + z^{M-5} + \dots + z^{-M+1}
+    = \sum_{\alpha \in \mathcal{A}} z^\alpha,
+  \end{align*}
+  where $\mathcal{A} := \{-M+1, -M+3, -M+5, \dots, M-1\}$. Squaring yields
+  \begin{align*}
+     \left(\frac{z^M - z^{-M}}{z - z^{-1}} \right)^2
+     &=
+     \sum_{\alpha, \beta \in \mathcal{A}}
+     z^\alpha z^{\beta} \\
+     &= \sum_{\alpha, \beta \in \mathcal{A}}
+     \frac{z^{\alpha +\beta} + z^{-\alpha-\beta}}{2} \\
+     &= \sum_{\alpha, \beta \in \mathcal{A}} \cos\b( \smfrac{\alpha+\beta}{2} x \b).
+   \end{align*}
+   Since $\alpha+\beta$ is always even, it follows that
+   $(\frac{z^M - z^{-M}}{z - z^{-1}} )^2 \in \Trig_{M-1}$ and in particular
+   $J_M \in \Trig_{2M-2}$.
+\end{proof}
+
+
+
+\begin{lemma}
+  $\gamma_M \geq C M^3$ (Remark: $C = 32/\pi^3$)
+\end{lemma}
+\begin{proof}
+  Using the geometrically evident fact that
+  \[
+    x/\pi \leq \sin(x/2) \leq x/2
+  \]
+  we can estimate
+  \begin{align*}
+    \gamma_M
+    &= 2 \int_0^\pi  \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 \, dx  \\
+    &\geq 2 \int_0^{\pi/M} \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 \, dx \\
+    &\geq 2c \int_0^{\pi/M} \left( \frac{Mx/2}{x/2} \right)^4 \, dx \\
+    &= C M^4 \int_0^{\pi/M} 1 \,dx = C M^3. \qedhere
+  \end{align*}
+\end{proof}
+
+\begin{lemma} \label{th:trig:jackson_moments}
+  \[
+    \int_0^\pi x^m J_M(x) \,dx \leq
+      \cases{C, & m = 0, \\
+            C M^{-1}, & m = 1.
+          }
+  \]
+\end{lemma}
+\begin{proof}
+  \begin{align*}
+    \int_0^\pi x^m J_M(x) \, dx
+    &= \sum_{j = 0}^{M-1} \int_{j\pi/M}^{(j+1)\pi/M} x^m J_M(x) \, dx \\
+    &\lesssim
+        \frac{1}{\gamma_M} \bg[ \int_0^{\pi/M} x^m M^4 \, dx
+        + \int_{\pi/M}^{\pi}
+             x^m \bg( \frac{1}{x} \bg)^4 \, dx \bg] \\
+    &\lesssim
+      \frac{1}{M^3} \b[ M^{m+1} + M^{3-m} \b]
+    \lesssim
+      \cases{
+        1, & m = 0, \\
+        M^{-1}, & m = 1.
+      }
+      \qedhere
+  \end{align*}
+\end{proof}
+
+
+\begin{theorem}[Jackson's Theorem] \label{th:trig:jackson}
+  \begin{enumerate}
+  \item Let $f \in C(\TT)$ with modulus of continuity $\omega$, then
+  \[
+      \| f - J_N \ast f \|_\infty \lesssim \omega(N^{-1}).
+  \]
+  In particular, if $f \in C^{0,\sigma}(\TT)$, then
+  \[
+      \|f - J_N \ast f \|_\infty \lesssim N^{-\sigma},
+  \]
+  and if $f \in C^1(\TT)$, then
+  \begin{equation} \label{eq:trig:jackson:C1-version}
+    \|f - J_N \ast f \|_\infty \lesssim N^{-1} \|f'\|_\infty.
+  \end{equation}
+  \item Let $f \in C^p(\TT)$ and $f^{(j)}$ have modulus of continuity $\omega$,
+  then
+  \[
+      \inf_{t_N \in \Trig_N} \| f - t_N \|_\infty \lesssim N^{-p} \omega(N^{-1}).
+  \]
+  \end{enumerate}
+\end{theorem}
+
+Note that the second Jackson theorem does not make a statement about $f - J_N f$
+but only asserts the existence of a $t_N \in \Trig_N$. Nevertheless, the proof
+shows that this is still constructive.
+
+\begin{proof}[Proof of Theorem~\ref{th:trig:jackson} (1)]
+  \begin{align*}
+    \b| J_N \ast f(x) - f(x) \b|
+    &=
+    \bg| \int_{-\pi}^\pi \B( f(x-t) - f(x) \B) J_N(t) \, dt \bg| \\
+    &\leq
+    \int_{-\pi}^\pi \b|f(x-t) - f(x) \b| J_N(t) \, dt.
+  \end{align*}
+  Next, we can use the modulus of continuity to estimate
+  \[
+    \b|f(x-t) - f(x) \b| \leq \sum_{m = 1}^M
+      \b| f(x - mt/M) - f(x - (m-1)t/M) \b|
+    \lesssim M \omega(t/M)
+  \]
+  Choosing $M = \lceil tN \rceil$ we obtain
+  \[
+    \b|f(x-t) - f(x) \b| \lesssim
+      \cases{
+        \omega(N^{-1}), & 0 \leq |t| \leq N^{-1}, \\
+        t N \omega(N^{-1}), & |t| > N^{-1}.
+      }
+  \]
+  Using Lemma~\ref{th:trig:jackson_moments} we conclude
+  \[
+    \b| J_N \ast f(x) - f(x) \b|
+    \lesssim
+      \omega(N^{-1}) \int_0^{1/N} J_N(t) \, dt
+      + N \omega(N^{-1}) \int_{1/N}^{\pi} t J_N(t)\, dt
+    \lesssim \omega(N^{-1}). \qedhere
+  \]
+\end{proof}
+
+To prove Theorem~\ref{th:trig:jackson} (2), we need another auxiliary
+results that is also of independent interest.
+
+\begin{lemma} \label{th:trig:jackson-auxEN}
+  Let $E_N(f) := \inf_{t_N \in \Trig_N} \|f - t_N \|_\infty$, then for
+  $f \in C^1(\TT)$ we have
+  \[
+    E_N(f) \lesssim N^{-1} E_N(f').
+  \]
+\end{lemma}
+\begin{proof}
+  Let $s_N \in \Trig_N$ such that
+  \[
+    \|f' - s_N\|_\infty \leq 2 E_N(f').
+  \]
+  (In fact, we can replace $2$ with $1$, since the infimum is attained, but
+    we don't need this here.) Then we can write
+  \[
+    s_N(x) = \sum_{k = -N}^N \hat{s}_{k} e^{ikx}.
+  \]
+  Since $\hat{s}_{0} = \mint_\TT f' \,dx = 0$ we have in fact
+  \begin{align*}
+    s_N(x)
+    =
+    \sum_{\substack{k = -N \\ k \neq 0}}^N \hat{s}_{k} e^{ikx}
+    =
+    \sum_{\substack{k = -N \\ k \neq 0}}^N \frac{\hat{s}_{k}}{ik} \frac{d}{dx} e^{ikx}
+    =
+    r_N'(x),
+  \end{align*}
+  where
+  \[
+    r_N(x) =
+    \sum_{\substack{k = -N \\ k \neq 0}}^N \frac{\hat{r}_{k}}{ik} e^{ikx}.
+  \]
+  Finally, since $r_N \in \Trig_N$, we have $E_N(f) = E_N(f - r_N)$ and
+  Jackson's first theorem, specifically the \eqref{eq:trig:jackson:C1-version}
+  variant, yields
+  \[
+    E_N(f)
+    = E_N(f - r_N) \lesssim N^{-1} \| f' - r_N' \|_\infty
+    = N^{-1} \| f' - s_N \|_\infty
+    \lesssim N^{-1} E_n(f'). \qedhere
+  \]
+\end{proof}
+
+
+\begin{proof}[Proof of Theorem~\ref{th:trig:jackson} (2)]
+  According to Lemma~\ref{th:trig:jackson-auxEN},
+  \[
+    E_N(f) \lesssim N^{-1} E_N(f') \lesssim \dots
+    N^{-p} E_N(f^{(p)}),
+  \]
+  and according to Jackson's first theorem, for some $M \sim N$,
+  \[
+    E_N(f^{(p)}) \leq \| f^{(p)} - J_M \ast f^{(p)} \|_\infty
+      \leq \omega(M^{-1}) \lesssim \omega(N^{-1}),
+  \]
+  that is, $E_N(f) \lesssim N^{-p} \omega(N^{-1})$.
+  %
+  % Note that this does not yet prove our statement. To prove
+  % Theorem~\ref{th:trig:jackson} (2), let $t_N \in \Trig_N$ such that
+  % $\|f - t_N \|_\infty \leq C N^{-p} \omega(N^{-1})$, then we have
+  % \[
+  %   \| f - J_M \ast f \|_\infty
+  %     \leq \| f - t_N \|_\infty + \| J_M \ast (f - t_N) \|_\infty
+  %         + \|t_N - J_M \ast t_N \|_\infty
+  % \]
+\end{proof}
+
+
+
+
+
+\subsection{The Paley--Wiener Theorem}
+%
+\label{sec:trip:pw}
+%
+If $f$ is analytic on an interval $[a, b]$, then standard theorems of complex
+analysis imply the it can be extended to a analytic function in a
+neighbourhood $U$ of $[a, b]$. In the case of periodic functions, such a
+neighbourhood can be chosen to be a strip,
+\[
+  \Omega_\alpha := \{ z \in \C \sep |\Im z| < \alpha \},
+\]
+for some $\alpha > 0$. This is the starting point for a more refined
+version of Theorem~\ref{th:trig:decay}(2).
+
+\begin{theorem} \label{th:trig:pw-trefversion}
+  Suppose that $f$ is analytic in $\Omega_\alpha$ with
+  $\sup_{z \in \Omega_\alpha} |f(z)| = M_\alpha$, then
+  \[
+    |\hat{f}_k| \leq 2\pi M_\alpha e^{-\alpha|k|}.
+  \]
+\end{theorem}
+\begin{proof}
+  Assume $k > 0$; the case $k < 0$ is analogous.
+  Recall that
+  \[
+    \hat{f}_k = \frac{1}{2\pi} \int_{-\pi}^\pi f(x) e^{-ikx} \,dx.
+  \]
+  We fix some $\beta < \alpha$ and define a complex contour
+  \[
+    \mathcal{C} := (-\pi, \pi] \cup (\pi, \pi+ \beta i]
+        \cup (-\pi + \beta i, \pi + \beta i] \cup (-\pi, -\pi + \beta i]
+      = \mathcal{C}_{1} \cup \mathcal{C}_{2}
+        \cup \mathcal{C}_{3} \cup \mathcal{C}_{4},
+  \]
+  to be traversed counterclockwise. In particular $\frac{1}{2\pi i} \int_{\mathcal{C}_1} f(z) e^{ikz} \, dz = \hat{f}_k$, and periodicity of $f$ yields
+  \[
+      \sum_{j \in \{2, 4\}}  \int_{\mathcal{C}_j} f(z) e^{ikz} \, dz = 0.
+  \]
+  Combining these observations with Cauchy's theorem yields
+  \begin{align*}
+      0
+      &= \frac{1}{2\pi} \oint_{\mathcal{C}} f(z) e^{ikz} \, dz \\
+      &= \sum_{j = 1}^4\frac{1}{2\pi} \int_{\mathcal{C}_j} f(z) e^{ikz} \, dz  \\
+      &= \hat{f}_k + \frac{1}{2\pi} \int_{-\pi}^\pi f(x + \beta i) e^{i (x+\beta i) k} \, dx.
+  \end{align*}
+  Since we assumed that $k > 0$ we have $|e^{i (x+\beta i)k}| = e^{-\beta k}$, hence
+  rearranging the previous identity yields the estimate
+  \begin{align*}
+    |\hat{f}_k| &\leq \mint_{-\pi}^\pi |f(x+\beta i)| e^{-\beta k} \,dx
+      \leq M_\beta e^{-\beta k}.
+  \end{align*}
+  Since the upper bound valid for all $\beta < \alpha$ it also holds for $\beta
+  = \alpha$.
+\end{proof}
+
+The previous theorem clarifies that, to precisely understand the
+best-approximation of an analytic function $f$ by  trigonometric polynomials
+we {\em must} study $f$ not on $\TT$ but in the complex plane. While some
+further generalisations are possible, we will restrict ourselves mostly
+to the context of Theorem~\ref{th:trig:pw-trefversion} and thus look for the
+largest $\alpha$ such that $f$ can be extended to a analytic function
+on $\Omega_\alpha$.
+
+Suppose we have found an $\alpha$ such that $f \in A(\Omega_\alpha)$. If $f$
+blows up at some $x \pm i \alpha$ then we have found the maximal region of
+analyticity. If $f$ is bounded in $\Omega_\alpha$ then it is analytic at every
+point $z \in \partial \Omega_\alpha$ and hence we can extend $f$ to a
+analytic function in a larger domain $\Omega_{\alpha'}$, $\alpha' > \alpha$.
+Thus, to determine the maximal region of analyticity we must find the {\em
+poles} of $f$. We obtain the following simple corollary of Theorem~\ref{th:trig:pw-trefversion}.
+
+\begin{corollary} \label{th:trig:pw-sharp}
+  Let $f \in A(\TT) \cap A(\Omega_\alpha)$ with $\alpha$ maximal, then
+  for all $\epsilon > 0$ there exists $C_\epsilon > 0$ such that
+  \[
+    |\hat{f}_k| \leq C_\epsilon e^{- (\alpha-\epsilon) |k|}.
+  \]
+  Moreover, we have the approximation error estimate
+  \[
+    \| f - \Pi_N f \|_{L^\infty} \lesssim C_\epsilon' e^{-(\alpha-\epsilon) N}
+    \qquad \forall \epsilon > 0.
+  \]
+\end{corollary}
+
+\begin{example}[Smeared Zig-Zag]
+  Consider a family of periodic functions inspired by our introductory example,
+  \[
+    f(x) = (1 + c^2 \sin^2 x)^{-1},
+  \]
+  where $c > 0$. Then the analytic extension is still given by $f(z) = (1 + c^2
+  \sin^2 z)^{-1}$. To find the maximal strip of analyticity we need to compute
+  the poles, i.e., the points $z \in C$ such that $\eps^2 + \sin^2 z = 0$, or
+  equivalently $\sin z = \pm i \eps$, where $\eps = 1/c$.
+
+  To that end, we first note that
+  \[
+    \sin z = \sin (x + i y) = \sin x \cosh y + i \b\{ \cos x \sinh y \b\}.
+  \]
+  Thus the poles are given by the solutions to
+  \[
+       \sin x \cosh y = 0, \qquad \qquad
+       \cos x \sinh y = \pm \eps.
+  \]
+  Since $\cosh y \neq 0$, The first condition requires $\sin x = 0$, or,
+  $x \in \pi \Z$, hence $\cos x = \pm 1$. The second condition therefore
+  yields $\sinh y = \pm \eps$, or, equivalently,
+  \[
+      x \in \pi \Z, \qquad y = \pm \sinh^{-1} \eps.
+  \]
+  This characterises all the poles of $f(z)$, and in particular shows that
+  the maximal strip of analyticity is
+  \[
+      \Omega_{\sinh^{-1} \eps}
+  \]
+  Our theory therefore predicts (ignoring the $\epsilon$-factors) that
+  \[
+      |\hat{f}_k| \lesssim e^{- \sinh^{-1} \eps |k|}
+            \sim e^{- \eps |k|} = e^{-|k|/c} \qquad \text{for $\eps \sim 0$}
+  \]
+  as well as the approximation error estimate
+  \[
+      \| f - f_N \|_\infty \lesssim e^{- \sinh^{-1} \eps N} \sim e^{- \eps |k|}
+      = e^{-|k|/c}
+      \qquad \text{for $\eps \sim 0$.}
+  \]
+  After discussing trigonometric interpolation we will show numerical
+  tests demonstrating that this is sharp.
+\end{example}
+
+
+Finally, it is also natural to ask about the case when $f$ is entire, i.e.,
+$f \in A(\Omega_\alpha)$ for all $\alpha > 0$. In this case, we simply
+obtain \Cref{th:trig:pw-sharp} with $\alpha = \infty$:
+
+\begin{corollary} \label{th:trig:pw-entire}
+  Suppose that $f \in A(\TT) \cap A(\C)$  (i.e., $f$ is entire), then for all
+  $\alpha > 0$ there exists $C_\alpha > 0$ ($C_\alpha =
+  \|f\|_{L^\infty(\Omega_\alpha)}$ such that
+  \[
+      |\hat{f}_k| \lesssim C_\alpha e^{-\alpha |k|}.
+  \]
+\end{corollary}
+
+
+
+\subsection{Interpolation}
+%
+\label{sec:trig:interp}
+%
+We have discussed two strategies to construct approximations of functions by
+trigonometric polynomials: $L^2$-projection and convolution (e.g., with the
+Jackson kernel). While both are constructive, they are not particularly
+``practical'' in that they require efficient and accurate numerical quadrature
+schemes. In practise it is much more straightforward to directly work with
+the nodal interpolant:
+
+\begin{proposition}
+  Let $f \in C(\TT)$, then there exists a unique $I_N f \in \Trig_N$
+  such that
+  \[
+      f(x_j) = I_N f(x_j) \qquad \forall x_j \in \frac{2\pi}{N} \Z
+  \]
+  The points $x_j$ are called the interpolation nodes. They implicitly
+  depend on $N$, but we suppress this dependence.
+\end{proposition}
+
+The choice of the grid $\{x_j\}$ is of course completely arbitrary, and there is
+{\it a priori} no guarantee that it is optimal or even close to optimal.
+Nevertheless, our introductory example already hints that it is not such a bad
+choice. We will prove in the remainder of this section that it is optimal up to
+a logarithmic factor. We will also return to a more careful discussion of
+different choices of interpolation nodes in \S~\ref{sec:poly}.
+
+The key idea is the same that we also used in the analysis of the
+$L^2$-projector in Exercise~\ref{exr:trig:dirichlet}: let $f \in C(\TT)$, $t_N
+\in \Trig_N$ arbitrary, and $\|\cdot\|$ any norm, then
+\begin{align*}
+  \|f - I_N f \| &\leq \|f - t_N \| + \| t_N - I_N f\| \\
+    & = \|f - t_N \| + \| I_N (t_N - f) \| \\
+    & \leq (1 + \|I_N\|_{\rm op}) \| t_N - f \|,
+\end{align*}
+where $\|I_N\|_{\rm op}$ is the operator norm of $I_N$ associated with
+$\|\cdot\|$, i.e.,
+\[
+    \| I_N \|_{\rm op} = \sup_{\substack{f \in C(\TT) \\ \|f\| = 1}} \| I_N f \|.
+\]
+Taking the infimum over all $t_N \in \Trig_N$ we obtain that the
+interpolation error deviates from the best approximation error by
+factor determined by the operator norm of $I_N$, i.e.,
+\[
+    \|f - I_N f \| \leq (1 + \|I_N\|_{\rm op}) \inf_{t_N \in \Trig_N} \|f - t_N \|.
+\]
+
+\begin{definition}
+  The interpolation operator norm is also called {\em Lebesgue constant},
+  and often denoted by $\Lambda_N = \| I_N \|_{\rm op}$.
+\end{definition}
+
+From here on we will focus on the $L^\infty$-operator norm, i.e., $\|\cdot\| =
+\|\cdot\|_{L^\infty}$, and will call $\|I_N\|_{\rm op} =
+\|I_N\|_{L(L^\infty)} =: \Lambda_N$.
+
+To estimate $\Lambda_N$ we wish to write $I_N f$ in terms of a {\em nodal
+basis}, i.e.,
+\[
+  I_N f(x) = \sum_{j = -N+1}^N f(x_j) L_j(x),
+\]
+where $x_j = \pi j / N$, then we can simply estimate
+\begin{align} \label{eq:trig:LamNbound}
+  \Lambda_N \leq \sup_{x \in \TT}  \sum_{j = -N+1}^N |L_j(x)|.
+\end{align}
+
+\begin{lemma}
+  The nodal basis for trigonometric interpolation (for an even number of
+  grid points $2N$) is given by a modified Dirichlet kernel,
+  \[
+    % L_j(x) = \frac{\sin\b( N (x-x_j) \b)}{N \tan\b( \smfrac12 (x-x_j)\b)}
+    %     = \frac{{\rm sinc}\b( N (x - x_j)\b)}{N {\rm sinc}\b( \smfrac12 (x-x_j)\b)}
+    %         \cos\b( \smfrac12 (x-x_j) \b).
+    L_j(x) = \tilde{D}_N(x-x_j)
+  \]
+  where $D_N$ is the Dirichlet kernel,
+  \[
+    \tilde{D}_N(x) = \frac{\sin(Nx)}{2N \tan(x/2)}
+      = \frac{D_N(x) - \cos(Nx)}{2N}.
+  \]
+\end{lemma}
+\begin{proof}
+  To see the identity for $\tilde{D}_N$ simply use
+      $\sin(\alpha+\beta) = \sin\alpha\cos\beta + \cos\alpha\sin\beta$.
+  From the definition of $\tilde{D}$ it is straightforward to check that
+  $L_j(x_i) = \delta_{ij}$. For the case $i = j$ this is a limit argument: (fill
+  in the details!)
+  \[
+    \lim_{x \to x_j} L_j(x) = 1.
+  \]
+  Thus we ``only'' need to show that $L_j$ is indeed a trigonometric polynomial,
+  or equivalently, $D_N \in \Trig_N$. This is achieved by an analogous argument
+  as for the Jackson kernel.
+
+  See also Exercise~\ref{exr:trig:dirichlet}.
+\end{proof}
+
+
+
+See \nbtrig for a numerical exploration of $\Lambda_N := \|I_N\|_{\rm op}$.
+The numerical experiments shown there suggest that the following theorem
+holds.
+
+\begin{theorem} \label{th:trig:lebesgue}
+  The Lebesgue constant for trigonometric interpolation with respect to the $L^\infty$-norm is bounded by
+  \[
+    \|I_N\|_{L(L^\infty)} \leq C \log N. 
+  \]
+
+  In particular, if $f \in C(\TT)$, then
+  \[
+      \| f - I_N f \|_{L^\infty}
+        \lesssim \log N \inf_{t_N \in \Trig_N} \| f - t_N \|_{L^\infty}.
+  \]
+\end{theorem}
+\begin{proof}
+  Recall \eqref{eq:trig:LamNbound}, then we need to bound
+  \begin{align*}
+    \Lambda_N
+    &\leq
+    \sum_{j =  -N}^N |\tilde{D}_N(x - x_j)|.
+  \end{align*}
+  By translation invariance and reflection symmetry we only need to consider $x = -t$,
+  $t \in [0, \pi/N)$; in this case,
+  \begin{align*}
+    \Lambda_N
+    &\leq
+    \sum_{j =  -N}^N |\tilde{D}_N(x - x_j)| \\
+    &\leq
+    2\sum_{j =  0}^N |\tilde{D}_N(x_j+t)|  \\
+    &\leq
+    \frac{1}{N} \bg\{
+        \frac{\sin(Nt)}{\sin(t/2)}
+        + \sum_{j = 1}^N
+        \bg|\frac{\sin\b(N(x_j+t)\b)}{\sin\b((x_j+t)/2\b)}\bg|
+      \bg\} \\
+    &\leq
+    \frac{1}{N} \bg\{
+        \frac{Nt}{t} + \sum_{j = 1}^N \frac{1}{ \pi j / N }
+    \bg\} \\
+    &\leq 
+    \pi^{-1} \log N + 2
+    \qedhere
+  \end{align*}
+\end{proof}
+
+\begin{remark}
+  Our numerical tests in \nbtrig suggest that 
+  $\|I_N\|_{L(L^\infty)} \leq \smfrac{\pi}{2} \log N + 1$. Can you prove this, or a bound close 
+  to it? 
+\end{remark}
+  
+
+\subsection{The Fast Fourier Transform}
+%
+\label{sec:trig:fft}
+%
+As a final topic on the theme of trigonometric polynomial approximation we will
+study how to work efficiently with trigonometric interpolants. This is acieved
+via the discrete Fourier transform and its fast implementation, the {\it Fast
+Fourier Transform}, likely one of the most important and most widely used
+numerical algorithms.
+
+For the following discussion it is best to assume that $N$ is even, in particular
+we will discuss the FFT only for the case that $N = 2^n$.
+
+Given a function $f \in C(\TT)$ we can evaluate it at grid points $x_j$ which
+leads to a grid function $F_j = (f(x_j))_{j}$. Given $N \in 2\N$ it is common to
+define the DFT and FFT for the grid
+%
+\[
+    x_j = \frac{2\pi j}{N} \qquad j = 0, \dots, N-1.
+\]
+%
+In our notation up to now it would have been more natural to write $x_j = -\pi +
+2\pi j/N$ instead, but since we are considering periodic functions we just need
+to shift them into a new domain $[0, 2\pi)$.
+
+We then ask, what are the coefficients of the trigonometric polynomial
+$t \in \Trig_{N/2}$ such that
+%
+\[
+  t(x_j) = F_j \qquad \text{for } j = 0, \dots, N-1.
+\]
+%
+This is provided by the DFT operator: for $F \in \C^N$, $k = 0, \dots, N-1$,
+%
+\begin{align}
+  \label{eq:trig:dft}
+  {\rm DFT}[F] := \hat{F}, \quad \text{where} \quad
+  \hat{F}_k &= \frac{1}{N} \sum_{j = 0}^{N-1} F_j e^{-i x_j k} \\
+  \notag
+            &= \frac{1}{N} \sum_{j = 0}^{N-1} F_j e^{-i 2\pi j k / N}.
+\end{align}
+%
+Note in particular that this is a trapezoidal rule approximation of
+\eqref{eq:trig:fourier coeffs}.
+
+\begin{remark} \label{rem:trig:k-grid}
+  Since $x_j = 2 \pi j/ N$ it follows that
+  \[
+    e^{-i x_j (k \pm N)} = e^{-i x_j k}
+  \]
+  and hence the $k$-grid $\{0, \dots, N-1\}$ can alternatively be interpreted
+  as
+  \[
+    \{ 0, \dots, N/2, -N/2+1, -N/2+2, \dots, -1 \}. \qquad \qedhere
+  \]
+\end{remark}
+
+
+\begin{proposition} \label{th:trig:dft}
+  Let the ${\rm IDFT}$ be defined by
+  \begin{equation} \label{eq:trig:idft}
+    U = {\rm IDFT}[\hat{U}], \quad \text{where} \quad
+    U_j := \sum_{k = 0}^{N-1} \hat{U}_k e^{i x_j k}
+        = \sum_{k = 0}^{N-1} \hat{U}_k e^{i 2\pi j k/ N},
+  \end{equation}
+  then
+  \[
+    {\rm IDFT}\big[ {\rm DFT}[F] \big] = F \qquad \forall F \in \C^N.
+  \]
+  In particular, if $\hat{F} = {\rm DFT}[F]$, then the trigonometric polynomial
+  (cf. Remark~\ref{rem:trig:k-grid})
+  \[
+    t(x) = \sum_{k = 0}^{N-1} \hat{F}_k e^{i k x}
+  \]
+  interpolates $(x_j, F_j)_{j = 0}^{N-1}$, i.e.,
+  \[
+    t(x_j) = F_j \qquad \text{for } j = 0, \dots, N-1.
+  \]
+\end{proposition}
+\begin{proof}
+  Left as an exercise.
+\end{proof}
+
+
+Using expression \eqref{eq:trig:dft} the cost of computing ${\rm DFT}[F]$ is
+$O(N^2)$. Indeed, this is the cost of a generic matrix-vector multiplication,
+i.e., applying a linear operation in $\R^N \to \R^N$ that has no special
+structure. Luckily the ${\rm DFT}$ has plenty of structure to exploit, which
+finally brings us to the FFT algorithm (specifically the radix-2 variant of
+Cooley--Tukey's algorithm).
+
+We begin by rewriting
+\[
+  \hat{F}_k = N^{-1} \sum_{j = 0}^{N-1} F_j \omega^{kj},
+  \qquad \text{where} \quad \omega := e^{-i 2\pi/N}.
+\]
+Then,
+\begin{align}
+  \notag
+  \hat{F}_k  &= \sum_{j = 0}^{N/2-1} F_{2j} \omega^{2kj}
+      + \sum_{j = 0}^{N/2-1} F_{2j+1} \omega^{k(2j+1)} \\
+  \notag
+    &= \sum_{j = 0}^{N/2-1} F_{2j} \omega^{2kj}
+        + \omega^k \sum_{j = 0}^{N/2-1} F_{2j+1} \omega^{2kj} \\
+  \label{eq:trig:fft_split}
+    &=: \hat{G}_k + \omega^k \hat{H}_k.
+\end{align}
+In particular, since $\omega^2 = e^{-i2\pi/(N/2)}$, we note that $\hat{G}_k$ is
+the DFT of $(F_{2j})_{j=0}^{N/2-1}$, while $\hat{H}_k$ is the DFT of
+$(F_{2j+1})_{j=0}^{N/2-1}$.
+
+A final remark is that, {\it a priori} $\hat{G}_k$ and $\hat{H}_k$ will be given
+only for $k = 0, \dots, N/2-1$, but the expressions are $N/2$-periodic and
+\eqref{eq:trig:fft_split} allows us to recover $\hat{F}$ for all $k = 0, \dots,
+N-1$. Specifically, we obtain the following identity:
+%
+\begin{equation} \label{eq:trig:fft_trick}
+  \begin{split}
+    \hat{F}_k &= \hat{G}_k + \omega^k \hat{H}_k, \qquad k = 0, \dots, N/2-1, \\
+    \hat{F}_k &= \hat{G}_{k-N/2} - \omega^{k-N/2} \hat{H}_{k-N/2},
+      \qquad k = N/2, \dots, N-1.
+  \end{split}
+\end{equation}
+(We could also write $\omega^k$ instead of $\omega^{k-N/2}$; this is
+equivalent.)
+% The case $k = 0, \dots, N/2-1$ is already clear from
+% \eqref{eq:trig:fft_split}. For $k > N/2-1$ it follows from the
+% $N/2$-periodicity of $\hat{G}_k, \hat{H}_k$, i.e.,
+% \[
+%   \hat{G}_{k+N/2} = \hat{G}_k, \qquad \text{and} \qquad
+%   \hat{H}_{k+N/2} = \hat{H}_k,
+% \]
+% as well as
+% \[
+%   \omega^{N/2} = e^{-i2\pi(N/2)/N} = e^{-i\pi} = -1.
+% \]
+
+Suppose now that $N/2$ is still divisible by 2, then the can split the
+computation of $\hat{F}, \hat{G}$ again into four smaller DFTs. This process
+can of course be iterated. If $N = 2^m$, then after $m \sim \log N$ iterations
+iterations we compute $N$ DFTs of length one. Combining the small DFTs into
+the larger DFTs requires $O(N)$ operations at each level. Since there are
+$O(\log N)$ levels, this means that the cost of computing the original DFT
+is $O(N \log N)$. Algorithms that use some variant of this strategy are
+called {\em Fast Fourier Transform}s.
+
+
+
+
+
+\subsection{Examples}
+%
+We are now fully equipped to applying trigonometric polynomial approximation for
+numerical simulation. We will consider
+\begin{itemize}
+  \item a linear, homogeneous boundary value problem
+  \item a transport equation with variable coefficients
+  \item a filtering problem
+\end{itemize}
+These examples may be found in \nbtrig.
+
+
+
+
+\subsection{Exercises}
+
+\begin{exercise} \label{exr:trig:hilbert-onb}
+  \begin{enumerate} \ilist
+    \item Recall the definition of a complex Hilbert space and
+        check that $( L^2(\TT), \< \cdot, \cdot \>_{L^2(\TT)} )$ is indeed
+        a pre-Hilbert space, i.e. check all conditions except for completeness.
+        (Completeness is a bit more involved, but it is not particularly
+        difficult; feel free to look this up  in a suitable textbook.)
+
+    \item Complete the proof of the Plancherel Theorem; i.e.
+      Theorem~\ref{th:trig:plancherel}(ii).
+
+    \item Using Jackson's theorem, prove also
+    Theorem~\ref{th:trig:plancherel}(i).
+
+    {\it Hint: use the fact that $\Pi_N$ is an orthogonal projector and
+    in particular has operator norm 1.}
+  \end{enumerate}
+\end{exercise}
+
+\begin{exercise} \label{exr:trig:convergence_L2}
+  Complete the proof of Theorem~\ref{th:trig:convergence_L2}.
+\end{exercise}
+
+\begin{exercise} \label{exr:trig:functions}
+  For the following functions $f$, categorize their regularity as closely as
+  possible and estimate the rate of convergence of $\|f-\Pi_N f\|_{L^2}$.
+  \begin{enumerate} \ilist
+    \item  $f(x) = \sin(x)$
+    \item  $f(x) = \sin(x/2)$
+    \item $f(x) = |\sin(x)|$
+    \item $f(x) = |\sin(x)|^3$
+    \item $f(x) = (1 + c^2 \sin^2 x)^{-1}$
+    \item $f(x) = \exp( - \sin(x))$
+    \item $f(x) = \exp( - 1 / (1-x^2) ) \chi_{(-1,1)}(x)$, extended $2\pi$-periodically to $\R$.
+    % x^2 < 2.49999^2 ? exp(3 - 3 / (1-(x/2.5)^2)) : 0.0
+  \end{enumerate}
+  Can you sharpen your estimates after working through
+  Exercise~\ref{exr:trig:gibbs}?
+\end{exercise}
+
+
+\begin{exercise}[Gibbs Phenomenon] \label{exr:trig:gibbs}
+  Consider the periodic, piecewise constant function
+  \[
+      f(x) = \cases{
+        1, & x \in (0, \pi], \\
+        -1, & x \in (-\pi, 0].
+      }
+  \]
+  \begin{enumerate} \ilist
+  \item Prove that, there exists no sequence of trigonometric polynomials
+  $t_N \in \Trig_N$ such that $t_N \to f$ uniformly, but that
+  \[
+    \|\Pi_N f - f\|_{L^2} \to 0 \qquad \text{as } N \to \infty.
+  \]
+
+  \item Show that the Fourier series for $f$ is given by
+  \[
+    \Pi_N f(x) = \frac{4}{\pi} \sum_{\substack{j = 1 \\ j \text{ odd}}}^{N}
+        \frac{\sin(jx)}{j}.
+  \]
+
+  \item Deduce that
+  \[
+      \| \Pi_N f - f \|_{L^2} \lesssim N^{-1/2}.
+  \]
+
+  \item {\bf Gibbs Phenomenon: } Prove that
+  \[
+    \lim_{N \to \infty} \Pi_N f\b(\smfrac{\pi}{N} \b) > 1
+  \]
+  You may use without proof that
+  \[
+      \int_0^\pi \frac{\sin(t)}{t} \,dt \approx
+      \frac{\pi}{2} + \pi \cdot (0.089489\dots).
+  \]
+
+  {\it If you plot $\Pi_N f$ you will observe oscillations around the
+  discontinuity. This ``picture'' is what is commonly known as the Gibbs
+  phenomenon. It is a special case of {\bf ringing artefacts}, which are
+  a common occurance when piecewise smooth data is approximated using
+  global basis functions. This can be nicely visualised in image processing;
+  see e.g. {\tt https://en.wikipedia.org/wiki/Ringing\_artifacts}.}
+
+  \item {Piecewise smooth functions: } Make an educated guess what the
+  rate of convergence is for $\|\Pi_N f - f \|_{L^2}$ when $f$ is piecewise
+  $C^\infty(\TT)$, all derivatives up to $f^{(p-1)}$ are continuous and
+  $f^{(p)}$ has jump discontinuities at finite many points. This includes
+  functions such as $|\sin(nx)|, |\sin(nx)|^q$ for $q$ odd.
+
+  {\it Hint: A rigorous derivation of this convergence rate is quite
+  possible; consider the function $g(x) = \sin(x/2)$, continued periodically.}
+  %
+  \qedhere
+  \end{enumerate}
+\end{exercise}
+
+
+\begin{exercise}[Dirichlet Kernel] \label{exr:trig:dirichlet}
+  \begin{enumerate} \ilist
+    \item Prove that
+    \[
+      D_N(x) = \frac{\sin\b((N+1/2) x\b)}{\sin(x/2)}
+            = 1 + 2 \sum_{k = 1}^N \cos(k x)
+            = \sum_{k = -N}^N e^{ikx}.
+    \]
+    \item Deduce that,
+    \[
+      (D_N \ast e^{in \bullet})(x) =
+        \cases{
+          e^{inx}, & -N \leq n \leq N, \\
+          0, & \text{otherwise}
+        }
+    \]
+    \item Deduce that, if $f \in L^1(\TT)$, then
+    \[
+        D_N \ast f = \Pi_N f.
+    \]
+    \item Show that $\|D_N\|_{L^1} \lesssim \log N$ and hence
+    \[
+        \| D_N \ast f \|_{L^\infty} \leq \|D_N \|_{L^1} \|f\|_\infty
+          \lesssim \log N \|f\|_\infty.
+    \]
+    {\it HINT: to estimate $D_N$ use a similar splitting into sub-intervals
+    as in the Jackson kernel estimates.}
+    \item Deduce that
+    \[
+        \| f - \Pi_N f \|_{\infty}
+        \lesssim  \log N \inf_{t_N \in \Trig_N} \| f - f_N \|_\infty,
+    \]
+    and in particular, if $f \in C^p(\TT)$ and $f^{(p)}$ has modulus of
+    continuity $\omega$, then
+    \[
+        \| f - \Pi_N f \|_\infty \log N N^{-p} \omega(N^{-1}). \qedhere
+    \]
+    % Hint: use the fact that $\Pi_N t_N = t_N$ for all $t_N \in \Trig_N$.
+
+  \end{enumerate}
+\end{exercise}
+
+
+\begin{exercise} \label{exr:trig:periodic extension}
+  Let $f \in A(\TT)$. Prove that there exists $\alpha > 0$ such that $f$ has an
+  analytic extension to $\Omega_\alpha$. Further, show that this extension
+  (still called $f$) must be $2\pi$-periodic, i.e.,
+  \[
+      f(x + i y) = f(x + 2\pi + i y) \qquad \forall x+iy \in \Omega_\alpha. \qedhere
+  \]
+\end{exercise}
+
+
+\begin{exercise}[The Exponentially Convergent Trapezoidal Rule]
+  \label{exr:trig:trapezoidal rule}
+  Let $f \in A(\TT)$, and consider the trapezoidal rule approximation
+  of $I[f] := \mint_{-\pi}^\pi f\,dx$;
+  \[
+    Q_N[f] := \frac{1}{2N} \sum_{j = -N+1}^N f(x_j),
+  \]
+  where $x_j := j\pi/N$.
+  %
+  \begin{enumerate} \ilist
+    \item Prove that,
+    \[
+        \frac{1}{2N} \sum_{j = -N+1}^N e^{ikx_j} =
+          \cases{
+              1, & k \in 2N \Z, \\
+              0, & \text{otherwise.}
+          }
+    \]
+
+    \item Suppose $f$ is analytic in $\Omega_\alpha$, where $\alpha > 0$ is
+    maximal. Derive a sharp convergence rate for $|Q_N[f] - I[f]|$.
+    {\it (You may of course revisit our sketches from the introductory lecture.)}
+
+    \item {\it Poisson's example: } The perimeter of an ellipse with axis
+    lengths $1/\pi, 0.6/\pi$ is given by the integral
+    \[
+        I = \frac{1}{2\pi} \int_{-\pi}^\pi \sqrt{1 - 0.36 \sin^2\theta}\,d\theta.
+    \]
+    {\it (You may justify this, but this is not required.)}
+    \begin{itemize}
+        %
+      \item Compute the region of analyticity for $f(\theta) = \sqrt{1 - 0.36
+      \sin^2\theta}$, hence prove a rate of convergence for $Q_N[f]$.
+      {\it (For this problem, you also need to estimate the prefactor!)}
+      %
+      \item Only solve one of the following two problems:
+
+      (OPTION 1) How many terms to you need to obtain 3, 5, 7 digits of accuracy?
+      Using only a calculator, compute $I[f]$ to within 3 digits of accuracy.
+      How many ``non-trivial'' function evaluations did you need?
+
+      (OPTION 2) numerically demonstrate the convergence (use Julia, Matlab, Python or any language you wish.) \qedhere
+    \end{itemize}
+  \end{enumerate}
+\end{exercise}
+
+
+% \begin{exercise}[Spectral Differentiation]
+% \end{exercise}
+
+
+\begin{exercise}
+  Prove Proposition~\ref{th:trig:dft}.
+\end{exercise}
+
+\begin{exercise}
+  {\bf Radix-3 FFT: } Instead of $N = 2^m$ suppose that $N = 3 N'$. Generalise
+  the FFT to this case, i.e., derive the analogues of \eqref{eq:trig:fft_split}
+  and \eqref{eq:trig:fft_trick}.
+
+  (Bonus: Can you also generalise to $N = n N'$?)
+\end{exercise}
