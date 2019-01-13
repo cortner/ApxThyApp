@@ -4,7 +4,7 @@
 \section{Algebraic Polynomials}
 %
 \label{sec:poly}
-%
+% 
 Our second major topic concerns approximation of functions defined on an
 interval $f : [-1, 1] \to \R$, without loss of generality. But contrary to
 \S~\ref{sec:trig} we no longer assume periodicity. Instead we will approximate
@@ -16,10 +16,28 @@ where $\Poly_N$ denotes the space of degree $N$ polynomials,
 \[
    \Poly_N := \bg\{ \sum_{n = 0}^N c_n x^n \bsep c_n \in \R \bg\}.
 \]
+Note in particular that in the terms of "simplicity" these are indeed the 
+simplest functions to evaluate numerically in that they only require addition 
+and multiplication operations. 
 
-It is a standard fact (and easy to prove) that for any $N+1$ distinct 
-points $x_0, \dots, x_N \in \R$ and values $f_0, \dots, f_N$ there exists exactly one polynomial 
-$p_N \in \Poly_N$ interpolating those values, i.e., 
+In terms of a basic convergence result we have the following initial 
+proposition, which we will not prove now, but it will follow from our 
+later work.
+
+\begin{proposition}[Weierstrass Approximation Theorem] \label{th:poly:Weierstrass}
+   $\bigcup_{N \in \N} \Poly_N$ is dense in $C([-1,1])$ and by extension also 
+   in $L^p(-1,1)$ for all $p \in [1, \infty)$.
+\end{proposition}
+
+\bigskip 
+
+Indeed, as we have argued before, convergence in itself of {\em some} sequence
+of approximations  is rarely useful, but we require (i) rates and (ii) explicit
+constructions. Much of this chapter is therefore devoted to interpolation.
+
+It is a standard fact (and easy to prove) that for any $N+1$ distinct points
+$x_0, \dots, x_N \in \R$ and values $f_0, \dots, f_N$ there exists exactly one
+polynomial $p_N \in \Poly_N$ interpolating those values, i.e., 
 \[
    p_N(x_j) = f_j, \qquad j = 0, \dots, N.
 \]
@@ -37,6 +55,7 @@ exploring also other kinds of fits we also see that this does not preclude the
 possibility of computing a (very) good approximation. We therefore focus
 initially by deriving a ``good'' set of interpolation nodes. The same idea will
 also naturally lead to the Chebyshev polynomials.
+
 
 \subsection{Chebyshev Points, Chebyshev Polynomials and Chebyshev Series}
 %
@@ -322,9 +341,31 @@ estimates.
    \]
    which is well-defined {\em except at the poles}
    \[
-       z_j = \pm i  \frac{(1+2j)\pi}{\beta}.
+       z_j = \pm i  \frac{\pi}{\beta}.
    \]
-   \alert{add the analysis of the Bernstein ellipse}
+
+   In Exercise~\ref{exr:poly:ellipse} we show that the semi-minor axis of the 
+   Bernstein ellipse $E_\rho$ is $\frac12 (\rho-\rho^{-1})$, hence the largest 
+   $\rho$ for which ${\rm int}E_\rho$ does not intersect any singularity is 
+   given by 
+   \[ \frac12 (\rho-\rho^{-1}) = \frac{\pi}{\beta}x. \]
+   Solving this quadratic equation for $\rho$ yields one positive root 
+   \[ \rho = \smfrac{\pi}{\beta}+\sqrt{1 + \smfrac{\pi^2}{\beta^2}}
+   \]
+   Of particular interest is the low temperature regime $\beta \to \infty$ 
+   (recall that $\beta \propto$ inverse temperature), for which we obtain 
+   \[
+      \rho \sim 1 + \smfrac{\pi}{\beta}.
+   \]
+   
+   In this regime we therefore expect an approximation rate close to 
+   \[
+      \| f_\beta - I_N f_\beta \|_{\infty} 
+      \lesssim \beta \b(1 + \smfrac{\pi}{\beta}\b)^{-N}
+      \sim \beta \exp\b( - \pi \beta^{-1} N).
+   \] 
+   (Why is this not a rigorous and in fact likely false bound? You can get 
+   a rigorous reformulation from the foregoing theorems.)
  \end{example}
 
 
@@ -335,7 +376,9 @@ this time to simply apply the Fourier results directly. The details
 are carried out in Exercise~\ref{exr:poly:convergence}. We obtain
 the following result.
 
-\begin{theorem}[Jackson's Theorems]
+\begin{theorem}[Jackson's Theorem(s)]
+   \label{th:poly:jackson}
+   %
    Let $f \in C^{(j)}([-1,1])$, $j \geq 0$, where $f^{(j)}$ has modulus of
    continuity $\omega$, then
    \begin{equation}
@@ -711,6 +754,7 @@ numerical stability is of no concern; see \cite{Higham2004-fn} for more details.
 
 \subsection{Applications}
 
+\alert{todo}
 \begin{itemize}
    \item spectral methods; see Sec 21 in Tref book
    \item computation of a special function?
@@ -723,7 +767,8 @@ numerical stability is of no concern; see \cite{Higham2004-fn} for more details.
 %
 % IDEAS FOR COMPUTATIONAL EXERCISES: 
 % - test instability of Vandermonde interpolation 
-% - super-exponential convergence for e^x
+% - super-exponential convergence for entire functions ... 
+%   e^x should be easy to analyse too! Also e^{-x^2}!
 %   http://www.chebfun.org/examples/approx/EntireBound.html
 
 
@@ -748,6 +793,37 @@ numerical stability is of no concern; see \cite{Higham2004-fn} for more details.
    
 %    \alert{condition number of the Vandermonde matrix}.
 % \end{exercise}
+
+\begin{exercise}[Interpolation: Existence and Uniqueness] Prove that for any
+   collection of nodes $z_0, \dots, z_N \subset \C$ with $x_i \neq z_j$  for $i
+   \neq j$, and nodal values $f_j$, there exists a unique interpolant $p \in
+   \Poly_N$ such that $p(z_j) = f_j$. 
+\end{exercise}
+
+\begin{exercise}[Runge Phenomenon]
+   \label{exr:poly:Runge Phenomenon}
+   %
+   For a partial explanation of the Runge phenomenon (cf \nbpoly) consider 
+   the following steps: 
+   \begin{enumerate} \ilist 
+      \item Suppose $f \in C^{N+1}([-1,1])$. Prove that there exists 
+      $\xi \in (-1,1)$ such that 
+      \[
+         f(x) - I_N f(x) =  \frac{f^{(N+1)}(\xi)}{(N+1)!} 
+            \ell_N(x),
+      \]
+      where $\ell_N(x)$ is the node polynomial for the interpolation points. 
+      \item Prove that for equispaces nodes, 
+      $\|\ell_N\|_\infty \approx (2N)^{N} (N-1)!$.
+      \item For $f(x) = 1 / (1+25 x^2)$, prove that 
+       $\| f^{(N+1)} \|_\infty \| \ell_N \|_\infty  / (N+1)! \to 
+       \infty$ as $N \to \infty$.
+
+       {\it (Note this does not prove divergence but proved a strong 
+       hint why divergence occurs.)}
+   \end{enumerate}
+\end{exercise}
+
 
 \begin{exercise}[Clenshaw's Algorithm]
    %
@@ -777,10 +853,12 @@ numerical stability is of no concern; see \cite{Higham2004-fn} for more details.
    best-approximation with respect to the $\|\cdot\|_{L^2_C}$-norm. 
 \end{exercise}
 
-\begin{exercise}[Bernstein Ellipse] Prove that the Bernstein Ellipse $E_\rho$,
-   $\rho > 1$ is indeed an ellipse with centre $z = 0$, foci $\pm 1$, semi-major
-   axis $\frac12 (\rho+\rho^{-1})$ and semi-minor axis $\frac12
-   (\rho-\rho^{-1})$.
+\begin{exercise}[Bernstein Ellipse] 
+   \label{exr:poly:ellipse}
+   %
+   Prove that the Bernstein Ellipse $E_\rho$, $\rho > 1$ is indeed an ellipse
+   with centre $z = 0$, foci $\pm 1$, semi-major axis $\frac12 (\rho+\rho^{-1})$
+   and semi-minor axis $\frac12 (\rho-\rho^{-1})$.
 \end{exercise}
 
 
@@ -799,15 +877,41 @@ numerical stability is of no concern; see \cite{Higham2004-fn} for more details.
       C([-1,1])$ with modulus of continuity $\omega$, then $g \in C(\TT)$ and it
       has the same modulus of continuity.
 
-   \item Prove that \alert{next theorem, first case}
+   \item Prove Theorem~\ref{th:poly:jackson}, case $j = 0$.
 
-   \item prove the $f' / f$ error estimate improvement; does this even work here?
-   Yes, and this is where the $N (N-1) \cdots$ comes from.
+   \item Let $E_N(f) := \inf_{p \in \Poly_N} \|f - p\|_\infty$. Prove that 
+      \[
+         E_N(f)  \leq C N^{-1} E_{N-1}(f'),
+      \]
+      where $C$ is independent of $N$ and try to quantify $C$.
 
-   \item Prove the general $C^{j,\omega}$ theorem.
+   \item Complete the proof of Theorem~\ref{th:poly:jackson} (general $j$).
+   Indeed, you should obtain a more precise formula.
    \end{enumerate}
 \end{exercise}
 
+\begin{exercise} 
+   \label{exr:poly:examplefunctions}
+   %
+   \begin{enumerate} \ilist 
+   \item For the following functions give bounds on the rate of polynomial best
+   approximation in the max-norm, as sharp as you can manage: 
+   \begin{enumerate} \ilist
+      \item $f(x) = |\sin(5 x)|$ 
+      \item $f(x) = \sqrt{|x|}$
+      \item $f(x) = x (1 + 1000 (x - 1/2))^{-1/2}$
+      \item $f(x) = e^{- \cos(3x)}$
+      \item $f(x) = x^{100}$
+      \item $f(x) = e^{-x^2}$ 
+      \item $f(x) = {\rm sign}(x)$
+   \end{enumerate}
+   \item and for the following two functions also in the $L^2$-norm:
+   \begin{itemize}
+      \item $f(x) = {\rm sign}(x)$
+      \item $f(x) = \sqrt{|x|}$
+   \end{itemize}
+   \end{enumerate}
+\end{exercise}
 
 \begin{exercise}[Barycentric Chebyshev Interpolation]
    %
@@ -817,8 +921,7 @@ numerical stability is of no concern; see \cite{Higham2004-fn} for more details.
    \begin{enumerate} \ilist
    \item In general (not only for Chebyshev points), demonstrate that $\lambda_j
       = 1 / \ell'(x_j)$.
-   \item Use the recursion formula (or otherwise) to prove that the 
-   node polynomial satisfies 
+   \item Prove that the node polynomial satisfies 
    \[
       \ell(x) = 2^{-N} \b(T_{N+1}(x) - T_{N-1}(x)\b)
    \]
@@ -834,15 +937,67 @@ numerical stability is of no concern; see \cite{Higham2004-fn} for more details.
    \[
       \lambda_j = \frac{2^{N-1}}{N} (-1)^j, \qquad j = 1, \dots, N-1,
    \]
-   and suitably adjusted for $j = 0, N$. Deduce that we can rescale the weights
+   and suitably adjusted for $j = 0, N$. Explain why we can rescale the weights
    $\lambda_j$ without changing the validity of the barycentric formula, and
    hence complete the proof of Theorem~\ref{th:poly:barycheb}.
    \qedhere
    \end{enumerate}
 \end{exercise}
 
-\begin{itemize}
-\item KPM??? seems a bit strange
-\item Runge Phenomenon
-\item Convergence acceleration
-\end{itemize}
+
+\begin{exercise}[Coordinate Tranformations]
+   \label{exr:poly:coordinates}
+   %
+   The purpose of this exercise is to investigate how the choice of 
+   coordinate systems can expand the range of approximable functions, as 
+   well as have an affect on the rate of convergence.
+
+   The basic idea is to considier functions $F : [a, b] \to \R$ and via a
+   coordinate transformation $f(x) = F(\xi(x))$ transform them to functions $f :
+   [-1,1] \to \R$. This can can multiple consequences, including: (1) we can
+   represent functions on an arbitrary interval (inclusinf $\R$); (2) we can
+   transform functions in such a way to increase the region of analyticity and
+   thus accelerate convergence.
+   %
+   \begin{enumerate} \ilist
+      \item Consider $F(y) = e^{-2y} - 2 e^{-y}$, then $F(y) = f(e^{-y})$ where
+      $f(x) = x^2 - 2x$ is a quadratic polynomial. Suppose though that this
+      ``optimal'' coordinate transform $x = e^{-y}$ is not known. 
+
+      Instead, consider the coordinate transformation $x = 2/(1+y) - 1 =
+      \xi^{-1}(y)$, that is, $\xi^{-1}(0) = 1, \xi^{-1}(\infty) = -1$, and 
+      let $f(x) = F(\xi(x))$. 
+      \begin{enumerate} \alist 
+         \item Establish an upper bound (as sharp as you can manage) for
+          approximation by Chebyshev projection and interpolation of $f$ on
+          $[-1,1]$ in the max-norm. 
+         \item Convert this bound to an approximation result for $F(y)$ on $[0,
+          \infty)$. 
+         \item Can you give a simpler / more direct characterisation of the
+         effective approximation space for functions on $[0, \infty)$ that you
+         used here?
+      \end{enumerate}
+      
+      \item Now consider the function $F(y) = (\eps^2 + y^2)^{-1/2}$ on 
+      $[-1, 1]$. Recall the rate of convergence of Chebyshev projection and 
+      Chebuyshev interpolation. 
+
+      Now consider a coordinate transformation 
+      \[
+         \xi^{-1}(y) = \frac{\arctan(x/\eta)}{\arctan(1/\eta)},
+      \]
+      and explicitly compute its inverse. Show that $\xi, \xi^{-1} : [-1,1] \to
+      [-1,1]$ are bijective. 
+
+      \begin{enumerate} \alist 
+         \item For any $\eta > 0$ establish an upper bound (as sharp as you can
+         manage) for approximation of $f(x) = F(\xi(x))$ by Chebyshev projection
+         and Chebuyshev interpolation.
+         
+         \item Discuss which choices of $\eta$ appear to be particularly good.
+         Visualise the effect of $\xi$ on the function $f$ as well as on 
+         the singularities in the complex plane.
+      \end{enumerate}
+   \end{enumerate}
+\end{exercise}
+
