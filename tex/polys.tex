@@ -227,7 +227,7 @@ with $\rho = 1+\alpha$. Let the corresponding {\em Bernstein ellipse} be the
 pre-image of $\SS_\rho$ under the Joukowsky map,
 %
 \[
-   E_\rho := \phi^{-1}(S_\rho),
+   E_\rho := \phi(\SS_\rho),
 \]
 %
 then analyticity of $f$ in $E_\rho$ implies analyticity of $F$ in $\SS_\rho$.
@@ -820,11 +820,17 @@ covered in \nbpoly.
             \ell_N(x),
       \]
       where $\ell_N(x)$ is the node polynomial for the interpolation points. 
-      \item Prove that for equispaces nodes, 
-      $\|\ell_N\|_\infty \approx (2N)^{N} (N-1)!$.
-      \item For $f(x) = 1 / (1+25 x^2)$, prove that 
-       $\| f^{(N+1)} \|_\infty \| \ell_N \|_\infty  / (N+1)! \to 
-       \infty$ as $N \to \infty$.
+
+      {\it Hint: Let $e(t) = f(t)-I_N f(t)$ and show that $y(t) = e(t) - e(x)
+      \ell(t) / \ell(x)$ has $N+2$ roots. What does this imply about the roots
+      of $y^{(N+1)}$?}
+
+      \item Prove that for equispaces nodes, $\|\ell_N\|_\infty \geq \frac14
+      (N/2)^{-N-1} (N-1)!$.
+
+      \item For $f(x) = 1 / (1+25 x^2)$ (The Witch of Agnesi), prove that $\|
+       f^{(N+1)} \|_\infty \| \ell_N \|_\infty  / (N+1)! \to \infty$ as $N \to
+       \infty$. {\it [HINT: $(1+c^2x^2)^{-1} = (1+cix)^{-1}+(1-cix)^{-1}$]}
 
        {\it (Note this does not prove divergence but proved a strong 
        hint why divergence occurs.)}
@@ -836,13 +842,16 @@ covered in \nbpoly.
    %
    \label{exr:poly:clenshaw}
    %
-   Let $p \in \Poly_N$ be given in the Chebyshev basis and let $x \in [-1,1]$. 
-   Show that $p(x)$ can be evaluated by Clenshaw's algorithm:
+   Let $p \in \Poly_N$, $N \geq 1$, be given in the Chebyshev basis, with
+   coefficients $(\tilde{f}_k)_{k = 0}^N$ and let $x \in [-1,1]$. Show that
+   $p(x)$ can be evaluated by Clenshaw's algorithm:
    \begin{align*}
       & u_{N+1} = 0, \qquad u_N = \tilde{f}_N; \\ 
       & u_n = 2 x u_{n+1} - u_{n+2} + \tilde{f}_n, n = N-1, N-2, \dots, 0; \\ 
-      & p(x) = \smfrac12 \b( \tilde{f}_0 + u_0 - u_2).
+      & p(x) = \smfrac12 \b( \tilde{f}_0 + u_0 - u_2).   
    \end{align*}
+   What is the purpose of the Clenshaw algorithm, i.e., the potential 
+   advantage over simply summing over the Chebyshev basis?
 \end{exercise}
 
 \begin{exercise}[Orthogonality of $T_k$]
