@@ -801,10 +801,11 @@ covered in \nbpoly.
 %    \alert{condition number of the Vandermonde matrix}.
 % \end{exercise}
 
-\begin{exercise}[Interpolation: Existence and Uniqueness] Prove that for any
-   collection of nodes $z_0, \dots, z_N \subset \C$ with $x_i \neq z_j$  for $i
-   \neq j$, and nodal values $f_j$, there exists a unique interpolant $p \in
-   \Poly_N$ such that $p(z_j) = f_j$. 
+\begin{exercise}[Interpolation: Existence and Uniqueness] 
+   \label{exr:poly:interpunique}
+   Prove that for any collection of nodes $z_0, \dots, z_N \subset \C$ with $x_i
+   \neq z_j$  for $i \neq j$, and nodal values $f_j$, there exists a unique
+   interpolant $p \in \Poly_N$ such that $p(z_j) = f_j$. 
 \end{exercise}
 
 \begin{exercise}[Runge Phenomenon]
@@ -860,7 +861,7 @@ covered in \nbpoly.
       L^2_C &:= \b\{ f : (-1,1) \to \R, \text{ measurable, } 
             \|f\|_{L^2_C} < \infty \b\}, \qquad 
             \text{where} \\  
-      \|f\|_{L^2_C}^2 &:= \int_{-1}^1 \frac{|f|^2}{1 - x^2} \,dx.
+      \|f\|_{L^2_C}^2 &:= \int_{-1}^1 \frac{|f|^2}{\sqrt{1 - x^2}} \,dx.
    \end{align*}
    Prove that $L^2_C$ is a Hilbert space and show that the Chebyshev 
    polynomials are (up to scaling) and orthonormal basis of this space. 
@@ -915,7 +916,7 @@ covered in \nbpoly.
    \begin{enumerate} \ilist
       \item $f(x) = |\sin(5 x)|$ 
       \item $f(x) = \sqrt{|x|}$
-      \item $f(x) = x (1 + 1000 (x - 1/2))^{-1/2}$
+      \item $f(x) = x (1 + 1000 (x - 1/2)^2)^{-1/2}$
       \item $f(x) = e^{- \cos(3x)}$
       \item $f(x) = x^{100}$
       \item $f(x) = e^{-x^2}$ 
@@ -924,7 +925,7 @@ covered in \nbpoly.
    \item and for the following two functions also in the $L^2$-norm:
    \begin{itemize}
       \item $f(x) = {\rm sign}(x)$
-      \item $f(x) = \sqrt{|x|}$
+      \item $f(x) = \sqrt{|x|}$ \qedhere 
    \end{itemize}
    \end{enumerate}
 \end{exercise}
@@ -935,8 +936,8 @@ covered in \nbpoly.
    %
    Let $x_j$ be the Chebyshev points on $[-1,1]$.
    \begin{enumerate} \ilist
-   \item In general (not only for Chebyshev points), demonstrate that $\lambda_j
-      = 1 / \ell'(x_j)$.
+   \item In general (not only for Chebyshev points), demonstrate that the
+   barycentric weights satisfy $\lambda_j = 1 / \ell'(x_j)$.
    \item Prove that the node polynomial satisfies 
    \[
       \ell(x) = 2^{-N} \b(T_{N+1}(x) - T_{N-1}(x)\b)
@@ -956,8 +957,12 @@ covered in \nbpoly.
    and suitably adjusted for $j = 0, N$. Explain why we can rescale the weights
    $\lambda_j$ without changing the validity of the barycentric formula, and
    hence complete the proof of Theorem~\ref{th:poly:barycheb}.
-   \qedhere
    \end{enumerate}
+
+   {\it WARNING: it turns out, this exercise needs more material than I
+   realised, namely aliasing of Chebyshev coefficients. It is still very
+   interesting so I will leave it here for now. An interested reader should
+   follow to \cite[Sec. 5]{Trefethen2013-rg} to derive this formula.}
 \end{exercise}
 
 
@@ -976,11 +981,15 @@ covered in \nbpoly.
    thus accelerate convergence.
    %
    \begin{enumerate} \ilist
-      \item Consider $F(y) = e^{-2y} - 2 e^{-y}$, then $F(y) = f(e^{-y})$ where
-      $f(x) = x^2 - 2x$ is a quadratic polynomial. Suppose though that this
-      ``optimal'' coordinate transform $x = e^{-y}$ is not known. 
+      \item Consider the Morse potential $F(y) = e^{-2\alpha y} - 2 e^{-\alpha
+      y}$, then $F(y) = f(e^{-\alpha y})$ where $f(x) = x^2 - 2x$ is a quadratic
+      polynomial. Suppose though that this ``optimal'' coordinate transform $x =
+      e^{-y}$ is not known. 
 
-      Instead, consider the coordinate transformation $x = 2/(1+y) - 1 =
+      Instead, consider the Morse coordinate transformation $\xi^{-1}(y) = 2
+      e^{-y} - 1$ and the transformed function $f(x) = F(\xi(x))$.
+      
+      coordinate transformation $x = 2/(1+y) - 1 =
       \xi^{-1}(y)$, that is, $\xi^{-1}(0) = 1, \xi^{-1}(\infty) = -1$, and 
       let $f(x) = F(\xi(x))$. 
       \begin{enumerate} \alist 
@@ -996,7 +1005,7 @@ covered in \nbpoly.
       
       \item Now consider the function $F(y) = (\eps^2 + y^2)^{-1/2}$ on 
       $[-1, 1]$. Recall the rate of convergence of Chebyshev projection and 
-      Chebuyshev interpolation. 
+      Chebyshev interpolation. 
 
       Now consider a coordinate transformation 
       \[
@@ -1008,7 +1017,7 @@ covered in \nbpoly.
       \begin{enumerate} \alist 
          \item For any $\eta > 0$ establish an upper bound (as sharp as you can
          manage) for approximation of $f(x) = F(\xi(x))$ by Chebyshev projection
-         and Chebuyshev interpolation.
+         and Chebyshev interpolation.
          
          \item Discuss which choices of $\eta$ appear to be particularly good.
          Visualise the effect of $\xi$ on the function $f$ as well as on 

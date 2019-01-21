@@ -713,56 +713,175 @@ obtain \Cref{th:trig:pw-sharp} with $\alpha = \infty$:
 %
 We have discussed two strategies to construct approximations of functions by
 trigonometric polynomials: $L^2$-projection and convolution (e.g., with the
-Jackson kernel). While both are constructive, they are not particularly
-``practical'' in that they require efficient and accurate numerical quadrature
-schemes. In practise it is much more straightforward to directly work with
-the nodal interpolant:
+Jackson kernel). While both are constructive, they both require additional 
+computational effort to evalute the relevant integrals. Since this is normally 
+done via numerical quadrature, additional errors will be introduced that 
+need to be analysed separately. All this can be done, but it turns out that 
+a much more practical and performant approach that gives ``near-optimal''
+approximants is nodal interpolation.
 
-\begin{proposition}
-  Let $f \in C(\TT)$, then there exists a unique $I_N f \in \Trig_N$
-  such that
-  \[
-      f(x_j) = I_N f(x_j) \qquad \forall x_j \in \frac{2\pi}{N} \Z
-  \]
-  The points $x_j$ are called the interpolation nodes. They implicitly
-  depend on $N$, but we suppress this dependence.
-\end{proposition}
-
-The choice of the grid $\{x_j\}$ is of course completely arbitrary, and there is
-{\it a priori} no guarantee that it is optimal or even close to optimal.
-Nevertheless, our introductory example already hints that it is not such a bad
-choice. We will prove in the remainder of this section that it is optimal up to
-a logarithmic factor. We will also return to a more careful discussion of
-different choices of interpolation nodes in \S~\ref{sec:poly}.
-
-The key idea is the same that we also used in the analysis of the
-$L^2$-projector in Exercise~\ref{exr:trig:dirichlet}: let $f \in C(\TT)$, $t_N
-\in \Trig_N$ arbitrary, and $\|\cdot\|$ any norm, then
-\begin{align*}
-  \|f - I_N f \| &\leq \|f - t_N \| + \| t_N - I_N f\| \\
-    & = \|f - t_N \| + \| I_N (t_N - f) \| \\
-    & \leq (1 + \|I_N\|_{\rm op}) \| t_N - f \|,
-\end{align*}
-where $\|I_N\|_{\rm op}$ is the operator norm of $I_N$ associated with
-$\|\cdot\|$, i.e.,
+To specify a trigonometric polynomial $t \in \Trig_N$ we need to determine
+$2N+1$ coefficients, which should be possible using $2N+1$ function values,
+i.e., we may choose $2N+1$ nodes $x_0, \dots, x_{2N} \in (-\pi, \pi]$
+and specify 
 \[
-    \| I_N \|_{\rm op} = \sup_{\substack{f \in C(\TT) \\ \|f\| = 1}} \| I_N f \|.
+    t(x_j) = F_j,  
+\]
+with $F_j$ some prescribed function values. If the $x_j$ are distinct, then it
+is easy to prove (see below and Exercise~\ref{exr:poly:interpunique}) If $F_j =
+f(x_j)$ for some $f \in C(\TT)$ the we call the resulting $t$ a {\em nodal
+interpolant}. 
+
+An important question is how we can transform the nodal values into coefficients
+for the trigonometric polynomial. Naively, this can be achieved by simply
+solving a linear system for the coefficients at $O(N^3)$ cost: 
+Let $t(x) = \sum_{k = -N+1}^N \hat{F}_k e^{ik x}$, then
+\begin{equation} \label{eq:trig:pre-dft}
+  \sum_{k = -N+1}^N \hat{F}_k e^{i\pi j/N} = F_j.
+\end{equation}
+It is straightforward to see (we will return to this in \S~\ref{sec:trig:fft}
+that the inversion formula is 
+\begin{equation} \label{eq:trig:pre-idft}
+    \hat{F}_k = \frac{1}{2N} \sum_{j = -N+1}^N F_j e^{-i\pi k/N},
+\end{equation}
+that is, the linear system \eqref{eq:trig:pre-dft}  has an orthogonal (up to
+scaling) which reduces the solution of the linear system matrix reduces the
+solution of \eqref{eq:trig:pre-dft} to a matrix-vector multiplication
+\eqref{eq:trig:pre-idft} and hence $O(N^2)$ cost. But it turns out that there is
+even an $O(N \log N)$ algorithm - the Fast Fourier Transform. To present this
+important algorithm it is more convenient if we work with $2N$ interpolation
+nodes, instead of $2N+1$ nodes. This makes the theory of interpolation subtly
+different, since with $2N$ conditions we can no longer hope to determing $2N+1$
+coefficients. 
+
+In the following, we will restrict ourselves to equi-spaced nodes, 
+\[
+  x_j =  \frac{j \pi}{N},  \qquad j \in \Z.
+\]
+The $x_j$ are called {\em interpolation nodes}. They depend on $N$, but we
+supress this dependence for the sake of simplicity of notation.
+
+To determine a trigonometric polynomial we may, for example, 
+drop the $e^{-iNx}$ basis function from $\Trig_N$, which leads to 
+interpolants of the form 
+\[
+    t(x) = \sum_{k = -N+1}^N c_k e^{ik x}.
+\]
+But unless $c_N = 0$, this will mean that $t(x) \not\in \R$ even if all $f_j \in
+\R$. From \eqref{eq:trig:pre-idft} we see that $c_N \in \R$, hence taking 
+the real part of the last group yields 
+\[
+    \Re \big[ c_N e^{i N x} \big]   = c_N \cos(Nx),
+\]
+which is the convention normally taken when an even number of interpolation 
+points is used. 
+
+Thus, we can define the modified trigonometric polynomial space 
+\[
+  \Trig_N' := {\rm span}\Big(\Trig_{N-1} \cup \{ \cos N x \} \Big)
+    =  \bg\{ t(x) = \sum_{k = -N+1}^{N-1} c_k e^{ikx} + c_N \cos(Nx) \bg\}.  
+\]
+
+There is a second good reason for making this modification: the two 
+basis functions $e^{iNx}, e^{-iNx}$ agree on the interpolation nodes 
+$x_j = j \pi / N$: 
+
+\begin{lemma} \label{th:trig:baby-aliasing}
+  Let $x_j = j \pi / N$, then $e^{iN x_j} = e^{-iNx_j}$ for all 
+  $j \in \Z$.
+\end{lemma}
+\begin{proof}
+  \[
+    e^{iNx_j} = e^{i \pi j} = (-1)^j = (-1)^{-j} = e^{-i\pi j} = e^{-iNx_j}.
+    \qedhere
+  \]
+\end{proof}
+
+
+Finally, to prepare us for discussing the FFT in the next section, we will
+change the interpolation condition to the nodes $x_0, \dots, x_{2N-1}$, which is
+of course equivalent due to $2\pi$-periodicity.
+
+\begin{lemma}
+  Let $F  = (F_j)_{j = 0}^{2N-1} \in \C^{2N}$, then there exists a unique 
+  $t \in \Trig_N'$ such that 
+  \[
+    t(x_j) = F_j, \qquad j = 0, \dots, 2N-1.
+  \]
+\end{lemma}
+\begin{proof}
+  According to Lemma~\ref{th:trig:baby-aliasing} we need to solve 
+  \begin{align*}
+      && \sum_{k = -N+1}^N c_k e^{i\pi k j/N} &= F_j \\ 
+      \Leftrightarrow &&
+      \sum_{k = -N+1}^N c_k \big(e^{i\pi j/N}\big)^k &= F_j \\ 
+      \Leftrightarrow &&
+      \sum_{k = -N+1}^N c_k z_j^k &= F_j, \\ 
+      \Leftrightarrow &&
+      \sum_{k = -N+1}^N c_k z_j^{k+N-1} &= F_j z_j^{N-1},
+  \end{align*}
+  where $z_j = e^{i\pi x_j}$ are distinct complex interpolation nodes. Existence
+  and uniqueness of algebraic polynomial interpolation gives the stated result.
+  (cf. Exercise~\ref{exr:poly:interpunique}).
+
+  {\it REMARK: } the last line in the above chain was unnecessary, but we will 
+  revisit this later.
+\end{proof}
+
+\medskip 
+
+\begin{definition}
+  Let $f \in C(\TT)$ then we define $I_N f \in \Trig_N'$ to be the unique nodal
+  interpolant of $f$ at the nodes $x_j = \pi j / N, j \in \Z$, i.e., $I_N f(x_j)
+  = f(x_j)$ for $j \in \Z$.
+\end{definition}
+
+\medskip 
+
+\begin{remark} 
+  The choice of the equi-spaced grid $\{x_j\}$ may seem completely arbitrary,
+  and there is {\it a priori} no guarantee that it is optimal or even close to
+  optimal. Nevertheless, our introductory example already hints that it is not
+  such a bad choice. We will prove in the remainder of this section that it is
+  optimal up to a logarithmic factor. We will also return to a more careful
+  discussion of different choices of interpolation nodes in \S~\ref{sec:poly}.
+\end{remark}
+
+To understand the approximation error of the $I_N f$, let $f \in C(\TT)$, $t_N
+\in \Trig_N'$ arbitrary, then
+\begin{align*}
+  \|f - I_N f \|_\infty &\leq \|f - t_N \|_\infty + \| t_N - I_N f\|_\infty \\
+    & = \|f - t_N \|_\infty + \| I_N (t_N - f) \|_\infty \\
+    & \leq (1 + \|I_N\|) \| t_N - f \|_\infty,
+\end{align*}
+where $\|I_N\|$ is the operator norm of $I_N$ associated with $\|\cdot\|$, 
+defined by 
+\[
+    \| I_N \| = \sup_{\substack{f \in C(\TT) \\ \|f\|_\infty = 1}} \| I_N f \|_\infty.
 \]
 Taking the infimum over all $t_N \in \Trig_N$ we obtain that the
 interpolation error deviates from the best approximation error by
 factor determined by the operator norm of $I_N$, i.e.,
 \[
-    \|f - I_N f \| \leq (1 + \|I_N\|_{\rm op}) \inf_{t_N \in \Trig_N} \|f - t_N \|.
+    \|f - I_N f \| \leq (1 + \|I_N\|) \inf_{t_N \in \Trig_N'} \|f - t_N \|
+    \leq (1 + \|I_N\|) \inf_{t_{N-1} \in \Trig_{N-1}} \|f - t_{N-1} \|,
 \]
+where the final inequality of course shows that the convergence rate does not
+change asymptotivally from that in $\Trig_N$ except possibly for a constant
+factor.
 
 \begin{definition}
-  The interpolation operator norm is also called {\em Lebesgue constant},
-  and often denoted by $\Lambda_N = \| I_N \|_{\rm op}$.
+  The interpolation operator norm is also called {\em Lebesgue constant}, and
+  typically denoted by $\Lambda_N = \| I_N \|$.
 \end{definition}
 
-From here on we will focus on the $L^\infty$-operator norm, i.e., $\|\cdot\| =
-\|\cdot\|_{L^\infty}$, and will call $\|I_N\|_{\rm op} =
-\|I_N\|_{L(L^\infty)} =: \Lambda_N$.
+\begin{remark}
+  The above argument works in principle with {\em any} norm. But to obtain a
+  finite bound that norm must be such that $C(\TT)$ is complete under it. If
+  not, then $\|I_N\|$ becomes infinite. As an exercise, you may check that the
+  $L^2$-operator norm, $\|I_N\|_{L(L^2)}$ is indeed infinite. This is not
+  surprising since functions $f \in L^2$ do not have well-defined point values.
+\end{remark}
 
 To estimate $\Lambda_N$ we wish to write $I_N f$ in terms of a {\em nodal
 basis}, i.e.,
@@ -774,6 +893,10 @@ where $x_j = \pi j / N$, then we can simply estimate
   \Lambda_N \leq \sup_{x \in \TT}  \sum_{j = -N+1}^N |L_j(x)|.
 \end{align}
 
+An immediate observation is that, since the grid is translation invariant, the
+nodal basis will be translation invariant as well, i.e., $L_j(x) = L_0(x -
+x_j)$. This already gives us a hint what to look for.
+
 \begin{lemma}
   The nodal basis for trigonometric interpolation (for an even number of
   grid points $2N$) is given by a modified Dirichlet kernel,
@@ -781,20 +904,18 @@ where $x_j = \pi j / N$, then we can simply estimate
     % L_j(x) = \frac{\sin\b( N (x-x_j) \b)}{N \tan\b( \smfrac12 (x-x_j)\b)}
     %     = \frac{{\rm sinc}\b( N (x - x_j)\b)}{N {\rm sinc}\b( \smfrac12 (x-x_j)\b)}
     %         \cos\b( \smfrac12 (x-x_j) \b).
-    L_j(x) = \tilde{D}_N(x-x_j)
+    L_j(x) = D_N'(x-x_j)
   \]
-  where $D_N$ is the Dirichlet kernel,
+  where
   \[
-    \tilde{D}_N(x) = \frac{\sin(Nx)}{2N \tan(x/2)}
-      = \frac{D_N(x) - \cos(Nx)}{2N}.
+    D_N'(x) = \frac{\sin(Nx)}{2N \tan(x/2)}.
   \]
 \end{lemma}
 \begin{proof}
-  To see the identity for $\tilde{D}_N$ simply use
-      $\sin(\alpha+\beta) = \sin\alpha\cos\beta + \cos\alpha\sin\beta$.
-  From the definition of $\tilde{D}$ it is straightforward to check that
-  $L_j(x_i) = \delta_{ij}$. For the case $i = j$ this is a limit argument: (fill
-  in the details!)
+  To see the identity for $D_N'$ simply use $\sin(\alpha+\beta) =
+      \sin\alpha\cos\beta + \cos\alpha\sin\beta$. From the definition of $D_N'$
+      it is straightforward to check that $L_j(x_i) = \delta_{ij}$. For the case
+      $i = j$ this is a limit argument: (fill in the details!)
   \[
     \lim_{x \to x_j} L_j(x) = 1.
   \]
@@ -802,64 +923,63 @@ where $x_j = \pi j / N$, then we can simply estimate
   or equivalently, $D_N \in \Trig_N$. This is achieved by an analogous argument
   as for the Jackson kernel.
 
-  See also Exercise~\ref{exr:trig:dirichlet}.
+  See also Exercise~\ref{exr:trig:dirichlet} for the Dirichlet kernel related to
+  $\Trig_N$ and how it relates to $L^2$-projection.
 \end{proof}
 
 
-
-See \nbtrig for a numerical exploration of $\Lambda_N := \|I_N\|_{\rm op}$.
-The numerical experiments shown there suggest that the following theorem
-holds.
+See \nbtrig for a numerical exploration of $\Lambda_N := \|I_N\|_{\rm op}$. The
+numerical experiments shown there suggest that the following theorem holds.
 
 \begin{theorem} \label{th:trig:lebesgue}
-  The Lebesgue constant for trigonometric interpolation with respect to the $L^\infty$-norm is bounded by
+  The Lebesgue constant for trigonometric interpolation with respect to the
+  $L^\infty$-norm is bounded by
   \[
-    \|I_N\|_{L(L^\infty)} \leq C \log N. 
+    \|I_N\| \leq \smfrac{2}{\pi} \log (N+1) + 1. 
   \]
 
   In particular, if $f \in C(\TT)$, then
   \[
       \| f - I_N f \|_{L^\infty}
-        \lesssim \log N \inf_{t_N \in \Trig_N} \| f - t_N \|_{L^\infty}.
+        \lesssim \log N \inf_{t_N \in \Trig_N'} \| f - t_N \|_{L^\infty}.
   \]
 \end{theorem}
 \begin{proof}
-  Recall \eqref{eq:trig:LamNbound}, then we need to bound
+  We will only prove a slightly weaker upper bound $\|I_N\| \leq \frac{2}{\pi} \log N + 2$. Recall
+\eqref{eq:trig:LamNbound}, then we need to bound
   \begin{align*}
     \Lambda_N
     &\leq
-    \sum_{j =  -N}^N |\tilde{D}_N(x - x_j)|.
+    \sum_{j =  -N+1}^N |D_N'(x - x_j)|.
   \end{align*}
-  By translation invariance and reflection symmetry we only need to consider $x = -t$,
-  $t \in [0, \pi/N)$; in this case,
+  By translation invariance and reflection symmetry we only need to consider $x
+  = -t$, $t \in (0, \frac{\pi}{2N})$ (the case $t = 0$ is trivial); in this
+  case,
   \begin{align*}
     \Lambda_N
     &\leq
-    \sum_{j =  -N}^N |\tilde{D}_N(x - x_j)| \\
+    \sum_{j =  -N+1}^N |D_N'(x - x_j)| \\
     &\leq
-    2\sum_{j =  0}^N |\tilde{D}_N(x_j+t)|  \\
+    \sum_{j =  0}^N |D_N'(x_j+t)|  + \sum_{j = -N+1}^{-1} \dots \\
     &\leq
-    \frac{1}{N} \bg\{
-        \frac{\sin(Nt)}{\sin(t/2)}
+    \frac{1}{2N} \Bg\{
+        \frac{\sin(Nt)}{\tan(t/2)}
         + \sum_{j = 1}^N
-        \bg|\frac{\sin\b(N(x_j+t)\b)}{\sin\b((x_j+t)/2\b)}\bg|
-      \bg\} \\
+        \bg|\frac{\sin\b(N(x_j+t)\b)}{\tan\b((x_j+t)/2\b)}\bg|
+      \Bg\} + \dots \\
     &\leq
-    \frac{1}{N} \bg\{
-        \frac{Nt}{t} + \sum_{j = 1}^N \frac{1}{ \pi j / N }
-    \bg\} \\
+    \frac{1}{2N} \bg\{
+        \frac{Nt}{t} + \sum_{j = 1}^N \frac{2}{ x_j+t }
+    \bg\} + \dots \\
     &\leq 
-    \pi^{-1} \log N + 2
+    1 + \frac{1}{\pi} \sum_{j = 1}^N \frac{1}{j} + \dots \\ 
+    &\leq 
+    2\Big( 1 + \smfrac{1}{\pi} \log(N+1) \Big) 
+    \leq 2 + \smfrac{2}{\pi} \log(N+1).
     \qedhere
   \end{align*}
 \end{proof}
 
-\begin{remark}
-  Our numerical tests in \nbtrig suggest that 
-  $\|I_N\|_{L(L^\infty)} \leq \smfrac{\pi}{2} \log N + 1$. Can you prove this, or a bound close 
-  to it? 
-\end{remark}
-  
 
 \subsection{The Fast Fourier Transform}
 %
@@ -875,11 +995,11 @@ For the following discussion it is best to assume that $N$ is even, in particula
 we will discuss the FFT only for the case that $N = 2^n$.
 
 Given a function $f \in C(\TT)$ we can evaluate it at grid points $x_j$ which
-leads to a grid function $F_j = (f(x_j))_{j}$. Given $N \in 2\N$ it is common to
+leads to a grid function $F_j = (f(x_j))_{j}$. Given $M \in 2\N$ it is common to
 define the DFT and FFT for the grid
 %
 \[
-    x_j = \frac{2\pi j}{N} \qquad j = 0, \dots, N-1.
+    x_j = \frac{2\pi j}{M} \qquad j = 0, \dots, M-1.
 \]
 %
 In our notation up to now it would have been more natural to write $x_j = -\pi +
