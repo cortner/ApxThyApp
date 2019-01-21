@@ -991,50 +991,55 @@ via the discrete Fourier transform and its fast implementation, the {\it Fast
 Fourier Transform}, likely one of the most important and most widely used
 numerical algorithms.
 
-For the following discussion it is best to assume that $N$ is even, in particular
-we will discuss the FFT only for the case that $N = 2^n$.
+For the following discussion it is best to assume that the number of grid points
+is even, in particular we will discuss the FFT only for this case.
 
 Given a function $f \in C(\TT)$ we can evaluate it at grid points $x_j$ which
-leads to a grid function $F_j = (f(x_j))_{j}$. Given $M \in 2\N$ it is common to
-define the DFT and FFT for the grid
+leads to a grid function $F_j = (f(x_j))_{j=0}^{M-1}$. Given $M \in 2\N$ it is
+common to define the DFT and FFT for the grid
 %
 \[
     x_j = \frac{2\pi j}{M} \qquad j = 0, \dots, M-1.
 \]
 %
-In our notation up to now it would have been more natural to write $x_j = -\pi +
-2\pi j/N$ instead, but since we are considering periodic functions we just need
-to shift them into a new domain $[0, 2\pi)$.
+The assumption that $M = 2N$ is even is consistent with
+\S~\ref{sec:trig:interp}. In our notation up to now it would have been more
+natural to write $x_j = -\pi + \pi j/N$ instead, but since we are considering
+periodic functions we just need to shift them into a new domain $[0, 2\pi)$.
+Although we could initially avoid some inconveniences we want to eventually be
+able to use the FFT algorithms, so we may as well learn now how to convert
+between the two representations.
 
-We then ask, what are the coefficients of the trigonometric polynomial
-$t \in \Trig_{N/2}$ such that
+We then ask, what are the coefficients of the trigonometric polynomial $t \in
+\Trig_{N}' = \Trig_{M/2}'$ such that
 %
 \[
-  t(x_j) = F_j \qquad \text{for } j = 0, \dots, N-1.
+  t(x_j) = F_j \qquad \text{for } j = 0, \dots, M-1.
 \]
 %
-This is provided by the DFT operator: for $F \in \C^N$, $k = 0, \dots, N-1$,
+We have already seen in \eqref{eq:trig:pre-dft} that these are provided by the
+DFT operator: for $F \in \C^{M}$, $k = 0, \dots, M-1$,
 %
 \begin{align}
   \label{eq:trig:dft}
   {\rm DFT}[F] := \hat{F}, \quad \text{where} \quad
-  \hat{F}_k &= \frac{1}{N} \sum_{j = 0}^{N-1} F_j e^{-i x_j k} \\
+  \hat{F}_k &= \frac{1}{M} \sum_{j = 0}^{M-1} F_j e^{-i x_j k} \\
   \notag
-            &= \frac{1}{N} \sum_{j = 0}^{N-1} F_j e^{-i 2\pi j k / N}.
+            &= \frac{1}{M} \sum_{j = 0}^{M-1} F_j e^{-i 2\pi j k / M}.
 \end{align}
 %
 Note in particular that this is a trapezoidal rule approximation of
 \eqref{eq:trig:fourier coeffs}.
 
 \begin{remark} \label{rem:trig:k-grid}
-  Since $x_j = 2 \pi j/ N$ it follows that
+  Since $x_j = 2 \pi j/ M$ it follows that
   \[
-    e^{-i x_j (k \pm N)} = e^{-i x_j k}
+    e^{-i x_j (k \pm M)} = e^{-i x_j k}
   \]
-  and hence the $k$-grid $\{0, \dots, N-1\}$ can alternatively be interpreted
-  as
+  and hence the $k$-grid $\{0, \dots, M-1\}$ can alternatively be interpreted
+  as, with $N = M/2$, 
   \[
-    \{ 0, \dots, N/2, -N/2+1, -N/2+2, \dots, -1 \}. \qquad \qedhere
+    \{ 0, \dots, N, -N+1, -N+2, \dots, -1 \}. \qquad \qedhere
   \]
 \end{remark}
 
@@ -1043,68 +1048,70 @@ Note in particular that this is a trapezoidal rule approximation of
   Let the ${\rm IDFT}$ be defined by
   \begin{equation} \label{eq:trig:idft}
     U = {\rm IDFT}[\hat{U}], \quad \text{where} \quad
-    U_j := \sum_{k = 0}^{N-1} \hat{U}_k e^{i x_j k}
-        = \sum_{k = 0}^{N-1} \hat{U}_k e^{i 2\pi j k/ N},
+    U_j := \sum_{k = 0}^{M-1} \hat{U}_k e^{i x_j k}
+        = \sum_{k = 0}^{M-1} \hat{U}_k e^{i 2\pi j k/ M},
   \end{equation}
   then
   \[
-    {\rm IDFT}\big[ {\rm DFT}[F] \big] = F \qquad \forall F \in \C^N.
+    {\rm IDFT}\big[ {\rm DFT}[F] \big] = F \qquad \forall F \in \C^M.
   \]
-  In particular, if $\hat{F} = {\rm DFT}[F]$, then the trigonometric polynomial
-  (cf. Remark~\ref{rem:trig:k-grid})
+  In particular, if $\hat{F} = {\rm DFT}[F]$, then the two trigonometric
+  polynomials (cf. Remark~\ref{rem:trig:k-grid}) $t \in \Trig_N, t' \in
+  \Trig_N'$
+  \begin{align*}
+    t(x) &= \sum_{k = 0}^{M-1} \hat{F}_k e^{i k x} \\ 
+    t'(x) &= \sum_{k = 0}^{M/2-1} \hat{F}_k e^{i k x}
+          + \hat{F}_{M/2} \cos(M/2 x) + \sum_{k = M/2+1}^{M-1} \hat{F}_k e^{i k x} \\  
+  \end{align*}
+  interpolate $(x_j, F_j)_{j = 0}^{M-1}$, i.e.,
   \[
-    t(x) = \sum_{k = 0}^{N-1} \hat{F}_k e^{i k x}
-  \]
-  interpolates $(x_j, F_j)_{j = 0}^{N-1}$, i.e.,
-  \[
-    t(x_j) = F_j \qquad \text{for } j = 0, \dots, N-1.
+    t(x_j) = t'(x_j) = F_j \qquad \text{for } j = 0, \dots, M-1.
   \]
 \end{proposition}
 \begin{proof}
   Left as an exercise.
 \end{proof}
 
-
 Using expression \eqref{eq:trig:dft} the cost of computing ${\rm DFT}[F]$ is
 $O(N^2)$. Indeed, this is the cost of a generic matrix-vector multiplication,
 i.e., applying a linear operation in $\R^N \to \R^N$ that has no special
 structure. Luckily the ${\rm DFT}$ has plenty of structure to exploit, which
 finally brings us to the FFT algorithm (specifically the radix-2 variant of
-Cooley--Tukey's algorithm).
+Cooley--Tukey's algorithm, though the idea famously goes back to Gaussz).
 
 We begin by rewriting
 \[
-  \hat{F}_k = N^{-1} \sum_{j = 0}^{N-1} F_j \omega^{kj},
-  \qquad \text{where} \quad \omega := e^{-i 2\pi/N}.
+  \hat{F}_k = M^{-1} \sum_{j = 0}^{M-1} F_j \omega^{kj},
+  \qquad \text{where} \quad \omega := e^{-i 2\pi/M}.
 \]
 Then,
 \begin{align}
   \notag
-  \hat{F}_k  &= \sum_{j = 0}^{N/2-1} F_{2j} \omega^{2kj}
-      + \sum_{j = 0}^{N/2-1} F_{2j+1} \omega^{k(2j+1)} \\
+  \hat{F}_k  &= \sum_{j = 0}^{M/2-1} F_{2j} \omega^{2kj}
+      + \sum_{j = 0}^{M/2-1} F_{2j+1} \omega^{k(2j+1)} \\
   \notag
-    &= \sum_{j = 0}^{N/2-1} F_{2j} \omega^{2kj}
-        + \omega^k \sum_{j = 0}^{N/2-1} F_{2j+1} \omega^{2kj} \\
+    &= \sum_{j = 0}^{M/2-1} F_{2j} \omega^{2kj}
+        + \omega^k \sum_{j = 0}^{M/2-1} F_{2j+1} \omega^{2kj} \\
   \label{eq:trig:fft_split}
     &=: \hat{G}_k + \omega^k \hat{H}_k.
 \end{align}
-In particular, since $\omega^2 = e^{-i2\pi/(N/2)}$, we note that $\hat{G}_k$ is
-the DFT of $(F_{2j})_{j=0}^{N/2-1}$, while $\hat{H}_k$ is the DFT of
-$(F_{2j+1})_{j=0}^{N/2-1}$.
+In particular, since $\omega^2 = e^{-i2\pi/(M/2)}$, we note that $\hat{G}_k$ is
+the DFT of $(F_{2j})_{j=0}^{M/2-1}$, while $\hat{H}_k$ is the DFT of
+$(F_{2j+1})_{j=0}^{M/2-1}$.
 
 A final remark is that, {\it a priori} $\hat{G}_k$ and $\hat{H}_k$ will be given
-only for $k = 0, \dots, N/2-1$, but the expressions are $N/2$-periodic and
+only for $k = 0, \dots, M/2-1$, but the expressions are $M/2$-periodic and
 \eqref{eq:trig:fft_split} allows us to recover $\hat{F}$ for all $k = 0, \dots,
-N-1$. Specifically, we obtain the following identity:
+M-1$. Specifically, we obtain the following identity:
 %
 \begin{equation} \label{eq:trig:fft_trick}
   \begin{split}
-    \hat{F}_k &= \hat{G}_k + \omega^k \hat{H}_k, \qquad k = 0, \dots, N/2-1, \\
-    \hat{F}_k &= \hat{G}_{k-N/2} - \omega^{k-N/2} \hat{H}_{k-N/2},
-      \qquad k = N/2, \dots, N-1.
+    \hat{F}_k &= \hat{G}_k + \omega^k \hat{H}_k, \qquad k = 0, \dots, M/2-1, \\
+    \hat{F}_k &= \hat{G}_{k-M/2} - \omega^{k-M/2} \hat{H}_{k-M/2},
+      \qquad k = M/2, \dots, M-1.
   \end{split}
 \end{equation}
-(We could also write $\omega^k$ instead of $\omega^{k-N/2}$; this is
+(We could also write $\omega^k$ instead of $\omega^{k-M/2}$; this is
 equivalent.)
 % The case $k = 0, \dots, N/2-1$ is already clear from
 % \eqref{eq:trig:fft_split}. For $k > N/2-1$ it follows from the
@@ -1118,16 +1125,14 @@ equivalent.)
 %   \omega^{N/2} = e^{-i2\pi(N/2)/N} = e^{-i\pi} = -1.
 % \]
 
-Suppose now that $N/2$ is still divisible by 2, then the can split the
-computation of $\hat{F}, \hat{G}$ again into four smaller DFTs. This process
-can of course be iterated. If $N = 2^m$, then after $m \sim \log N$ iterations
-iterations we compute $N$ DFTs of length one. Combining the small DFTs into
-the larger DFTs requires $O(N)$ operations at each level. Since there are
-$O(\log N)$ levels, this means that the cost of computing the original DFT
-is $O(N \log N)$. Algorithms that use some variant of this strategy are
-called {\em Fast Fourier Transform}s.
-
-
+Suppose now that $M/2$ is still divisible by 2, then the can split the
+computation of $\hat{F}, \hat{G}$ again into four smaller DFTs. This process can
+of course be iterated. If $M = 2^m$, then after $m \approx \log M$ iterations
+iterations we compute $\approx M$ DFTs of length $O(1)$. Combining the small
+DFTs into the larger DFTs requires $O(M)$ operations at each level. Since there
+are $O(\log M)$ levels, this means that the cost of computing the original DFT
+is $O(M \log M)$. Algorithms that use some variant of this strategy are called
+{\em Fast Fourier Transform}s.
 
 
 
