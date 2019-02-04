@@ -444,19 +444,15 @@ sharp approximation error estimates in the max-norm.
   \begin{equation} \label{eq:trig:jackson:C1-version}
     \|f - J_N \ast f \|_\infty \lesssim N^{-1} \|f'\|_\infty.
   \end{equation}
-  \item Let $f \in C^p(\TT)$ and $f^{(j)}$ have modulus of continuity $\omega$,
+  \item Let $f \in C^p(\TT)$ and $f^{(p)}$ have modulus of continuity $\omega$,
   then
   \[
-      \inf_{t_N \in \Trig_N} \| f - t_N \|_\infty \lesssim N^{-p} \omega(N^{-1}).
+      \| f - J_N\ast f \|_\infty \lesssim N^{-p} \omega(N^{-1}).
   \]
   \end{enumerate}
 \end{theorem}
-
-Note that the second Jackson theorem does not make a statement about $f - J_N f$
-but only asserts the existence of a $t_N \in \Trig_N$. Nevertheless, the proof
-shows that this is still constructive.
-
-\begin{proof}[Proof of Theorem~\ref{th:trig:jackson} (1)]
+\begin{proof}
+  (1) 
   \begin{align*}
     \b| J_N \ast f(x) - f(x) \b|
     &=
@@ -484,8 +480,42 @@ shows that this is still constructive.
     \lesssim
       \omega(N^{-1}) \int_0^{1/N} J_N(t) \, dt
       + N \omega(N^{-1}) \int_{1/N}^{\pi} t J_N(t)\, dt
-    \lesssim \omega(N^{-1}). \qedhere
+    \lesssim \omega(N^{-1}). 
   \]
+
+  (1.5) Before we prove the second Jackson theorem, we need 
+  to make another observation: 
+  \[
+    \| J_N \ast f \|_\infty 
+    \leq \|J_N \|_{L^1} \|f\|_\infty,
+  \]
+  and hence, for any $t \in \Trig_{2N-2}$, 
+  \begin{align*}
+      \|f - J_N \ast f\|_\infty 
+      &\leq  
+      \|f - t\|_\infty + \| t - J_N \ast f \|_\infty 
+  \end{align*}
+
+  (2) To prove the second Jackson theorem, we first employ 
+  \eqref{eq:trig:jackson:C1-version} to deduce that 
+  \[
+      E_N(f) = E_N(f - J_N \ast f) 
+      \leq 
+      % C N^{-1} \| (f-J_N \ast f)' \|_\infty 
+      % = 
+      C N^{-1} \| f' - (J_N \ast f)' \|_\infty.
+  \]
+  Next, integration by parts yields 
+  \[
+     (J_N \ast f)'(x) = \int_{-t}^t J_N'(x-t) f(t) \,dt 
+     = \int_{-\pi}^\pi J_N(x-t) f'(t) \,dt 
+     = J_N \ast f'.
+  \]
+  Thus, 
+  \[
+    E_N(f) \leq
+  \]
+
 \end{proof}
 
 To prove Theorem~\ref{th:trig:jackson} (2), we need another auxiliary
