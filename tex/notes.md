@@ -8,3 +8,4 @@
 - polynomial best approximation, Remez 
 - rational approximation by example 
 - pade approximation? => exercise...
+

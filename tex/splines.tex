@@ -2,3 +2,373 @@
 
 
 \section{Splines}
+%
+\label{sec:splines}
+%
+In this very short chapter we will briefly introduce and explore some
+consequences of piecewise polynomial approximation (as opposed to global
+polynomial approximation as in \S~\ref{sec:poly}). The basic results will be
+very easy to obtain. For lack of time we will skip the more interesting
+algorithmic aspects, in particular B-Splines (we will briefly define them and
+show some examples, but we won't go into the implementation details, at least
+not this year).
+
+\subsection{Motivation} 
+%
+\label{sec:splines:motivation}
+%
+Let us motivate the idea of splines as follows: consider
+the function $f(x) = \sqrt{x}$ on $[0, 1]$. After rescaling to $[-1,1]$ we can
+approximate it with polynomials to obtain the convergence rate (cf. Jackson's
+Theorem \ref{eq:poly:jackson1}) 
+\[
+    \inf_{p \in \Poly_N} \|f - p\|_{L^\infty(0,1)} \lesssim N^{-1/2}.
+\]
+This is a very slow rate of convergence, purely caused by the singularity at 
+$x = 0$. But in $[1/2, 1]$ $f$ is analytic and on that interval we would 
+expect 
+\[
+    \inf_{p \in \Poly_N} \|f - p\|_{L^\infty(1/2,1)} \lesssim \rho^{-N},
+\]
+for some $\rho > 1$. We can then prescribe a second polynomial on $[1/4, 1/2]$,
+and so forth, thus obtaining a piecewise polynomial approximation. The
+subintervals $[1/2,1], [1/4, 1/2], \dots$ are called a mesh and the flexibility
+in choosing these sub-intervals can lead to very strong results. We will later
+see that in this particular case we obtain almost exponential convergence.
+
+
+\subsection{Splines for $C^j$ functions}
+%
+\label{sec:splines:Cj}
+%
+To work with splines we will need to construct polynomial approximations on
+arbitrary sub-intervals $[a,b] \subset \R$. The Chebyshev nodes on $[a,b]$ are
+simply the rescaled nodes 
+\[
+    x_j^{[a,b]}  = a + \frac{(x_j+1)(b-a)}{2},
+\]
+where $x_j$ are the Chebyshev nodes on $[-1,1]$. The resulting 
+interpolation operator is denoted by $I_N^{[a,b]}$. 
+
+We can now quantify the effect of domain size with the following lemma. 
+
+\begin{lemma}
+    Let $f \in C^{p-1,1}([a,b])$ where $a < b$, and $N \leq p$, then 
+    \[
+        \|f - I_N^{[a,b]} f \|_{L^\infty(a,b)} 
+        \leq \frac{c^N \log N}{N!} \b(b-a\big)^N \| f^{(N)} \|_{L^\infty(a,b)},
+    \]
+    where $c$ is a generic constant.
+\end{lemma}
+\begin{proof}
+    Let $g(y) = f(\xi(y))$ where $\xi(y) = a + (b-a)(1+y)/2$, i.e., 
+    \[ 
+        \xi : [-1,1] \to [a, b]
+    \]
+    is affine and bijective. Then according to Jackson's theorem (the sharp
+    version; cf. Exercise~\ref{exr:poly:convergence}), 
+    \[
+        \|f - I_N^{[a,b]} f\|_{L^\infty(a,b)} = 
+        \| g - I_N g \|_{L^\infty(-1,1)}  
+        \leq  \frac{c_1^N\log N}{N!} \| g^{(N)} \|_{L^\infty(-1,1)}.
+    \]
+    Next, since $\xi$ is affine it is easy to show that 
+    \[
+        g'(y) = f'(\xi(y)) \xi'(y) = f'(\xi(y)) \smfrac{b-a}{2},
+    \]
+    and hence 
+    \[
+        g^{(j)}(y) = f^{(j)}(\xi(y)) \B(\smfrac{b-a}{2}\B)^j.
+    \]
+    Combining this with the interpolation error estimate for $g$ 
+    yields the stated result.
+\end{proof}
+
+Thus we see that we now have two parameters to control the approximation error:
+the polynomial degree $N$ and the interval lengths $(b-a)$. This extra freedom
+is what can make splines a powerful alternative to polynomials. 
+
+
+\begin{definition}
+    Let $y_0 < y_1 < \dots < y_M$ be a partition of an interval $[y_0, y_M]$,
+    then we define the space of splines (piecewise polynomials) of degree $N$ on
+    that partition to be 
+    \[
+        \Spl_N(\{y_i\}) := \b\{ s : [y_0, y_M] \to \R, \quad 
+            s|_{[y_{m-1}, y_m]} \in \Poly_N \text{ for all }
+            m = 1, \dots, M \b\}
+    \]
+    Splines are of course $C^\infty$ in each interval $[y_{j-1}, y_j]$, but 
+    sometimes it is also interesting to require that splines have a certain 
+    regularity on the entire interval $[y_0, y_M]$. We therefore define 
+    \[
+        \Spl_N^p(\{y_i\}) := \Spl_N(\{y_i\}) \cap C^p([y_0, y_M]).
+    \]
+    It is worth nothing that $s \in \Spl_N^p$ implies in fact that $s \in
+    C^{p,1}$.
+\end{definition}
+
+\begin{remark}
+    It is of course also possible to define splines with varying polynomial
+    degree, i.e. in each subinterval $[y_{j-1}, y_j]$ we might impose a degree
+    $N_j$. This has advantages for some applications but we will not consider it
+    here. 
+\end{remark}
+
+It takes a bit more work to construct splines of regularity $p = 1$ or higher,
+but $\Spl_N^0$ splines are obtained by simply taking Chebyshev interpolants on
+each sub-interval. We call the resulting interpolant $I_{N,M}$, 
+\[
+    I_{N,M} f(x) := I_N^{[y_{m-1},y_m]} f(x)    \qquad \text{for }
+    x \in [y_{m-1}, y_m].
+\]
+We then obtain the following basic approximation 
+error estimates. 
+
+\begin{theorem} \label{th:splines:convergence_Cj}
+    Let $f \in C^p([a,b])$ and $a = y_0 < \dots < y_M = b$ a partition of $[a,
+    b]$, and let $h_m := y_m - y_{m-1})$ be the mesh size, and $N \leq p$, then 
+    \[
+        \| f - I_{N,M} f \|_{L^\infty(a,b)}
+        \leq  C_N \max_{m = 1, \dots, M} h_m^N
+        \| f^{(N)} \|_{L^\infty(y_{m-1}, y_m)},
+    \]
+    where $C_N = \frac{c^N \log N}{N!}$.
+    In particular, if the partition is uniform, 
+    $y_m = a + h m$ where $h = (b-a)/M$ then 
+    \[
+        \| f - I_{N,M} f \|_{L^\infty(a,b)}
+        \leq C_N h^N \|f^{(N)}\|_{L^\infty(a,b)}.
+    \]
+\end{theorem}
+\begin{proof}
+    Left as an exercise. 
+\end{proof}
+
+
+\subsection{Splines for functions with singularities}
+%
+\label{sec:splines:sing}
+%
+We will demonstrate how splines can be used to effectively resolve singular
+behaviour using the example from the beginning of this chapter, 
+\[ 
+    f(x) = \sqrt{x} \qquad \text{on } x \in [0, 1]
+\]
+A possible analytic continuation is given by 
+\[
+    f(r e^{i \varphi}) = \sqrt{r} e^{i \varphi / 2},
+\]
+which is analytic in $\C \setminus (-\infty, 0]$. Moreover, we have $|f(z)| =
+\sqrt{|z|}$ which will make it easy to estimate $\|f\|_{L^\infty(E_\rho)}$ where
+$E_\rho$ will be some suitable Bernstein ellipsi.
+
+Our strategy will be to use a partition  
+\[
+    0, 2^{-M}, 2^{-M+1}, \dots, 2^{-1}, 1.
+\]
+Since $f$ is analytic in each subinterval $[2^{-m}, 2^{-m+1}]$ we will be able
+to use the exponential convergence rates from
+Theorem~\ref{th:poly:err_analytic}.
+
+Let us therefore consider $f$ on $[2^{-m}, 2^{-m+1}]$. We rescale 
+\[
+    g(y) = f\b(2^{-m} + 2^{-m-1}(1+y)\b),
+\]
+then the singularity $x = 0$ maps to $y = -3$, hence $g$ in analytic in $\Re z >
+-3$. In particular taking $\rho = 4$ we have $a = \smfrac12(\rho+\rho^{-1}) < 3$ 
+and 
+\begin{align*}
+    \|g\|_{L^\infty(E_\rho)} &\leq g(a) \leq f(2^{-m} + 2^{-m-1}(1+a)) \\
+    &\leq  f(2^{-m} + 2^{-m+1}) \\ 
+    &\leq \sqrt{2^{-m+2}} \\ 
+    &= 2^{-m/2+1}.
+\end{align*}
+Thus, we obtain 
+\[
+    \| f - I_N^{[2^{-m},2^{-m+1}]} f\|_{L^\infty(2^{-m},2^{-m+1})}
+    =
+    \| f - I_N g \|_{L^\infty(-1,1)} 
+    \leq C 4^{-N} 2^{-m/2}
+\]
+To make our life a little easier we can just estimate 
+\[
+    \| f - I_N^{[2^{-m},2^{-m+1}]} f\|_{L^\infty(2^{-m},2^{-m+1})}
+    \leq 
+    C 4^{-N} \qquad \text{for } m = M, M-1, \dots, 1;
+\]
+that is, 
+\[
+    \| f - I_{N,M} f \|_{L^\infty(2^{-M}, 1)} \leq 
+    C N^{-4}.    
+\]
+
+Finally, we address the first interval $[0, 2^{-M}]$. We rescale again 
+as before, but now the singularity becomes part of the domain $[-1,1]$, i.e.,
+$g \in C^{0,1/2}([-1,1])$ and no better. Jackson's theorem therefore tells 
+us the 
+\[
+    \| g - I_N g \|_{L^\infty(0, 2^{-M})}
+    \leq 
+    C \omega_g(N^{-1}) = C N^{-1/2}.
+\]
+But the constant matters here! Specifically, we can show that 
+\[
+    \omega_g(r) = c 2^{-M/2} \sqrt{r},
+\]
+that is, we even have 
+\[
+     \|f - I_N^{[0, 2^{-M}]} f \|_{L^\infty(0, 2^{-M})} 
+     \leq C 2^{-M/2} N^{-1/2}.
+\]
+Let us again make our life a little easier and ignore the $N^{-1/2}$ term, then 
+we want to balance $2^{-M/2} = 4^{-N}$; that is, 
+\[
+    M = 4 N.    
+\]
+With this choice, we finally obtain 
+\[
+    \| f - I_{N,M} f \|_{L^\infty(0, 1)} \leq C 4^{-N}.
+\]
+
+To conclude we convert this into a cost estimate. The cost of evaluating 
+$I_{N,M} f$ at a single point in space is the same as evaluating a 
+polynomial of degree $N$, that is 
+\[
+    {\rm COST-EVAL}(I_{N,M} f) = O(N)
+\]
+and in particular, we obtain the very nice exponential convergence 
+result 
+\[
+    \| f - I_{N,M} f \|_{L^\infty(0, 1)} \leq C \rho^{-{\rm COST-EVAL}},
+\]
+for some $\rho > 0$. The cost to ``build and store'' $I_{N,M} f$ is the cost of
+evaluating $f$ at $M \cdot N$ points, i.e., $O(N^2)$ so this cost is a little
+higher, but still very attractive.
+
+This example is intended to demonstrate the power of adapting the spline grid to
+the features of the function to be approximated. Automating this process is of
+great interest but goes beyond the scope of this module.
+
+\begin{remark}
+    We can do slightly better by balancing the two terms in 
+    \[
+        \| f - I_N^{[2^{-m},2^{-m+1}]} f\|_{L^\infty(2^{-m},2^{-m+1})}
+        \leq 
+        C 4^{-N_m} 2^{-m/2}
+        = C 4^{- N_m - m/4},
+    \]
+    i.e., choosing $N_m +  m/4 = N = {\rm const}$. But one can easily 
+    check that this only gives an improvement in some constants, but 
+    not qualitatively.
+\end{remark}
+
+\subsection{Exercises}
+
+
+\begin{exercise} \label{exr:splines:}
+    Prove Theorem~\ref{th:splines:convergence_Cj}
+\end{exercise}
+
+\begin{exercise}
+    \begin{enumerate} \ilist 
+    \item Suppose you are given a function $f \in C^{p-1,1}([-1,1])$. For
+    simplicity, assume even that in each subinterval $[a,b] \subset
+    [-1,1]$ the regularity of $f$ is no better than $C^{p-1,1}$. Assume
+    you discretise $[-1,1]$ with a uniform grid. How would you optimally
+    balance the grid spacing $h$ against the polynomial degree $N$?
+    (i.e. minimise the error against the number of function evaluations
+    you need to specify the approximant)
+
+    \item Now suppose that $f \in A([-1,1])$; how would you balance $h$
+    against $N$ now?
+
+    \item For the following functions compare the performance of 
+    global polynomial versus $\Spl_N^0$ approximation on a uniform grid:
+    \begin{itemize}
+        \item $f(x) = |x|$ 
+        \item $f(x) = |x+\pi|$ 
+        \item $f(x) = |\sin(x/2)|$ 
+        \item $f(x) = (1+25 x^2)^{-1}$
+        \item $f(x) = x \sin(1/x)$ 
+    \end{itemize}
+    \end{enumerate}
+\end{exercise}
+
+\begin{exercise}
+    For the following functions $f : [-1,1] \to \R$, design a spline
+    approximation with quasi-optimal rate of convergence in
+    $\|\cdot\|_{L^\infty(-1,1)}$ in terms of evaluation cost. 
+    \begin{itemize}
+        \item $f(x) = |x|$ 
+        \item $f(x) = |\sin(x/2)|$ 
+        \item $f(x) = (1+25 x^2)^{-1}$
+        \item $f(x) = x \sin(1/x)$ 
+    \end{itemize}
+\end{exercise}
+
+\begin{exercise}[Linear Splines] Show that for we can write continuous linear
+    spline interpolations, i.e. $s \in \Spl_1^0(\{y_m\})$ in terms of a nodal
+    basis, 
+    \[
+        s(y) = \sum_{m = 0}^M f(y_m) \phi_m(y),
+    \]
+    where $\phi_m$ are ``hat-functions'' that you should specify 
+    explicitly. 
+\end{exercise}
+
+
+\begin{exercise}[Hermite Interpolation with Cubic Splines]
+    Let $y_0 < \dots < y_M$ be a grid and let $f_m, f_m'$ be 
+    function and derivative values at those grid points. Show that there 
+    exists a unique cubic spline $s \in \Spl_3^1(\{y_m\})$ such that 
+    \[
+        s(y_m) = f_m, \quad \text{and} \quad 
+        s'(y_m) = f_m' \quad \text{for } m = 0, \dots, M.    
+    \]
+    {\it HINT: in each interval $[y_{m}, y_{m+1}]$ write $s(x) = f_{m} + f_{m}'
+        (x-x_{m}) + a_m (x-x_m)^2 + b_m (x-x_m)^3$ and show that there exist
+        unique $a_m, b_m$ such that $s(x_{m+1}) = f_{m+1}, s'(x_{m+1}) =
+        f_{m+1}'$. You may wish to derive explicit expressions for 
+        $a_m, b_m$ in preparation for the next exercise.}
+\end{exercise}
+
+
+\begin{exercise}[B-Splines]
+    Depending on regularity requirements of an application it is
+    sometimes advantageous to require higher regularity of the approximant,
+    i.e., we should consider $\Spl_N^p$, $p > 0$. The case $\Spl_N^{N-1}$
+    turns out to be particularly natural; these are alled the B-splines. And
+    amongst those, the cubic splines enjoy particular polularity.
+
+    \begin{enumerate} \ilist 
+        \item Suppose for the moment that $s \in \Spl_3^2(\{y_m\})$ with 
+        $s(y_m) = f_m$ where $f_m$ are some nodal values. Prove that, 
+        for {\em any} $g \in C^2[a,b]$ with $g(y_m) = f_m$, 
+        \[
+            \int_{a}^b |s''(x)|^2 \,dx \leq \int_a^b |g''(x)|^2 \,dx,
+        \]
+        {\em provided} that $s$ satisfies a condition at the end-points 
+        $a = y_0, b = y_M$, which you should derive. 
+
+        Thus, $s''$ with this end-point condition minimises curvature amongst
+        all $C^2$ functions satisfying the nodal interpolation conditions. 
+        These splines are therefore called natural splines. 
+
+        {\it HINT: } Consider $\int_a^b |s''|^2 + 2 s'' (g''-s'') + |s'' - g''|^2 \, dx$
+        and show that the middle term vanishes if the correct end-point 
+        condition is applied.
+
+        \item Given $(f_m)_{m = 0}^M \in \R^{M+1}$, prove that there exists a
+        unique $s \in \Spl_3^2(\{y_m\})$ satisfying the nodal interpolation
+        conditions $s(y_m) = f_m$ and the end-point conditions found in part
+        (ii). For the sake of simplicity you may wish to assume that the nodes
+        are equispaced, i.e. $y_m = y_0 + h m$.
+
+        {\it HINT: Prescribe artificial derivative values $f_m'$, then derive a
+        tridiagonal linear system for $(f_m')_{m=0}^M$ and show that it has a
+        unique solution. Note that this system can be solved in $O(M)$ time.}
+        \qedhere
+    \end{enumerate}
+\end{exercise}
+
