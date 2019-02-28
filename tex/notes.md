@@ -9,3 +9,11 @@
 - rational approximation by example 
 - pade approximation? => exercise...
 
+% Exam Ideas:
+% - Q1: basic facts about Part I
+% - Qx: Something about the Fejer Kernel:
+%   https://en.wikipedia.org/wiki/Fejér_kernel
+% - spectral differentiation
+% - barycentric formula for trig interp
+% - some approximation of exp() - since the growth into the complex plane is 
+%   very simple 

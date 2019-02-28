@@ -1,2 +1,336 @@
+% !TeX root = ./apxthy.tex
 
-\section{Least Squares Fits}
+
+\section{Least Squares Methods}
+
+\subsection{Motivation}
+%
+We first describe least squares methods in abstract terms. Let 
+$[a,b]$ be an interval and 
+$b_1, \dots, b_N \in C([a,b])$ be $N$ linearly independent basis functions 
+for an approximation space 
+\[
+    \AA_N   := {\rm span}\b\{ b_1, \dots, b_N \b\}. 
+\]
+Given $w \in C(a,b) \cap L^1(a,b)$ (note the open interval!) we can 
+define a weighted $L^2$-inner product 
+\[
+    \< f, g \>_{L^2_w} := \int_a^b w(x) f(x) g(x)^* \,dx,    
+\]
+with associated norm $\|f\|_{L^2_w} := \<f,f\>_{L^2_w}^{1/2}$. The best
+approximation of a function $f \in C([a,b])$ with respect to this weighted norm
+is then given by 
+\begin{equation} \label{eq:lsq:ctslsq}
+    p_N \in \min_{p \in \AA_N} \b\| f - p \b\|_{L^2_w}^2.
+\end{equation}
+We call this a continuous least squares problem. 
+
+Computationally, we typically need to discretise \eqref{eq:lsq:ctslsq}. 
+To that end, we choose points $x_1, \dots, x_M \in [a, b]$ and weights 
+$w_1, \dots w_M$ and define the discrete inner product 
+\begin{equation} \label{eq:lsq:disip}
+    \< f, g \>_{\ell^2_w} := \sum_{m = 1}^M w_m f(x_m) g(x_m)^*
+\end{equation}
+with associated norm $\|f\|_{\ell^2_w} := \<f,f \>_{\ell^2_w}^{1/2}$. This 
+gives the discrete least squares problem 
+\begin{equation}
+    \label{eq:lsq:dislsq}
+    p_N \in \min_{p \in \AA_N} \b\| f - p \b\|_{\ell_w^2}.
+\end{equation}
+This is the typical kind of least squares problem encountered in 
+real applications. 
+
+We distinguish two scenarios:
+\begin{enumerate}
+\item {\bf User Chooses Data: } In this scenario the ``user'' is given a
+function $f$ to be approximated. She may then choose the points $x_m$, weights
+$w_m$ and evaluations $f(x_m)$ in order to fine-tune and optimise the fit $p_N$.
+For example it is then feasible to start from \eqref{eq:lsq:ctslsq} and design a
+discrete LSQ system \eqref{eq:lsq:dislsq} that approximates
+\eqref{eq:lsq:ctslsq} in a suitable sense. An arbtirary amount of data $(x_m,
+f(x_m))$ may then be generated to ensure a good fit.
+
+\item {\bf Data is provided: } Some data has been collected outside the control 
+of the person (``user'') designing the fit. Given the data points $(x_m, f(x_m))$ 
+(possibly subject to noise, i.e. $y_m = f(x_m) + \eta_m$ is then provided)
+one then needs to choose an appropriate approximation space $\AA_N$, 
+approximation degree $N$ and weights $w_m$ to ensure a good fit in a sense 
+dictated by the application. 
+\end{enumerate}
+
+We will study both scenarios but note that the second one is the more 
+typical in applications. 
+
+\subsection{Solution methods}
+%
+\label{sec:lsq:soln}
+%
+We convert \eqref{eq:lsq:dislsq} into a linear algebra problem. 
+By writing 
+\[
+    Y_m := f(x_m),  \sqrt{W} := {\rm diag}(\sqrt{w_1}, \dots, \sqrt{w_m}) \in \R^{M \times M}
+\]
+and 
+\[
+    p(x_m) = \sum_{n = 1}^N c_n b_n(x_m) = A c, 
+    \quad \text{where }  A_{mn} = b_n(x_m),
+\]
+then $A \in \R^{M \times N}$ and we obtain 
+\[
+    \sum_{m = 1}^M w_m | p(w_m) - f(x_m)|^2 
+    = \big\| \sqrt{W} A c - \sqrt{W} Y \big\|^2,
+\]
+where $\|\cdot\|$ denotes the standard Euclidean norm in $\R^M$. 
+We write $\tilde{A} := \sqrt{W} A, \tilde{Y} := \sqrt{W} Y$ and 
+write the least squares functional equivalently as 
+\[
+    \Phi(c) := \big\| \sqrt{W} A c - \sqrt{W} Y \big\|^2 
+    = c^T \tilde{A}^T \tilde{A} c - 2 c^T \tilde{A}^T \tilde{Y} + \|\tilde{Y}\|^2.
+\]
+A minimiser must satisfy $\nabla\Phi(c) = 0$, which gives the linear system 
+\begin{equation} \label{eq:lsq:normaleqns}
+    \tilde{A}^T\tilde{A} c = \tilde{A}^T \tilde{Y}.
+\end{equation}
+These are called the normal equations, which can be solved using 
+the LU or Cholesky factorisation. 
+
+It turns out that they are often (though not always) ill-conditioned. 
+An alternative approach is therefore to perform the (numerically stable)
+{\em thin QR factorisation}
+\[
+    \tilde{A} = Q R,   
+\]
+where $R \in \R^{N \times N}$ is upper triangular and  $Q \in \R^{M \times N}$
+has ortho-normal columns, i.e., $Q^T Q = I \in \R^{N \times N}$. 
+With the QR factorisation in hand the normal equations can be rewritten as 
+\begin{align*}
+    \tilde{A}^T\tilde{A} c &= \tilde{A}^T \tilde{Y} \\ 
+    \Leftrightarrow \qquad 
+    R^T Q^T Q R c &= R^T Q^T \tilde{Y} \\ 
+    \Leftrightarrow \qquad 
+    R c &= Q^T \tilde{Y},
+\end{align*}
+provided that $R$ is invertible (which is equivalent to $A^T A$ being invertible 
+and to $A$ having full rank). Thus, the solution of the least squares problem 
+becomes 
+\begin{equation}
+    \label{eq:lsq:qr}
+    R c = Q^T \sqrt{W} Y, \qquad \text{where} \qquad 
+    \sqrt{W} A = QR.
+\end{equation}
+
+It is worthwhile comparing the computational cost of the two approaches. 
+\begin{enumerate}
+\item The assembly of thenormal equations requires the multiplication 
+$A^T A$ which requires $O(M N^2)$ operations, followed by  the 
+Cholesky factorisation of $A^T A$ which requires $O(N^3)$ operiations. 
+Thus the cost of solving \eqref{eq:lsq:normaleqns} is $O(M N^2)$. 
+\item The cost of the QR factorisation in \eqref{eq:lsq:qr} is 
+$O(M N^2)$ as well, while the inversion of $R$ is only $O(N^2)$ and the 
+multiplication with $Q^T$ is $O(NM)$. 
+
+Thus both algorithms scale like $O(M N^2)$.
+\end{enumerate}
+
+
+\subsection{Orthogonal Polynomials}
+%
+\label{sec:lsq:orthpolys}
+%
+
+
+\subsection{Accuracy and Stability I: Least Squares and Nodal Interpolation}
+%
+Consider fitting trigonometric polynomials $\AA_{2N} = \TT_N'$ with equispaced
+grid points $x_n = \pi n / N$ and uniform weights $w_n = 1$. Then the
+least squares fit 
+\[
+    \min \sum_{n = 0}^{2N-1} |f(x_n) - t(x_n)|^2 
+\]
+is equivalent to trigonometric interpolation, for which we have sharp and error
+estimates that predict a close to optimal rate of approximation. 
+
+We could leave it at this, but it is still interesting to observe what happens 
+to the least squares system. The matrix $A$ is now given by 
+\[
+    A_{nk} = e^{ikx_n}
+\]
+and the entries in the normal equation by 
+\[
+    [A^* A]_{kk'} = \sum_{n} e^{-ikx_n} e^{ik' x_n} = 2 N \delta_{kk'}
+\]
+according to Exercise~\ref{exr:trig:trapezoidal rule}(i). 
+This is due to the fact that the discrete inner product 
+\eqref{eq:lsq:disip}  (up to a constant factor) identical to 
+the $L^2(\TT)$-inner product on the space $\TT_N'$, that is, 
+\[
+    \< f, g \>_{\ell^2} = 2N \mint_{-\pi}^\pi f g^* \,dx \qquad 
+    \forall f, g \in \TT_N'.
+\]
+No QR factorisation is needed and the lsq fit is given by 
+\[
+    c = (2 N)^{-1} A^* Y,  
+\]
+where the operation $(2N)^{-1} A^T Y$ can be performed at $O(N \log N)$
+computational cost using the FFT. 
+
+Analogous observations are of course true for connecting least squares 
+methods and algebraic polynomials. 
+
+
+\subsection{Accuracy and Stability II: Random data}
+%
+\label{sec:lsq:rand}
+%
+The situation gets more interesting when we are not allowed to optimise the
+points at which to fit the approximant. There is an infinite variety of
+different situations that can occur when the provided data is application
+driven, which goes far beyond the scope of this module. Here, we will assume
+that the points $x_m$ are distributed according to some probability law. That
+is, they are random. This is in fact a rather common situation in applications
+as well. Note also that we are now in the Case-2 situtation where we are given a
+fixed amount of data $(x_m, f(x_m))_{m = 1}^M$ and should choose $N$ ensure the
+best possible fit given the data we have. In particular this means that we
+should not choose $N$ too large!
+
+Specifically, we shall assume throughout this section that 
+\begin{equation}
+    \label{eq:lsw:wm_law}
+    x_m \sim w \,dx, \qquad \text{are iid}, \quad \text{for } m = 1, \dots, M.
+\end{equation}
+(identically and independently distributed) and without loss of generality that
+$\int_a^b w \,dx = 1$ as this can always be achieved by rescaling. We also
+assume that $w \in C(a,b) \cap L^1(a,b)$ as before. In this case, we can
+construct a sequence of orthogonal polynomials as in \S~\ref{sec:lsq:orthpolys}
+with respect to the $L^2_w$-inner product and we will target best approximation 
+with respect to the same inner product. 
+
+We will discuss two fundamental results due to Cohen, Davenport and Leviatan
+\cite{Cohen2013-yj}, but we won't prove them.  The first result concerns the
+{\em stability} of the normal equations. Specifically, we will show that if we
+use an $L^2_w$-orthogonal basis then $A^T A$ will be close to identity (and in
+particular invertible) for a sufficiently large number of sample points $x_m$. 
+
+
+
+\begin{theorem}[Stability] \label{th:lsq:randstab}
+    Let $\phi_1, \dots, \phi_N$ be $L^2_w$-orthonormal, $A_{mk} := \phi_k(x_m)$, 
+    then 
+    \[
+        \mathbb{P}\B[ \| A^* A - I \|_{\rm op} > \delta\B]
+        \leq 2 N \exp\B( - \smfrac{C_\delta M}{K(N)}\B), 
+    \]
+    where $C_\delta = (1+\delta) \log (1+\delta) - \delta$ and 
+    \[
+        K(N) = \sup_{x \in [a,b]} \sum_{k = 1}^N |\phi_k(x)|^2.
+    \]
+\end{theorem}
+
+Let us specifically focus on the Chebyshev measure where $w(x) =
+(1-x^2)^{-1/2}$, the Chebyshev basis $T_k(x)$ on the interval $[a,b]= [-1,1]$.
+Since $|T_k(x)| \leq 1$ it readily follows that $K(N) \leq N$. Moreover, the
+recursion formulat for $T_k$ implies that $T_k(1) = 1$ for all $k$, hence this
+bound is sharp, i.e., $K(N) = N$ in this case. 
+
+To make $N \exp( - \smfrac{C_\delta M}{N})$ small, we therefore need 
+to choose $N \leq \alpha M / \log M$. With this choice,
+\[
+    N \exp( - \smfrac{C_\delta M}{N})
+    = 
+    N \exp\b( - \alpha C_\delta \log M\b)
+    \leq 
+    M^{1 -\alpha C_\delta} / \log M
+\]
+and by choosing $\alpha$ sufficiently large we can ensure that this value tends
+to zero as $M \to \infty$. (the case of sufficiently large amounts of data).
+Conversely, if $\alpha$ is too small, then $M^{1 -\alpha C_\delta} / \log M \to
+\infty$ as $M \to \infty$ which shows that the choice $N \leq \alpha M/\log M$
+is sharp. This is a very mild restriction!
+
+The next result  we discuss concerns the approximation $p_{NM} = \sum_n c_n
+\phi_n$ we obtain by solving the least squares problem $\| f - p_{NM}
+\|_{\ell^2(\{x_m\})}^2 \to \min$.
+
+\begin{theorem} \label{th:lsq:randerr}
+    There exists a constant $c$ such that, if 
+    \[
+        K(N) \leq \frac{c}{1+r} \frac{M}{\log M},
+    \]
+    then, 
+    \[
+        \mathbb{E}\b[ \|f - p_{NM}\|_{L^2_w}^2 \b] 
+        \leq 
+        (1+\epsilon(M)) \|f - \Pi_N f\|_{L^2_w}^2 
+        + 8 \|f\|_{L^\infty(a,b)}^2 M^{-r},
+    \]  
+    where $\epsilon(M) \to 0$ as $M \to \infty$, and $\Pi_N$ denotes the
+    best-approximation operator with respect to the $L^2_w$-norm.
+\end{theorem}
+
+As a first comment, we observe that our restriction $N \leq \alpha M / \log M$
+for sufficiently small $\alpha$ re-appears. (In fact, this prerequisite is
+required to be able to apply Theorem~\ref{th:lsq:randstab}.)
+
+We can now ask what consequence the choice $N = \alpha M / \log M$ has 
+on the error. In this case, $\alpha = c / (1+r)$, or equivalently, 
+$r = c/\alpha - 1$ hence (sacrifycing just a log-factor)
+\[
+    M^{-r}  \leq N^{-r} = N^{1 - c/\alpha} =: N^{-\alpha'},
+\]
+where $\alpha' > 0$ provided that $\alpha$ is chosen sufficiently small. In this
+case, we can conclude that 
+\[
+    \mathbb{E}\b[ \|f - p_{NM}\|_{L^2_w}^2 \b] 
+    \lesssim  
+    \|f - \Pi_N f\|_{L^2_w}^2 
+    + 
+    N^{- \alpha'}
+\]
+for some $\alpha' > 0$. Thus, for differentiable functions $f$, such a choice is
+quasi-optimal. 
+
+However, for analytic functions the rate in the error estimate is
+reduced. Let us assume that $f \in A(E_\rho)$, then 
+$\| f - \Pi_N f \|_{L^2_w} \lesssim \rho^{-N}$ hence we must balance the 
+two constributions 
+\[
+    \rho^{-N} + M^{-r}.
+\]
+We have already seen that $N = \alpha M/\log M$ leads to $\rho^{-N} \ll M^{-r}$, 
+hence we instead attempt to choose $N = a (M/\log M)^{\alpha}$ for some $0 < \alpha < 1$,
+which gives 
+\[
+    r = c' (M / \log M)^{1-\alpha}.
+\]
+Thus, we wish to balance 
+\begin{align*}
+    \exp\B[ - (\log \rho) N\B]  &+ \exp\B[ - r \log M \B]  \\ 
+    = \exp\B[ - c'' M^\alpha (\log M)^{-\alpha} \B]  &+ \exp\B[ - c M^{1-\alpha} (\log M)^{-\alpha} \B] 
+\end{align*}
+We can now see that the two terms are balanced when $\alpha = 1/2$, that is, 
+the quasi-optimal choice of $N$ appears to be 
+\[
+    N = a \b(M / \log M\b)^{1/2}.
+\]
+This is also somewhat consistent with the observation that in the $C^j$ case we
+need to decrease $\alpha$ for increasing $j$. 
+
+That said, we should remember that we have balanced an error estimate and not
+the actual error. At this point, it is highly advisable to test these
+predictions numerically, which is done in \nblsq, where we see --- for some
+limited examples --- that the stability condition $N \lesssim M/\log M$ appears
+to be crucial but the stronger requirement $N \lesssim (M/\log M)^{1/2}$ seems
+to not be required.
+
+In summary, the foregoing analysis is intended to demonstrate how different
+competing contributions to approximation by fitting from data can be balanced at
+least in principle but also the limitations of analysis.
+
+
+
+
+
+\subsection{Exercises}
+%
+\label{sec:lsq:exercises}
+%
