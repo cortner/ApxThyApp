@@ -62,7 +62,80 @@ notation.
 %
 \label{sec:sparse:curse}
 %
-\alert{todo}
+As a first attempt at constructing high-dimensional approximations we  
+apply the one-dimensional techniques in each coordinate direction. For 
+example, let us assume that $f : [-1,1]^2 \to \R$ has any regularity 
+we may later need, then we can first apply a Chebyshev interpolant 
+in the $x_1$-direction which we denote by $I_N^{(1)}$ 
+which becomes a polynomial in $x_1$ but a general function in $x_2$, i.e., 
+\[  
+    I^{(1)}_N f(x_1, x_2) = 
+    \sum_{k_1 = 0}^N c_{k_1}(x_2) T_{k_1}(x_1).
+\]
+We then apply an interpolant in the $x_2$-direction to obtain 
+\[
+    I^{(2)}_N I^{(1)}_N f(x_1, x_2) 
+    = \sum_{k_1 = 0}^N I^{(2)}_N c_{k_1}(x_2) T_{k_1}(x_1)
+    = \sum_{k_1, k_2 = 0}^N c_{k_1k_2} T_{k_1(x_1)} T_{k_2}(x_2)
+    = \sum_{\bk \in \{0\dots N\}^2} c_\bk T_\bk(\bx).
+\]
+More generally, we define the $d$-dimensional Chebyshev interpolation 
+operator to be 
+\[
+    I^{(1..d)}_N :=  I^{(d)}_N I^{(d-1)}_N \cdots I^{(1)}_N
+\]
+
+To estimate the error committed, let us assume that $x_\alpha \mapsto f(\bx) \in
+C^j([-1,1])$ for all $\alpha$, then we can bound 
+\begin{align*}
+    \b\|f -  I^{(d)}_N I^{(d-1)}_N \cdots I^{(1)}_N f\b\|_\infty 
+    &\leq 
+    \b\|f -  I^{(d)}_N f\b\|_\infty 
+    + \b\| I^{(d-1)}_N \cdots I^{(1)}_N f - I^{(d)}_N I^{(d-1)}_N \cdots I^{(1)}_N f \b\|_\infty  \\ 
+    &\leq 
+    C (\log N) N^{-j} \| \partial_{x_d}^j f \|_\infty
+    + \b\| I^{(d-1)}_N \cdots I^{(1)}_N f - I^{(d)}_N I^{(d-1)}_N \cdots I^{(1)}_N f \b\|_\infty.
+\end{align*}
+Arguing by induction we obtain the following result. 
+
+\begin{theorem} \label{th:sparse:curse}
+    (1) Let $x_\alpha \mapsto f(\bx) \in C^j([-1,1])$ for $\alpha = 1, \dots,
+    d$, then 
+    \[
+        \b\|f -  I^{(1..d)}_N f\b\|_\infty 
+        \leq C (\log N)^d N^{-j} \sum_{\alpha = 1}^d \| \partial_{x_\alpha}^j f \|_\infty
+    \]
+    (2) Let $x_\alpha \mapsto f(\bx) \in A(E_\rho)$ for some $\rho > 1$ and for
+    all $\bx \in [-1,1]^d-1$, then 
+    \[
+        \b\|f -  I^{(1..d)}_N f\b\|_\infty 
+        \leq 
+        C  M_f (\rho-1)^{-d} (\log N)^d \rho^{-N} \sum_{\alpha = 1}^d,
+    \]
+    where $M_j = \sum_{\alpha = 1}^d \|f\|_{L^\infty(E_\rho^{(\alpha)})}$, where
+    $E_\rho^{(\alpha)} = [-1,1] \times \cdots \times [-1,1] \times E_\rho 
+    \times [-1,1] \times \cdots \times [-1,1]$ and the position of the 
+    Bernstein ellipse is in the $d$th coordinate. 
+\end{theorem}
+
+Let us translate these estimates into cost-error relations. The number of basis
+functios for a $d$-dimensional tensor product basis of degree $N$ is $(1+N)^d$
+and this is directly proportional to the associated computational cost. Further,
+even though the terms $(\log N)^d$ are significiant they arise from sub-optimal
+estimates of the interpolation error (cf. \cite{Trefethen2013-rg} for sharp
+estimates) hence we ignore them. 
+Letting $\epsilon := \b\|f -  I^{(1..d)}_N f\b\|_\infty$, we therefore obtain 
+\[
+    {\rm Cost} \approx N^d \lesssim 
+        \left\{\begin{array}{ll}
+            \epsilon^{d/j}, & \text{case (1)}; \\ 
+            (\log \epsilon)^{d}, & \text{case (2)}.
+        \end{array}\right.
+\]
+The exponential dependence of these estimates on $d$ is what we call the ``curse
+of dimensionality'': without new ideas and new information it becomes
+exponentially harder to approximate functions in high dimension.
+
 
 \subsection{Chebyshev series and greedy approximation}
 %
@@ -153,7 +226,7 @@ whether this bound is close to optimal.
 \begin{proof}[Proof of Theorem~\ref{th:sparse:mvchebseries}] 
     We will use, without proof, the fact that continuously differentiable
     functions are dense in $L^2_{\rm C}$. This can be proven e.g. by using a
-    multi-variate Jackson-type approximation. Then \alert{insert ref} 
+    multi-variate Jackson-type approximation. Then Theorem~\ref{sec:sparse:curse}
     implies that polynomials are dense in $L^2_{\rm C}$. The remaining 
     statements are straightforward. 
 \end{proof}
