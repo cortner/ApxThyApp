@@ -1,0 +1,386 @@
+% !TeX root = ./apxthy.tex
+
+\section{Tensor Products and Sparse Grids}
+%
+\label{sec:sparse}
+
+\subsection{Introduction and Motivation}
+%
+\label{sec:sparse:intro}
+%
+We now consider the approximation of functions $f : [a,b]^d \to \R$. We will
+explore (1) how to construct ``good'' approximations and (2) what effect the
+dimension $d$ has on the rates of approximation.
+
+We will build multi-variate approximations from tensor products of uni-variate 
+basis functions. For example, a polynomial in two dimensions can be written 
+as 
+\[
+  p(x_1, x_2) = \sum_{k_1 = 0}^N \sum_{k_2 = 0}^N c_{k_1k_2} x_1^{k_1} x_2^{k_2}.
+\]
+The function $(x_1, x_2) \mapsto x_1^{k_1}x_2^{k_2}$ is called the tensor
+product between the two functions $x_j \mapsto x_j^{k_j}$. 
+
+We know of course from our univariate theory that the Chebyshev basis has 
+many advantageous algorithmic and approximation properties, thus we may 
+prefer to write $p(x_1, x_2)$ in the form 
+\[
+    p(x_1, x_2) = 
+    \sum_{k_1 = 0}^N \sum_{k_2 = 0}^N  
+    \tilde{c}_{k_1k_2} T_{k_1}(x_1) T_{k_2}(x_2).
+\]
+In a general dimension $d > 1$ we will write 
+\begin{align*}
+    \bx &= (x_1, \dots, x_d), \\ 
+    \bk &= (k_1, \dots, k_d), \\ 
+    T_{\bk}(\bx) &= \prod_{\alpha = 1}^d T_{k_\alpha}(x_\alpha),
+\end{align*}
+and consider polynomials 
+\[
+    p(\bx) = \sum_{\bk \in \mathcal{K}} c_{\bk} T_{\bk}(\bx),  
+\]
+where $\calK \subset \N^d$ is a suitable index set. 
+
+The definition of $T_{\bk}$ can also equivalently be written as 
+\[
+    T_{\bk} = T_{k_1} \otimes T_{k_2} \otimes \cdots \otimes T_{k_d}  
+\]
+
+However we write these multi-variate polynomials we can see the ``curse of
+dimensionality'' creep in already: the number of coefficients to represent a
+$d$-variate polynomial of degree $N$ is clearly $(1+N)^d$. Suppose our
+computational budget is one million coefficients (quite a lot!) and we are
+working in 10 dimensions. What is the maximal degree we may choose? But we will
+see that the notion of degree has no unique extension to higher dimensions and
+this will sometimes save us.
+
+Before we proceed, we need to introduce some minimal amount of additional 
+notation. 
+
+
+\subsection{The Curse of Dimensionality}
+%
+\label{sec:sparse:curse}
+%
+\alert{todo}
+
+\subsection{Chebyshev series and greedy approximation}
+%
+\label{sec:sparse:chebseries}
+We begin by making precise the notion of a multi-variate Chebyshev series, 
+which has already been at the back of our mind since the beginning of 
+\S~\ref{sec:sparse}. To that end, we define the $d$-dimensional Chebvyshev 
+space 
+\begin{align*}
+    L^2_{\rm C}([-1,1]^d) &:= \b\{ f : [-1,1]^d \text{measurable, and }
+                                   \| f\|_{L^2_{\rm C}} < \infty \b\}, 
+                                        \qquad \text{where} \\ 
+    &\|f\|_{L^2_{\rm C}}^2
+        := \int_{[-1,1]^d}  |f(x)|^2 \, \prod_{\alpha = 1}^d (1 - x_\alpha^2)^{-1/2} \, d\bx.    
+\end{align*}
+
+Note how the weight in this integral is simply the tensor product of the
+univariate weights. Because of this, we have the orthogonality (Exercise: check
+this!)
+\begin{equation}
+    \label{eq:sparse:dDorth}
+    \b\< T_\bk, T_{\bk'} \b\>_{L^2_{\rm C}} = \delta_{\bk\bk'}.
+\end{equation}
+That is, $\{ T_\bk \}_{\bk \in \N^d}$ is an ortho-normal subset of $L^2_{\rm C}$. 
+The result from the previous section moreover indicates density of 
+their linear combinations (polynomials) and after making this precise we will 
+obtain the following result:
+
+\begin{theorem} \label{th:sparse:mvchebseries}
+    (i) Let $f \in L^2_{\rm C}([-1,1]^d)$, then there exist coefficients 
+    $\tilde{f}_\bk, \bk \in \N^d$ such that 
+    \[
+        f = \sum_{\bk \in \N^d} \tilde{f}_\bk T_\bk,
+    \]
+    where the convergence of the series in is the $L^2_{\rm C}$-norm. 
+    
+    (ii) Moreover, we have a multi-variate Plancherel Theorem 
+    \begin{equation}
+        \label{eq:sparse:plancherel}
+        \|f\|_{L^2_{\rm C}}^2 = \sum_{\bk \in \N^d} 
+            \b| \tilde{f}_\bk \b|^2. 
+    \end{equation}
+
+    (iii) If $(\tilde{f}_\bk)_{\bk \in \N^d} \in \ell^1(\N^d)$, then $f$ is continuous
+    and the convergence is in the max-norm (i.e., uniform in $[-1,1]^d$).
+\end{theorem}
+
+We can now translate the  Hilbert-space best approximation results 
+to the multivariate setting. For every finite set $\mathcal{K} \subset \N^d$
+we have a Chebyshev series truncation 
+\[
+    p_\calK := \tilde\Pi_{\calK} f := \sum_{\bk \in \calK} \tilde{f}_\bk T_\bk
+\]
+The resulting error is 
+\[
+    \| f - p_\calK \|_{L^2_{\rm C}}^2 
+        = \sum_{\bk \in \N^d \setminus \calK} 
+        |\tilde{f}_\bk|^2
+\]
+which we can minimise as follows: 
+\begin{enumerate}
+\item Compute the coefficients $\tilde{f}_\bk$ and order them by magnitude, 
+\[ 
+    |\tilde{f}_{\bk_1}| \geq |\tilde{f}_{\bk_2}| \geq \dots 
+\] 
+\item Given a ``budget'' $M$, let $\calK := \{\bk_1, \dots, \bk_M\}$
+\item Then, $p_\calK$ is the {\em best $M$-term approximation} to $f$
+        in the $L^2_{\rm C}$-norm.
+\end{enumerate}
+
+\begin{remark}
+    It is not clear at all that minimising the number of terms in $\calK$
+    optimises the computational cost to evaluate $p_\calK$ for a given target
+    error, due to the fact that the basis functions are computed via a recursion
+    formula, but there are far more signifiicant issues with computing with best
+    $M$-term approximations, hence we will not explore this any further. 
+\end{remark}
+
+By a similar mechanism we can also get an $L^\infty$-error bound, 
+\[
+    \|f-p_\calK\|_{\infty}  
+    \leq \sum_{\bk \in \N^d \setminus \calK}
+    \b|\tilde{f}_\bk\b|,
+\]
+using the fact that $|T_\bk(\bx)| \leq 1$. However, it is not at all obvious yet
+whether this bound is close to optimal.
+
+\begin{proof}[Proof of Theorem~\ref{th:sparse:mvchebseries}] 
+    We will use, without proof, the fact that continuously differentiable
+    functions are dense in $L^2_{\rm C}$. This can be proven e.g. by using a
+    multi-variate Jackson-type approximation. Then \alert{insert ref} 
+    implies that polynomials are dense in $L^2_{\rm C}$. The remaining 
+    statements are straightforward. 
+\end{proof}
+
+
+
+\subsection{Sparse Grids}
+%
+\label{sec:sparse:sparse}
+%
+In practise it is rare (though not impossible) to have the explicit coefficients
+$\tilde{f}_\bk$ available, which makes it exceedingly difficult to develop
+``greedy algorithms''; however, see \cite{DeVore1998-do} for an extensive review
+article. However, one may have some more generic qualitative information, 
+such as genuine multi-variate versions of $C^j$ regularity or analyticity.
+
+Before we motivate the next definition let us assume that $f$ has not only
+univariate partial derivatives $\partial_{x_\alpha}^j f$ but also mixed
+derivatives, e.g., $\partial_{x_1} \partial_{x_2} f$. Unfortunately, this 
+idea is difficult to motivate in the Chebyshev basis, so we temporarily 
+switch to multi-variate trigonometric polynomials. That is, 
+\[
+    f \in L^2(\TT^d)
+\]
+and the multi-variate Fourier series is given by 
+\[
+    f(\bx) = \sum_{\bk \in \Z^d} \hat{f}_\bk 
+        e^{i \bk\cdot \bx},
+\]
+where we note that 
+\[
+    e^{i \bk\cdot \bx} =
+    e^{i \sum_{\alpha = 1}^d k_\alpha x_\alpha}  
+    \prod_{\alpha = 1}^d e^{i k_\alpha x_\alpha},
+\]
+i.e. this is again precisely the same setting as before. 
+
+Assuming that $f : \TT^2 \to \R$ has two mixed derivatives, then just
+calculating formally, 
+\begin{align*}
+    \partial_{x_1} \partial_{x_2} f  
+    &= 
+    \sum_{\bk \in \Z^2} \hat{f}_\bk 
+    \partial_{x_1} e^{ik_1x_1} \partial_{x_2} e^{ik_2x_2} \\ 
+    &= 
+    \sum_{\bk \in \Z^2} - k_1 k_2 \hat{f}_\bk 
+    e^{i \bk \cdot \bx}.
+\end{align*}
+Thus, if $\partial_{x_1} \partial_{x_2} f  \in L^2(\TT^2)$, then we have 
+that 
+\[
+    \sum_{\bk \in \Z^2} |k_1|^2 |k_2|^2 |\hat{f}_{\bk}|^2 < \infty.
+\]
+This gives us some first information about the decay of $\hat{f}$ that we 
+can exploit. Specifically, the best information we have is that we should choose 
+index sets of the form 
+\[
+    \mathcal{K}_N^{\rm hc} =  \b\{ 
+            |k_1| |k_2| \leq N \b\}.
+\]
+This is an example of the famous ``hyperbolic cross'' approximation. We will 
+return to this idea again in a moment. 
+
+The foregoing example shows how genuine multi-variate regularity 
+relates directly to decay of Fourier coefficients, and one can show more 
+for $f: [-1,1]^d \to \R$ that it relates to the decay of Chebyshev 
+coefficients. It is therefore expedient to define the following function classes:
+\begin{align*}
+    \mathcal{A}_\omega^{(2)} 
+    &:= 
+        \B\{ f \in L^2_{\rm C} \Bsep 
+             \sum_{\bk \in \N^d} \omega(\bk)^2 |\tilde{f}_\bk|^2 < \infty \B\} \\ 
+             %
+    \mathcal{A}_\omega^{(\infty)} 
+    &:= 
+    \B\{ f \in L^2_{\rm C} \Bsep 
+    \sum_{\bk \in \N^d} \omega(\bk) |\tilde{f}_\bk| < \infty \B\}.
+\end{align*}
+Informally, the ``faster'' $\omega(\bk)$ grows as $|\bk| \to \infty$ the
+``smoother'' is $f$. In the following we will focus on
+$\mathcal{A}_\omega^{(\infty)}$ but analogous results also hold for
+$\mathcal{A}_\omega^{(2)}$. 
+
+There are or course limitless possibilities, we will consider two specific
+cases: 
+\[
+    (1) \quad \omega(\bk) = \prod_{\alpha = 1}^d (1+k_\alpha)^j, 
+    \qquad \text{and} \qquad 
+    (2) \quad \omega(\bk) = \prod_{\alpha = 1}^d \rho^{k_\alpha} = \rho^{\sum_\alpha k_\alpha},
+\]
+where $j \geq 1$ and $\rho > 1$. The case (1) is related to mixed $C^j$
+regularity, while the case (2) corresponds to analyticity of $f$ in
+$E_{\rho}^d$. Both cases can be extended in obvious ways to more anisotropic
+conditions, e.g., $\omega(\bk) = \prod_{\alpha = 1}^d \rho_\alpha^{k_\alpha}$
+and similar.
+
+As Chebyshev coefficients we choose the indices that are in the 
+sublevel of $\omega$, i.e., 
+\begin{align*}
+    \calK_N^{\rm hc} &:= \B\{ \bk \in \N^d \Bsep \prod_{\alpha=1}^d (1+k_\alpha) \leq N \B\}, 
+    \qquad \text{in Case (1);} \\ 
+    \calK_N^{(1)} &:= \B\{ \bk  \in \N^d \Bsep \sum_{\alpha = 1}^d k_\alpha \leq N \B\},
+    \qquad \text{in Case (2).}
+\end{align*}
+Case (1) is called the {\em hyperbolic cross approximation} scheme, while Case
+(2) is called the {\em sparse grid approximation}.
+
+\begin{theorem} \label{th:sparse:grids}
+    (1) Suppose that $f \in \mathcal{A}_\omega^{(\infty)}$ with 
+    $\omega(\bk) = \prod_\alpha (1+k_\alpha)^j$, then 
+    \begin{align}
+        \label{eq:sparse:hc_error}
+        \| f - \tilde\Pi_{\calK_N^{\rm hc}} f \|_\infty 
+            &\leq M_f N^{-j}, \qquad \text{while} \\ 
+        \label{eq:sparse:hc_nbasis}
+        \#\calK_N^{\rm hc} &\leq N \log^{d-1} N.
+    \end{align}
+    where $M_f := \sum_{\bk \in \N^d} \omega(\bk) |\tilde{f}_\bk|$.
+    
+    (2) Suppose that $f \in \mathcal{A}_\omega^{(\infty)}$ with 
+    $\omega(\bk) = \rho^{|\bk|_1}$ where $\rho > 1$, then 
+    \begin{align}
+        \label{eq:sparse:sp_error}
+        \| f - \tilde\Pi_{\calK_N^{\rm hc}} f \|_\infty 
+            &\leq M_f \rho^{-N}, \qquad \text{while} \\ 
+        \label{eq:sparse:sp_nbasis}
+        \#\calK_N^{(1)} &= {N+d \choose d},
+    \end{align}
+    where $M_f := \sum_{\bk \in \N^d} \omega(\bk) |\tilde{f}_\bk|$.
+\end{theorem}
+
+Let $\epsilon := \| f - \tilde\Pi_{\calK_N^{*}} f \|_\infty$, then  in 
+case (1), hyperbolic cross, we obtain 
+\[
+    {\rm Cost} \approx \#\calK_N^{\rm hc} 
+    \lesssim \epsilon^{1/j} \log^{d-1} \epsilon^{1/j}.
+\]
+
+In case (2), sparse grid, the cost-error estimate is a little more involved. 
+First, we use Stirling's formula to estimate 
+\begin{align*}
+    {N+d \choose d} &\approx \sqrt{\frac{2\pi (N+d)}{2\pi N 2\pi d}} 
+            \frac{ ((N+d)/e)^{N+d}}{(N/e)^N (d/e)^d} \\ 
+    &\lesssim 
+    \B(1+\frac{d}{N}\B)^N \B(1+\frac{N}{d}\B)^d.
+\end{align*}
+We distinguish two cases, $d \ll N$ and $N \ll d$:
+\[
+    \#\calK_N^{(1)} \lesssim 
+    \left\{\begin{array}{rl}
+        e^d (1+N/d)^d, & N \gg d, \\ 
+        e^N (1+d/N)^N, & N \ll d. 
+    \end{array} \right. 
+\]
+In the $N \gg d$ case, which is the one more relevant for moderately high
+dimension we can now readily obtain 
+\[
+    {\rm Cost} \approx \#\calK_N^{(1)}  \lesssim 
+    \B( \frac{c |\log \epsilon|}{d}\B)^d,
+\]
+which does not entirely remove the curse of dimensionality, but it substantially 
+ameliorates it. Contrast this with the estimate for a tensor product  
+basis, ${\rm Cost} \approx |\log \epsilon|^d$.
+
+% The case $d \gg N$ is more difficult. 
+
+It is somewhat striking that the ``good'' case when $f$ is analytic uses less
+agressive sparsification and also ameliorates the curse of dimensionality to a
+lesser degree. That said, the rate of approximation is still better of course, 
+and this can be seen in the occurance of $\log \epsilon$ instead of 
+$\epsilon^{1/j}$ in the estimate.
+
+\subsubsection{Proofs}
+
+Throughout the following proofs we write $p_N := \tilde\Pi_{\calK}f$ where
+$\calK = \calK_N^{(1)}$ or $\calK = \calK_N^{\rm hc}$. Further, we define Let
+$M_{Nd} := \#\calK$ in dimension $d$.
+
+\begin{proof}[Proof of \eqref{eq:sparse:hc_error}]
+    \begin{align*}
+        \|f - p_N\|_\infty
+        &\leq 
+        \sum_{\prod (1+k_\alpha)>N} |\tilde{f}_\bk| \\ 
+        &\leq
+        N^{-j} 
+        \sum_{\prod (1+k_\alpha)>N}  \prod_\alpha (1+k_\alpha)^j |\tilde{f}_\bk| \\ 
+        &\leq 
+        M_f N^{-j}. \qedhere 
+    \end{align*}
+\end{proof}
+
+\begin{proof}[Proof of~\eqref{eq:sparse:hc_nbasis}]
+    For $d = 1$ we have $M_{N,1} = N+1$. For $d > 1$ we can create a 
+    recursion 
+    \begin{align*}
+        M_{N,d} 
+        &= \sum_{k_{d} = 0}^N M_{\lfloor N/(1+k_d) \rfloor, d-1} \\ 
+        &\leq \sum_{k_d = 0}^N \log^{d-1} \b[ (N+2)/(1+k_d) \b] \frac{N+1}{1+k_d} \\ 
+        &\leq (N+1) \log^{d-2} (N+2) \sum_{k_d = 0}^N \frac{1}{1+k_d} \\ 
+        &\leq (N+1) \log^{d-1} (N+2).  \qedhere 
+    \end{align*}
+\end{proof}
+
+\begin{proof}[Proof of~\ref{eq:sparse:sp_error}]
+    This is analogous as  \eqref{eq:sparse:hc_error}, 
+    \begin{align*}
+        \|f - p_N\|_\infty 
+        &\leq \sum_{\sum k_\alpha > N} |\tilde{f}_\bk| \\ 
+        &\leq \rho^{-N} \sum_{\sum k_\alpha > N} \rho^{|\bk|_1} |\tilde{f}_\bk| \\ 
+        &\leq M_f \rho^{-N}. \qedhere 
+    \end{align*}
+\end{proof}
+\begin{proof}[Proof of~\eqref{eq:sparse:sp_nbasis}]
+    This is a simple combinatorics problem: The set $\calK_N^{(1)}$ can be 
+    interpreted as the set of all $d$-element multi-sets from 
+    $\{0, \dots, N\}$, which gives the stated expression. 
+    % or it can be proven by induction: 
+    % for $d = 1$ the result is obvious. For the induction step, we have 
+    % \begin{align*}
+    %     M_{N,d+1} &= \sum_{k_{d+1} = 0}^N M_{N-k_{d+1}, d} \\ 
+    %     &= \sum_{k_{d+1} = 0}^N \frac{(N-k_{d+1}+1)\cdots(N-k_{d+1}+d)}{d!} \\ 
+    %     &= \sum_{k = 0}^N \frac{(k+1)\cdots(k+d)}{d!} \\ 
+    %     &= \frac{(N+1) \cdots (N+d+1)}{(d+1)!}.
+    % \end{align*}
+    % The final step needs further comment: we are claiming that 
+    % \[
+    %     {{N+d+1} \choose {d+1}} = \sum_{k = 0}^N {k+d \choose d}
+    % \]
+\end{proof}
+
