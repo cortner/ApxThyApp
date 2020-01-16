@@ -82,7 +82,7 @@ to $\C$. The following definition then becomes natural.
 We will initially study approximation of functions in the $L^2$-norm.
 It can then be convenient to normalise the inner product, via
 \[
-  \< f, g \>_{L^2(\TT)} := \mint_{-\pi}^\pi f^* g \, dx.
+  \< f, g \>_{L^2(\TT)} := \mint_{-\pi}^\pi f g^* \, dx.
 \]
 Equipped with this inner product, $L^2(\TT)$ is a Hilbert space.
 
@@ -452,7 +452,7 @@ sharp approximation error estimates in the max-norm.
   \end{enumerate}
 \end{theorem}
 \begin{proof}
-  (1) 
+  (1)
   \begin{align*}
     \b| J_N \ast f(x) - f(x) \b|
     &=
@@ -480,38 +480,38 @@ sharp approximation error estimates in the max-norm.
     \lesssim
       \omega(N^{-1}) \int_0^{1/N} J_N(t) \, dt
       + N \omega(N^{-1}) \int_{1/N}^{\pi} t J_N(t)\, dt
-    \lesssim \omega(N^{-1}). 
+    \lesssim \omega(N^{-1}).
   \]
 
-  (1.5) Before we prove the second Jackson theorem, we need 
-  to make another observation: 
+  (1.5) Before we prove the second Jackson theorem, we need
+  to make another observation:
   \[
-    \| J_N \ast f \|_\infty 
+    \| J_N \ast f \|_\infty
     \leq \|J_N \|_{L^1} \|f\|_\infty,
   \]
-  and hence, for any $t \in \Trig_{2N-2}$, 
+  and hence, for any $t \in \Trig_{2N-2}$,
   \begin{align*}
-      \|f - J_N \ast f\|_\infty 
-      &\leq  
-      \|f - t\|_\infty + \| t - J_N \ast f \|_\infty 
+      \|f - J_N \ast f\|_\infty
+      &\leq
+      \|f - t\|_\infty + \| t - J_N \ast f \|_\infty
   \end{align*}
 
-  (2) To prove the second Jackson theorem, we first employ 
-  \eqref{eq:trig:jackson:C1-version} to deduce that 
+  (2) To prove the second Jackson theorem, we first employ
+  \eqref{eq:trig:jackson:C1-version} to deduce that
   \[
-      E_N(f) = E_N(f - J_N \ast f) 
-      \leq 
-      % C N^{-1} \| (f-J_N \ast f)' \|_\infty 
-      % = 
+      E_N(f) = E_N(f - J_N \ast f)
+      \leq
+      % C N^{-1} \| (f-J_N \ast f)' \|_\infty
+      % =
       C N^{-1} \| f' - (J_N \ast f)' \|_\infty.
   \]
-  Next, integration by parts yields 
+  Next, integration by parts yields
   \[
-     (J_N \ast f)'(x) = \int_{-t}^t J_N'(x-t) f(t) \,dt 
-     = \int_{-\pi}^\pi J_N(x-t) f'(t) \,dt 
+     (J_N \ast f)'(x) = \int_{-t}^t J_N'(x-t) f(t) \,dt
+     = \int_{-\pi}^\pi J_N(x-t) f'(t) \,dt
      = J_N \ast f'.
   \]
-  Thus, 
+  Thus,
   \[
     E_N(f) \leq
   \]
@@ -529,7 +529,7 @@ results that is also of independent interest.
   \]
 \end{lemma}
 \begin{proof}
-  \alert{WARNING: this proof is incorrect; still need to fix it (see 
+  \alert{WARNING: this proof is incorrect; still need to fix it (see
   corrections in the lectures)}
   Let $s_N \in \Trig_N$ such that
   \[
@@ -745,34 +745,34 @@ obtain \Cref{th:trig:pw-sharp} with $\alpha = \infty$:
 %
 We have discussed two strategies to construct approximations of functions by
 trigonometric polynomials: $L^2$-projection and convolution (e.g., with the
-Jackson kernel). While both are constructive, they both require additional 
-computational effort to evalute the relevant integrals. Since this is normally 
-done via numerical quadrature, additional errors will be introduced that 
-need to be analysed separately. All this can be done, but it turns out that 
+Jackson kernel). While both are constructive, they both require additional
+computational effort to evalute the relevant integrals. Since this is normally
+done via numerical quadrature, additional errors will be introduced that
+need to be analysed separately. All this can be done, but it turns out that
 a much more practical and performant approach that gives ``near-optimal''
 approximants is nodal interpolation.
 
 To specify a trigonometric polynomial $t \in \Trig_N$ we need to determine
 $2N+1$ coefficients, which should be possible using $2N+1$ function values,
 i.e., we may choose $2N+1$ nodes $x_0, \dots, x_{2N} \in (-\pi, \pi]$
-and specify 
+and specify
 \[
-    t(x_j) = F_j,  
+    t(x_j) = F_j,
 \]
 with $F_j$ some prescribed function values. If the $x_j$ are distinct, then it
 is easy to prove (see below and Exercise~\ref{exr:poly:interpunique}) If $F_j =
 f(x_j)$ for some $f \in C(\TT)$ the we call the resulting $t$ a {\em nodal
-interpolant}. 
+interpolant}.
 
 An important question is how we can transform the nodal values into coefficients
 for the trigonometric polynomial. Naively, this can be achieved by simply
-solving a linear system for the coefficients at $O(N^3)$ cost: 
+solving a linear system for the coefficients at $O(N^3)$ cost:
 Let $t(x) = \sum_{k = -N+1}^N \hat{F}_k e^{ik x}$, then
 \begin{equation} \label{eq:trig:pre-dft}
   \sum_{k = -N+1}^N \hat{F}_k e^{i\pi j/N} = F_j.
 \end{equation}
 It is straightforward to see (we will return to this in \S~\ref{sec:trig:fft}
-that the inversion formula is 
+that the inversion formula is
 \begin{equation} \label{eq:trig:pre-idft}
     \hat{F}_k = \frac{1}{2N} \sum_{j = -N+1}^N F_j e^{-i\pi k/N},
 \end{equation}
@@ -784,42 +784,42 @@ even an $O(N \log N)$ algorithm - the Fast Fourier Transform. To present this
 important algorithm it is more convenient if we work with $2N$ interpolation
 nodes, instead of $2N+1$ nodes. This makes the theory of interpolation subtly
 different, since with $2N$ conditions we can no longer hope to determing $2N+1$
-coefficients. 
+coefficients.
 
-In the following, we will restrict ourselves to equi-spaced nodes, 
+In the following, we will restrict ourselves to equi-spaced nodes,
 \[
   x_j =  \frac{j \pi}{N},  \qquad j \in \Z.
 \]
 The $x_j$ are called {\em interpolation nodes}. They depend on $N$, but we
 supress this dependence for the sake of simplicity of notation.
 
-To determine a trigonometric polynomial we may, for example, 
-drop the $e^{-iNx}$ basis function from $\Trig_N$, which leads to 
-interpolants of the form 
+To determine a trigonometric polynomial we may, for example,
+drop the $e^{-iNx}$ basis function from $\Trig_N$, which leads to
+interpolants of the form
 \[
     t(x) = \sum_{k = -N+1}^N c_k e^{ik x}.
 \]
 But unless $c_N = 0$, this will mean that $t(x) \not\in \R$ even if all $f_j \in
-\R$. From \eqref{eq:trig:pre-idft} we see that $c_N \in \R$, hence taking 
-the real part of the last group yields 
+\R$. From \eqref{eq:trig:pre-idft} we see that $c_N \in \R$, hence taking
+the real part of the last group yields
 \[
     \Re \big[ c_N e^{i N x} \big]   = c_N \cos(Nx),
 \]
-which is the convention normally taken when an even number of interpolation 
-points is used. 
+which is the convention normally taken when an even number of interpolation
+points is used.
 
-Thus, we can define the modified trigonometric polynomial space 
+Thus, we can define the modified trigonometric polynomial space
 \[
   \Trig_N' := {\rm span}\Big(\Trig_{N-1} \cup \{ \cos N x \} \Big)
-    =  \bg\{ t(x) = \sum_{k = -N+1}^{N-1} c_k e^{ikx} + c_N \cos(Nx) \bg\}.  
+    =  \bg\{ t(x) = \sum_{k = -N+1}^{N-1} c_k e^{ikx} + c_N \cos(Nx) \bg\}.
 \]
 
-There is a second good reason for making this modification: the two 
-basis functions $e^{iNx}, e^{-iNx}$ agree on the interpolation nodes 
-$x_j = j \pi / N$: 
+There is a second good reason for making this modification: the two
+basis functions $e^{iNx}, e^{-iNx}$ agree on the interpolation nodes
+$x_j = j \pi / N$:
 
 \begin{lemma} \label{th:trig:baby-aliasing}
-  Let $x_j = j \pi / N$, then $e^{iN x_j} = e^{-iNx_j}$ for all 
+  Let $x_j = j \pi / N$, then $e^{iN x_j} = e^{-iNx_j}$ for all
   $j \in \Z$.
 \end{lemma}
 \begin{proof}
@@ -835,20 +835,20 @@ change the interpolation condition to the nodes $x_0, \dots, x_{2N-1}$, which is
 of course equivalent due to $2\pi$-periodicity.
 
 \begin{lemma}
-  Let $F  = (F_j)_{j = 0}^{2N-1} \in \C^{2N}$, then there exists a unique 
-  $t \in \Trig_N'$ such that 
+  Let $F  = (F_j)_{j = 0}^{2N-1} \in \C^{2N}$, then there exists a unique
+  $t \in \Trig_N'$ such that
   \[
     t(x_j) = F_j, \qquad j = 0, \dots, 2N-1.
   \]
 \end{lemma}
 \begin{proof}
-  According to Lemma~\ref{th:trig:baby-aliasing} we need to solve 
+  According to Lemma~\ref{th:trig:baby-aliasing} we need to solve
   \begin{align*}
-      && \sum_{k = -N+1}^N c_k e^{i\pi k j/N} &= F_j \\ 
+      && \sum_{k = -N+1}^N c_k e^{i\pi k j/N} &= F_j \\
       \Leftrightarrow &&
-      \sum_{k = -N+1}^N c_k \big(e^{i\pi j/N}\big)^k &= F_j \\ 
+      \sum_{k = -N+1}^N c_k \big(e^{i\pi j/N}\big)^k &= F_j \\
       \Leftrightarrow &&
-      \sum_{k = -N+1}^N c_k z_j^k &= F_j, \\ 
+      \sum_{k = -N+1}^N c_k z_j^k &= F_j, \\
       \Leftrightarrow &&
       \sum_{k = -N+1}^N c_k z_j^{k+N-1} &= F_j z_j^{N-1},
   \end{align*}
@@ -856,11 +856,11 @@ of course equivalent due to $2\pi$-periodicity.
   and uniqueness of algebraic polynomial interpolation gives the stated result.
   (cf. Exercise~\ref{exr:poly:interpunique}).
 
-  {\it REMARK: } the last line in the above chain was unnecessary, but we will 
+  {\it REMARK: } the last line in the above chain was unnecessary, but we will
   revisit this later.
 \end{proof}
 
-\medskip 
+\medskip
 
 \begin{definition}
   Let $f \in C(\TT)$ then we define $I_N f \in \Trig_N'$ to be the unique nodal
@@ -868,9 +868,9 @@ of course equivalent due to $2\pi$-periodicity.
   = f(x_j)$ for $j \in \Z$.
 \end{definition}
 
-\medskip 
+\medskip
 
-\begin{remark} 
+\begin{remark}
   The choice of the equi-spaced grid $\{x_j\}$ may seem completely arbitrary,
   and there is {\it a priori} no guarantee that it is optimal or even close to
   optimal. Nevertheless, our introductory example already hints that it is not
@@ -886,8 +886,8 @@ To understand the approximation error of the $I_N f$, let $f \in C(\TT)$, $t_N
     & = \|f - t_N \|_\infty + \| I_N (t_N - f) \|_\infty \\
     & \leq (1 + \|I_N\|) \| t_N - f \|_\infty,
 \end{align*}
-where $\|I_N\|$ is the operator norm of $I_N$ associated with $\|\cdot\|$, 
-defined by 
+where $\|I_N\|$ is the operator norm of $I_N$ associated with $\|\cdot\|$,
+defined by
 \[
     \| I_N \| = \sup_{\substack{f \in C(\TT) \\ \|f\|_\infty = 1}} \| I_N f \|_\infty.
 \]
@@ -967,7 +967,7 @@ numerical experiments shown there suggest that the following theorem holds.
   The Lebesgue constant for trigonometric interpolation with respect to the
   $L^\infty$-norm is bounded by
   \[
-    \|I_N\| \leq \smfrac{2}{\pi} \log (N+1) + 1. 
+    \|I_N\| \leq \smfrac{2}{\pi} \log (N+1) + 1.
   \]
 
   In particular, if $f \in C(\TT)$, then
@@ -1003,10 +1003,10 @@ numerical experiments shown there suggest that the following theorem holds.
     \frac{1}{2N} \bg\{
         \frac{Nt}{t} + \sum_{j = 1}^N \frac{2}{ x_j+t }
     \bg\} + \dots \\
-    &\leq 
-    1 + \frac{1}{\pi} \sum_{j = 1}^N \frac{1}{j} + \dots \\ 
-    &\leq 
-    2\Big( 1 + \smfrac{1}{\pi} \log(N+1) \Big) 
+    &\leq
+    1 + \frac{1}{\pi} \sum_{j = 1}^N \frac{1}{j} + \dots \\
+    &\leq
+    2\Big( 1 + \smfrac{1}{\pi} \log(N+1) \Big)
     \leq 2 + \smfrac{2}{\pi} \log(N+1).
     \qedhere
   \end{align*}
@@ -1069,7 +1069,7 @@ Note in particular that this is a trapezoidal rule approximation of
     e^{-i x_j (k \pm M)} = e^{-i x_j k}
   \]
   and hence the $k$-grid $\{0, \dots, M-1\}$ can alternatively be interpreted
-  as, with $N = M/2$, 
+  as, with $N = M/2$,
   \[
     \{ 0, \dots, N, -N+1, -N+2, \dots, -1 \}. \qquad \qedhere
   \]
@@ -1091,9 +1091,9 @@ Note in particular that this is a trapezoidal rule approximation of
   polynomials (cf. Remark~\ref{rem:trig:k-grid}) $t \in \Trig_N, t' \in
   \Trig_N'$
   \begin{align*}
-    t(x) &= \sum_{k = 0}^{M-1} \hat{F}_k e^{i k x} \\ 
+    t(x) &= \sum_{k = 0}^{M-1} \hat{F}_k e^{i k x} \\
     t'(x) &= \sum_{k = 0}^{M/2-1} \hat{F}_k e^{i k x}
-          + \hat{F}_{M/2} \cos(M/2 x) + \sum_{k = M/2+1}^{M-1} \hat{F}_k e^{i k x} \\  
+          + \hat{F}_{M/2} \cos(M/2 x) + \sum_{k = M/2+1}^{M-1} \hat{F}_k e^{i k x} \\
   \end{align*}
   interpolate $(x_j, F_j)_{j = 0}^{M-1}$, i.e.,
   \[
