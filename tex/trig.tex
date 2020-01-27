@@ -314,7 +314,7 @@ $L^2$-projection $\Pi_N f$ to approximate $f$, we use a convolution operator,
 If $K_N(t)$ is a trigonometric polynomial, then $K_N \ast f$ will also be a trigonometric polynomial:
 
 \begin{lemma}
-  If $K_N \in C(\TT)$ and $K_N \in \Trig_N$, then $K_N \ast f \in \Trig_N$ for
+  If $K_N \in \Trig_N$, then $K_N \ast f \in \Trig_N$ for
   all $f \in L^1(\TT)$.
 \end{lemma}
 \begin{proof}
@@ -345,7 +345,7 @@ But there is considerable freedom in the choice of kernel. A particularly
 \]
 where the second condition determines the normalisation constant $\gamma_M$.
 Constructing approximates via the Jackson kernel leads to elegant and
-sharp approximation error estimates in the max-norm.
+sharp approximation error estimates in the max-norm. We write $J_M$ instead of $J_N$ since the degree of $J_M$ is {\em not} equal to $M$:
 
 \begin{lemma}
   $J_M \in \Trig_{2M-2}$.
@@ -384,8 +384,11 @@ sharp approximation error estimates in the max-norm.
 
 
 
-\begin{lemma}
-  $\gamma_M \geq C M^3$ (Remark: $C = 32/\pi^3$)
+\begin{lemma} \label{th:trig:gammaM_bound}
+  There exist $C_1, C_2 > 0$, independent of $M$ such that
+  \[
+    C_1 M^{-3} \leq  \gamma_M \leq C_2 M^3
+  \]
 \end{lemma}
 \begin{proof}
   Using the geometrically evident fact that
@@ -394,11 +397,22 @@ sharp approximation error estimates in the max-norm.
   \]
   we can estimate
   \begin{align*}
-    \gamma_M
+    \gamma_M^{-1}
     &= 2 \int_0^\pi  \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 \, dx  \\
     &\geq 2 \int_0^{\pi/M} \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 \, dx \\
     &\geq 2c \int_0^{\pi/M} \left( \frac{Mx/2}{x/2} \right)^4 \, dx \\
-    &= C M^4 \int_0^{\pi/M} 1 \,dx = C M^3. \qedhere
+    &= C M^4 \int_0^{\pi/M} 1 \,dx = C M^3.
+  \end{align*}
+
+  Conversely,
+  \begin{align*}
+    1 &= \int_0^\pi J_M(x) dx \\
+    &= \gamma_M \sum_{j = 0}^{M-1} \int_{j\pi/M}^{(j+1)\pi/M} J_M \, dx \\
+    &\lesssim
+        \gamma_M \bg[ \int_0^{\pi/M} M^4 \, dx
+        + \int_{\pi/M}^{\pi}
+             \bg( \frac{1}{x} \bg)^4 \, dx \bg] \\
+    &\lesssim \gamma_M M^3  \qedhere
   \end{align*}
 \end{proof}
 
@@ -411,20 +425,21 @@ sharp approximation error estimates in the max-norm.
   \]
 \end{lemma}
 \begin{proof}
+  The case $m = 0$ follows immediately  from the normalisation of the
+  Jackson kernel, $\int_{-\pi}^\pi J_M(x)\,dx = 1$.
+
+  The case $m = 1$ can be seen by a variation of the proof of
+  Lemma~\ref{th:trig:gammaM_bound}:
   \begin{align*}
-    \int_0^\pi x^m J_M(x) \, dx
-    &= \sum_{j = 0}^{M-1} \int_{j\pi/M}^{(j+1)\pi/M} x^m J_M(x) \, dx \\
+    \int_0^\pi x J_M(x) \, dx
+    &= \sum_{j = 0}^{M-1} \int_{j\pi/M}^{(j+1)\pi/M} x J_M(x) \, dx \\
     &\lesssim
-        \frac{1}{\gamma_M} \bg[ \int_0^{\pi/M} x^m M^4 \, dx
+        \gamma_M \bg[ \int_0^{\pi/M} x M^4 \, dx
         + \int_{\pi/M}^{\pi}
-             x^m \bg( \frac{1}{x} \bg)^4 \, dx \bg] \\
+             x \bg( \frac{1}{x} \bg)^4 \, dx \bg] \\
     &\lesssim
-      \frac{1}{M^3} \b[ M^{m+1} + M^{3-m} \b]
-    \lesssim
-      \cases{
-        1, & m = 0, \\
-        M^{-1}, & m = 1.
-      }
+      M^{-3} \b[ M^{2} + M^{2} \b]
+      \lesssim M^{-1}.
       \qedhere
   \end{align*}
 \end{proof}
@@ -434,25 +449,28 @@ sharp approximation error estimates in the max-norm.
   \begin{enumerate}
   \item Let $f \in C(\TT)$ with modulus of continuity $\omega$, then
   \[
-      \| f - J_N \ast f \|_\infty \lesssim \omega(N^{-1}).
+      \| f - J_M \ast f \|_\infty \lesssim \omega(M^{-1}).
   \]
   In particular, if $f \in C^{0,\sigma}(\TT)$, then
   \[
-      \|f - J_N \ast f \|_\infty \lesssim N^{-\sigma},
+      \|f - J_M \ast f \|_\infty \lesssim M^{-\sigma},
   \]
   and if $f \in C^1(\TT)$, then
   \begin{equation} \label{eq:trig:jackson:C1-version}
-    \|f - J_N \ast f \|_\infty \lesssim N^{-1} \|f'\|_\infty.
+    \|f - J_M \ast f \|_\infty \lesssim M^{-1} \|f'\|_\infty.
   \end{equation}
   \item Let $f \in C^p(\TT)$ and $f^{(p)}$ have modulus of continuity $\omega$,
   then
   \[
-      \| f - J_N\ast f \|_\infty \lesssim N^{-p} \omega(N^{-1}).
+      \inf_{t_N \in \Trig_N} \| f - t_N \|_\infty
+        \lesssim N^{-p} \omega(N^{-1}).
   \]
+  % \[
+  %     \| f - J_N\ast f \|_\infty \lesssim N^{-p} \omega(N^{-1}).
+  % \]
   \end{enumerate}
 \end{theorem}
-\begin{proof}
-  (1)
+\begin{proof}[Proof of Theorem~\ref{th:trig:jackson}(1)]
   \begin{align*}
     \b| J_N \ast f(x) - f(x) \b|
     &=
@@ -480,43 +498,10 @@ sharp approximation error estimates in the max-norm.
     \lesssim
       \omega(N^{-1}) \int_0^{1/N} J_N(t) \, dt
       + N \omega(N^{-1}) \int_{1/N}^{\pi} t J_N(t)\, dt
-    \lesssim \omega(N^{-1}).
+    \lesssim \omega(N^{-1}). \qedhere
   \]
-
-  (1.5) Before we prove the second Jackson theorem, we need
-  to make another observation:
-  \[
-    \| J_N \ast f \|_\infty
-    \leq \|J_N \|_{L^1} \|f\|_\infty,
-  \]
-  and hence, for any $t \in \Trig_{2N-2}$,
-  \begin{align*}
-      \|f - J_N \ast f\|_\infty
-      &\leq
-      \|f - t\|_\infty + \| t - J_N \ast f \|_\infty
-  \end{align*}
-
-  (2) To prove the second Jackson theorem, we first employ
-  \eqref{eq:trig:jackson:C1-version} to deduce that
-  \[
-      E_N(f) = E_N(f - J_N \ast f)
-      \leq
-      % C N^{-1} \| (f-J_N \ast f)' \|_\infty
-      % =
-      C N^{-1} \| f' - (J_N \ast f)' \|_\infty.
-  \]
-  Next, integration by parts yields
-  \[
-     (J_N \ast f)'(x) = \int_{-t}^t J_N'(x-t) f(t) \,dt
-     = \int_{-\pi}^\pi J_N(x-t) f'(t) \,dt
-     = J_N \ast f'.
-  \]
-  Thus,
-  \[
-    E_N(f) \leq
-  \]
-
 \end{proof}
+
 
 To prove Theorem~\ref{th:trig:jackson} (2), we need another auxiliary
 results that is also of independent interest.
@@ -529,41 +514,40 @@ results that is also of independent interest.
   \]
 \end{lemma}
 \begin{proof}
-  \alert{WARNING: this proof is incorrect; still need to fix it (see
-  corrections in the lectures)}
-  Let $s_N \in \Trig_N$ such that
+  Let $q \in \Trig_N$ such that
   \[
-    \|f' - s_N\|_\infty \leq 2 E_N(f').
+    \|f' - q\|_\infty = E_N(f').
   \]
-  (In fact, we can replace $2$ with $1$, since the infimum is attained, but
-    we don't need this here.) Then we can write
+  (Because $\Trig_N$ is finite-dimensional, we know the best approximation
+  error is attained.) Then we can write
   \[
-    s_N(x) = \sum_{k = -N}^N \hat{s}_{k} e^{ikx}.
+    q(x) = \sum_{k = -N}^N \hat{q}_{k} e^{ikx}.
   \]
-  Since $\hat{s}_{0} = \mint_\TT f' \,dx = 0$ we have in fact
-  \begin{align*}
-    s_N(x)
-    =
-    \sum_{\substack{k = -N \\ k \neq 0}}^N \hat{s}_{k} e^{ikx}
-    =
-    \sum_{\substack{k = -N \\ k \neq 0}}^N \frac{\hat{s}_{k}}{ik} \frac{d}{dx} e^{ikx}
-    =
-    r_N'(x),
-  \end{align*}
-  where
+  We wish to write $q =  t_N'$, but this is in general false if $\hat{q}_0 \neq 0$. Instead, we split
   \[
-    r_N(x) =
-    \sum_{\substack{k = -N \\ k \neq 0}}^N \frac{\hat{r}_{k}}{ik} e^{ikx}.
+    q(x) = \hat{q}_0 + r(x),
   \]
-  Finally, since $r_N \in \Trig_N$, we have $E_N(f) = E_N(f - r_N)$ and
-  Jackson's first theorem, specifically the \eqref{eq:trig:jackson:C1-version}
-  variant, yields
+  then $\hat{r}_0 = 0$ and hence there exists $t \in \Trig_N$ such  that $t' =  r$. Moreover, we can estimate
   \[
-    E_N(f)
-    = E_N(f - r_N) \lesssim N^{-1} \| f' - r_N' \|_\infty
-    = N^{-1} \| f' - s_N \|_\infty
-    \lesssim N^{-1} E_n(f'). \qedhere
+    |\hat{q}_0| = \bg| \mint_{-\pi}^\pi q \,dx \bg|
+      = \bg| \mint_{-\pi}^\pi (q-f') \,dx \bg|
+      \leq E_N(f').
   \]
+  Combining these manipulations we obtain
+  \[
+    \| f' - t'\|_\infty
+    \leq
+    \| f' - q \|_\infty + |\hat{q}_0|
+    \lesssim 2 E_N(f').
+  \]
+
+  Finally, since $t \in \Trig_N$ we $E_N(f) = E_N(f - t)$ and can therefore conclude, using Jackson's first theorem,
+  \[
+    E_N(f) = E_N(f - t)
+    \lesssim N^{-1} \|f' - t'\|_\infty
+    \lesssim N^{-1} E_N(f').
+  \]
+  where we also used that $r \mapsto \|f'-t'\|_\infty r$ is the modulus of continuity for $f - t$.
 \end{proof}
 
 
