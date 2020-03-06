@@ -1,0 +1,12 @@
+*checkpoint.ipynb
+.vscode
+*nbgrader.log
+*.aux
+*.fls
+*.log
+*.synctex.gz
+*.fdb_latexmk
+*.bbl
+*.blg
+*.out
+*.toc
