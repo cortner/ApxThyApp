@@ -13,54 +13,59 @@ depend on the application. (Wikipedia)
 
 Approximation theory underpins much of numerical computation and arises also  in
 several other branches of mathematics. It is one of the most mature disciplines
-of computational mathematics, to the extent that is often treated as a
-sub-discipline of pure mathematics. This module takes a more computational
+of computational mathematics, to the extent that is can even be treated as a branch 
+of pure mathematics for those who like to make this distinction. This course takes a more computational
 perspective. While it still focuses primarily on mathematics and theory, the
-choice of material is with an eye to applications in numerical simulation and
-data science rather than purely for its own sake. The theory will be
-supplemented with numerical examples and it will allow us to explain what we
-observe numerically. We will often sacrifice optimality of the results for
-simplicity and to obtain good intuitions.
+choice of material is with an eye to applications in numerical simulation, modelling 
+and machine learning rather than purely for its own sake. Theory and computational 
+experiments will be developed in close collaboration. 
+We will sometimes sacrifice optimality of the results for simplicity and
+ stronger intuition.
 
 The first question is to address what we mean by ``simple functions''. Briefly,
 we mean functions that are efficient and accurate (numerical stability!) to
 evaluate in (typically) floating point arithmetic on a modern processor. This
 simple  observation already shows that approximation theory cannot be detached
 from numerical analysis and computer simulation. In Part I we will focus on
-trigonometric polynomials ($\cos nx$, $\sin nx$), algebraic polynomials ($x^n$)
-and splines (piecewise algebraic polynomials). In some PDEs but in particular in
-data science the approximation problems are often high-dimensional; we will
-explore some examples in Part II of this module.
+univariate approximation initially with 
+trigonometric polynomials ($e^{i n x}$), algebraic polynomials ($x^n$) and then 
+time permitting extend to splines and rational functions. 
+In some PDEs but in particular in
+ML the approximation problems are often high-dimensional. In Part II of this 
+course we will explore the challenges that one encounters in this setting 
+and some classical and modern attempts to overcome them.
 
-
-Motivation / Applications:
+\bigskip 
+\noindent {\bf Motivation / Applications:}
 \begin{itemize}
-  \item Solving differential and integral equations
+  \item Solving (partial) differential and integral equations
   \item machine learning, data-driven modelling, data assembly: The recent
-  explosion in machine learning has given the field a new boost; indeed, many
-  machine learning problems can be interpreted as approximation problems.
+  explosion in machine learning has given the field a new boost.
 \end{itemize}
 
 
-Themes:
+\bigskip \noindent {\bf Themes:}
 \begin{enumerate}
 \item Approximation spaces: what are ``good'' functions that we can combine
-    to approximate general functions well.
+    to approximate general functions well; e.g., 
   \begin{itemize}
     \item Global approximation: trigonometric and algebraic  polynomials
     \item Piecewise approximation: splines
+    \item rational functions 
     \item Ridge functions
     \item Radial basis functions
     \item sparse grids
+    \item artificial neural networks 
   \end{itemize}
 
 \item Algorithms, constructive approximation:
   \begin{itemize}
-    \item best approximation, projection
+    \item best approximation, $L^2$-projection
     \item interpolation
     \item kernel methods
     \item least squares
     \item adaptive grids
+    \item Inverse problems, parameter estimation
   \end{itemize}
 
 \item Miscellaneous
@@ -93,7 +98,7 @@ on the classical text \cite{Powell1981-bg}.
 Exercises are partly based on gaps in the lecture material, partly adapted from
 these references.
 
-All of these texts are good references for further reading.
+% All of these texts are good references for further reading.
 
 \section{Preliminaries}
 %
@@ -136,7 +141,7 @@ examples and generic facts.
 \subsection{Basics}
 %
 In this section we briefly review some fact from analysis and linear algebra,
-and most importantly, complex analysis.
+and most importantly, complex analysis. Facts about function spaces, measure theory and functional analysis will be used only minimally throughout this course and lack of background in those topics should not dissuade anybody from participating! 
 
 \subsubsection{$\R^N$}
 %
@@ -299,6 +304,7 @@ has a radius of convergence
 \[
     r = \frac{1}{\limsup_{n \to \infty} \sqrt[n]{|c_n|}}
 \]
+That is, the series converges absolutely and uniformly for $|z - z_0| < r$. It is an easy consequence to show that the function defined by the power series is differentiable in that ball. (in fact, $C^\infty$, but of course in complex analysis this always follows.)
 
 \begin{definition}
   Let $D \subset \C$ be open and $f : D \to \C$. We say that $f$ is
@@ -310,8 +316,10 @@ has a radius of convergence
     z \in D, |z - z_0| < r.
   \]
   We say $f$ is analytic in $D$ if it is analytic in each point
-  $z_0 \in D$.
+  $z_0 \in D$ and write $f \in A(D)$.
 \end{definition}
+
+\medskip 
 
 We will need two simple concepts around analytic functions: (1) continuations;
 and (2) path integrals. We will formulate simplified versions that are
@@ -330,7 +338,7 @@ in the lectures (these are not contained in these lecture notes).
     two analytic continuations of $f$ to $D$ i.e., $f_j$ are analytic on $D$ and
     $f_j = f$ on $D'$. Then, $f_1 = f_2$.
 
-    (Note: this result can be significantly generalised.)
+    (Note: this result can be significantly generalised, but we will only need it for the case when $D'$ is a line segment, and this case is fairly straightforward and intuitive to prove.)
     %
     \item Let $f \in A([a, b])$ then there exists $D \supset [a,b]$ open in $\C$
     such that $f$ can be uniquely extended to a function $f \in A(D)$.
@@ -340,22 +348,22 @@ in the lectures (these are not contained in these lecture notes).
 \def\calC{\mathcal{C}}
 
 Concerning path integrals, let $\calC$ be a continuous and piecewise smooth
-oriented  curve in $\C$, i.e., we identify $\calC$ with a parametrisation $(\zeta(t))_{t \in [0, 1]}$
+oriented  curve in $\C$, i.e., we identify $\calC$ with a parametrisation $(\zeta(t))_{t \in [0, 1]}$, then we define 
 \[
     \int_{\calC} f(z) \, dz := \int_{t = 0}^1 f(\zeta(t)) \zeta'(t) \, dt.
 \]
 Note that this definition makes sense even if $\zeta$ is not $C^1$, but
-only piecewise $C^1$ (with finitely many pieces!).
+only piecewise $C^1$, and least with finitely many pieces. 
 
 If $\calC$ is a Jordan curve (simple and closed), then we assume that the orientation is counter-clockwise and we will write
 \[
     \oint_{\calC} f(z) \,dz := \int_{\calC} f(z) \, dz
     = \int_{t = 0}^1 f(\zeta(t)) \zeta'(t) \, dt
 \]
-for this {\em contour integral}.
+and call this a {\em contour integral}.
 
 \begin{proposition}[Cauchy's Integral Theorem]
-  Let $D \subset \C$ be simply connected, $f$ analytic in $D$ and
+  Let $D \subset \C$ be open and simply connected, $f$ analytic in $D$ and
     $\calC \subset D$ a Jordan curve, then
     \[
         \oint_{\calC} f(z) \, dz = 0.
@@ -404,6 +412,7 @@ for this {\em contour integral}.
     \item $f = (2, 0)$, then the best-approximation is non-unique.
     \item $f = (2,2)$, then the best-approximation is unique.
   \end{itemize}
+  {\it Hint: A geometric approach to this question is easiest. }
 
   \item Now consider $X = C([-1,1])$ and
   \[
@@ -411,10 +420,9 @@ for this {\em contour integral}.
   \]
   i.e., approximation by constant functions. Prove that $\|\cdot\|_C =
   \|\cdot\|_{L^\infty}$ is {\em not} strictly convex, but nevertheless the best
-  approximation problem for $Y_0, Y_1$ has a unique solution.
+  approximation problem for $Y_0$ has a unique solution.
 
-  {\it Hint: An easy way to see this is that $X_0$ is one-dimensional hence,
-  any norm is strictly convex on $X_0$. But an alternative way to prove this is
+  {\it Hint: An easy way to prove this is
   to simply construct the best approximation operator explicitly, which also
   helps with (iii).}
 
@@ -424,16 +432,12 @@ for this {\em contour integral}.
   \]
   i.e., best approximation by affine functions.
 
-  {\it Hint: One can still ``guess'' from geometric intuition an explicit characterisation of the
-  best approximation operator by first choosing $b$ and then $a$. Then prove
-  that $\|f - (a+bx)\|_\infty$ is attained at three points $x_1 < x_2 < x_3$.
-  This can be used to prove uniqueness of the best approximation.
-
-  This proof is not entirely trivial (at least I don't see a simple way to
-  prove it) and we will revisit this in \S~\ref{sec:poly}.
+  {\it Hint: Assume some $b$ has been chosen, then what is the optimal $a$? Now work backwards and ask how to choose $b$ to minimize the error. Now prove that those choices are unique.
   } \qedhere
   \end{enumerate}
 \end{exercise}
+
+The last exercise should show that already for affine approximation the proof is not entirely trivial. We will return to best polynomial approximation in the max-norm in \S~\ref{sec:poly}; a classical and mathematically beautiful but in practise rather useless subject. In general, best approximation in non-Hilbert space norms is an unpleasant business. By contrast, best approximation in Hilbert spaces is straightforward, at least in theory: 
 
 \begin{exercise}[Best Approximation in a Hilbert Space]
   \label{exr:prelims:bestapprox_hilbert}
@@ -457,7 +461,7 @@ for this {\em contour integral}.
 
     \item {\bf Linear Approximation: }  Let $\{ e_j \}_{j \in \N}$ be an
     orthonormal basis of $X$, i.e., $\<e_j, e_n \> = \delta_{jn}$ and ${\rm
-    clos}{\rm span}\{e_j\}_j = X$. Let $X_N := {\rm space}\{e_1, \dots, e_N\}$,
+    clos}\,{\rm span}\{e_j\}_j = X$. Let $X_N := {\rm span}\{e_1, \dots, e_N\}$, then prove that 
     \[
         \Pi_N f = \sum_{j = 1}^N \< f, e_j \> e_j. \qedhere
     \]
