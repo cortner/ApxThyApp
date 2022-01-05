@@ -770,14 +770,14 @@ results that is also of independent interest.
 %
 \label{sec:trig:interp}
 %
-\alert{+++CONTINUE HERE+++} We have discussed two strategies to construct approximations of functions by
+We have discussed two strategies to construct approximations of functions by
 trigonometric polynomials: $L^2$-projection and convolution (e.g., with the
-Jackson kernel). While both are constructive, they both require additional
-computational effort to evalute the relevant integrals. Since this is normally
+Jackson kernel). While both appear to be constructive, they both require additional
+computational effort to evaluate the relevant integrals. Since this is normally
 done via numerical quadrature, additional errors will be introduced that
 need to be analysed separately. All this can be done, but it turns out that
 a much more practical and performant approach that gives ``near-optimal''
-approximants is nodal interpolation.
+approximants (most of the time) is nodal interpolation.
 
 To specify a trigonometric polynomial $t \in \Trig_N$ we need to determine
 $2N+1$ coefficients, which should be possible using $2N+1$ function values,
@@ -794,56 +794,57 @@ interpolant}.
 An important question is how we can transform the nodal values into coefficients
 for the trigonometric polynomial. Naively, this can be achieved by simply
 solving a linear system for the coefficients at $O(N^3)$ cost:
-Let $t(x) = \sum_{k = -N+1}^N \hat{F}_k e^{ik x}$, then
+Let $t(x) = \sum_{k = -N}^N \hat{F}_k e^{ik x}$, then
 \begin{equation} \label{eq:trig:pre-dft}
-  \sum_{k = -N+1}^N \hat{F}_k e^{i\pi j/N} = F_j.
+  \sum_{k = -N}^N \hat{F}_k e^{i\pi x_j} = F_j.
 \end{equation}
-It is straightforward to see (we will return to this in \S~\ref{sec:trig:fft}
-that the inversion formula is
-\begin{equation} \label{eq:trig:pre-idft}
-    \hat{F}_k = \frac{1}{2N} \sum_{j = -N+1}^N F_j e^{-i\pi k/N},
-\end{equation}
-that is, the linear system \eqref{eq:trig:pre-dft}  has an orthogonal (up to
-scaling) which reduces the solution of the linear system matrix reduces the
-solution of \eqref{eq:trig:pre-dft} to a matrix-vector multiplication
-\eqref{eq:trig:pre-idft} and hence $O(N^2)$ cost. But it turns out that there is
-even an $O(N \log N)$ algorithm - the Fast Fourier Transform. To present this
-important algorithm it is more convenient if we work with $2N$ interpolation
-nodes, instead of $2N+1$ nodes. This makes the theory of interpolation subtly
-different, since with $2N$ conditions we can no longer hope to determing $2N+1$
-coefficients.
 
-In the following, we will restrict ourselves to equi-spaced nodes,
+% It is straightforward to see (we will return to this in \S~\ref{sec:trig:fft}
+% that the inversion formula is
+% \begin{equation} \label{eq:trig:pre-idft}
+%     \hat{F}_k = \frac{1}{2N} \sum_{j = -N+1}^N F_j e^{-i\pi k/N},
+% \end{equation}
+% that is, the linear system \eqref{eq:trig:pre-dft}  has an orthogonal (up to
+% scaling) which reduces the solution of the linear system matrix reduces the
+% solution of \eqref{eq:trig:pre-dft} to a matrix-vector multiplication
+% \eqref{eq:trig:pre-idft} and hence $O(N^2)$ cost. But it turns out that there is
+% even an $O(N \log N)$ algorithm - the Fast Fourier Transform. To present this
+% important algorithm it is more convenient if we work with $2N$ interpolation
+% nodes, instead of $2N+1$ nodes. This makes the theory of interpolation subtly
+% different, since with $2N$ conditions we can no longer hope to determing $2N+1$
+% coefficients.
+
+
+The first question to ask then is how to choose the interpolation nodes. Because
+on the torus no part of the domain is ``special'', it seems intuitive that
+without any additional information about the target function equispaced nodes
+must be ``generically optimal''. We will prove in the remainder of this section
+that it is in fact optimal up to a logarithmic factor, but will also return to a
+more careful discussion of different choices of interpolation nodes in
+\S~\ref{sec:poly}. Moreover, equispaced nodes also lead to fast algorithms (FFT)
+for solvig \eqref{eq:trig:pre-dft}, but this requires some specific choices and
+some slightly annoying, but actually natural, modification of our approximation
+space. 
+
+The most common implementation of trigonometric interpolation employs
 \[
   x_j =  \frac{j \pi}{N},  \qquad j \in \Z.
 \]
-The $x_j$ are called {\em interpolation nodes}. They depend on $N$, but we
-supress this dependence for the sake of simplicity of notation.
-
-To determine a trigonometric polynomial we may, for example,
+The $x_j$ are called {\em interpolation nodes}. They depend on $N$ of course, but we
+supress this dependence for the sake of simplicity of notation. Unfortunately, 
+for a $2\pi$-periodic function, the nodes $x_j, x_{j+2N}$ are equivalent, i.e., 
+there are only $2N$ independent nodes and hence only $2N$ interpolation conditions. 
+Thus, we cannot determine the $2N+1$ parameters of a $t_N \in \Trig_N$ but must 
+modify our approximation space.  To determine a trigonometric polynomial we may, for example,
 drop the $e^{-iNx}$ basis function from $\Trig_N$, which leads to
 interpolants of the form
 \[
     t(x) = \sum_{k = -N+1}^N c_k e^{ik x}.
 \]
 But unless $c_N = 0$, this will mean that $t(x) \not\in \R$ even if all $f_j \in
-\R$. From \eqref{eq:trig:pre-idft} we see that $c_N \in \R$, hence taking
-the real part of the last group yields
-\[
-    \Re \big[ c_N e^{i N x} \big]   = c_N \cos(Nx),
-\]
-which is the convention normally taken when an even number of interpolation
-points is used.
+\R$. 
 
-Thus, we can define the modified trigonometric polynomial space
-\[
-  \Trig_N' := {\rm span}\Big(\Trig_{N-1} \cup \{ \cos N x \} \Big)
-    =  \bg\{ t(x) = \sum_{k = -N+1}^{N-1} c_k e^{ikx} + c_N \cos(Nx) \bg\}.
-\]
-
-There is a second good reason for making this modification: the two
-basis functions $e^{iNx}, e^{-iNx}$ agree on the interpolation nodes
-$x_j = j \pi / N$:
+But why did we drop $e^{-iNx}$ from the basis and not $e^{i N x}$? It actually turns out that it doesn't matter since those two basis functions agree on the interpolation nodes $x_j = j \pi / N$:
 
 \begin{lemma} \label{th:trig:baby-aliasing}
   Let $x_j = j \pi / N$, then $e^{iN x_j} = e^{-iNx_j}$ for all
@@ -856,10 +857,23 @@ $x_j = j \pi / N$:
   \]
 \end{proof}
 
+A simple way therefore to proceed is to replace $e^{i N x}, e^{-i N x}$ with their mean, i.e. $\cos(Nx)$ which  leads to the following modified trigonometric polynomial space
+\[
+  \Trig_N' := {\rm span}\Big(\Trig_{N-1} \cup \{ \cos N x \} \Big)
+    =  \bg\{ t(x) = \sum_{k = -N+1}^{N-1} c_k e^{ikx} + c_N \cos(Nx) \bg\}.
+\]
+Note, however, that for $x = x_j$ only we can equally write 
+\[
+  t(x_j) = \sum_{k = -N+1}^{N-1} c_k e^{ikx_j} + c_N \cos(Nx_j)
+     = \sum_{k = -N+1}^{N} c_k e^{ikx_j},
+\]
+which will be convenient in the following. 
+
 
 Finally, to prepare us for discussing the FFT in the next section, we will
-change the interpolation condition to the nodes $x_0, \dots, x_{2N-1}$, which is
-of course equivalent due to $2\pi$-periodicity.
+fix the interpolation condition to be nodes $x_0, \dots, x_{2N-1}$. This may seem 
+counterintuitive given we used $(-\pi, \pi]$ as the domain until now, but it is 
+the most common convention and therefore we shall adopt it as well. 
 
 \begin{lemma}
   Let $F  = (F_j)_{j = 0}^{2N-1} \in \C^{2N}$, then there exists a unique
@@ -895,16 +909,7 @@ of course equivalent due to $2\pi$-periodicity.
   = f(x_j)$ for $j \in \Z$.
 \end{definition}
 
-\medskip
-
-\begin{remark}
-  The choice of the equi-spaced grid $\{x_j\}$ may seem completely arbitrary,
-  and there is {\it a priori} no guarantee that it is optimal or even close to
-  optimal. Nevertheless, our introductory example already hints that it is not
-  such a bad choice. We will prove in the remainder of this section that it is
-  optimal up to a logarithmic factor. We will also return to a more careful
-  discussion of different choices of interpolation nodes in \S~\ref{sec:poly}.
-\end{remark}
+\medskip 
 
 To understand the approximation error of the $I_N f$, let $f \in C(\TT)$, $t_N
 \in \Trig_N'$ arbitrary, then
@@ -939,7 +944,7 @@ factor.
   finite bound that norm must be such that $C(\TT)$ is complete under it. If
   not, then $\|I_N\|$ becomes infinite. As an exercise, you may check that the
   $L^2$-operator norm, $\|I_N\|_{L(L^2)}$ is indeed infinite. This is not
-  surprising since functions $f \in L^2$ do not have well-defined point values.
+  surprising since functions $f \in L^2$ do not even have well-defined point values.
 \end{remark}
 
 To estimate $\Lambda_N$ we wish to write $I_N f$ in terms of a {\em nodal
@@ -998,11 +1003,14 @@ numerical experiments shown there suggest that the following theorem holds.
   \]
 
   In particular, if $f \in C(\TT)$, then
-  \[
+  \begin{equation} \label{eq:trig:almost_best_approx_IN}
       \| f - I_N f \|_{L^\infty}
         \lesssim \log N \inf_{t_N \in \Trig_N'} \| f - t_N \|_{L^\infty}.
-  \]
+  \end{equation}
+  If $f$ is real we can replace $\Trig_N'$ with $\Trig_N$ in \eqref{eq:trig:almost_best_approx_IN}.
 \end{theorem}
+
+
 \begin{proof}
   We will only prove a slightly weaker upper bound $\|I_N\| \leq \frac{2}{\pi} \log N + 2$. Recall
 \eqref{eq:trig:LamNbound}, then we need to bound
@@ -1035,14 +1043,17 @@ numerical experiments shown there suggest that the following theorem holds.
     &\leq
     2\Big( 1 + \smfrac{1}{\pi} \log(N+1) \Big)
     \leq 2 + \smfrac{2}{\pi} \log(N+1).
-    \qedhere
   \end{align*}
+
+  The last statement is left as an exercise.
 \end{proof}
 
 
 \subsection{The Fast Fourier Transform}
 %
 \label{sec:trig:fft}
+%
+\alert{+++CONTINUE HERE+++}
 %
 As a final topic on the theme of trigonometric polynomial approximation we will
 study how to work efficiently with trigonometric interpolants. This is acieved
