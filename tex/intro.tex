@@ -221,7 +221,10 @@ $\omega$ is monotonically increasing, $\omega(r) \to 0$ as $r \to 0$ and
 \[
   |f(x) - f(x')| \leq \omega(|x-x'|) \qquad \forall x, x' \in [a,b].
 \]
-
+Indeed, any $f$ that is continuous on a closed interval has a modulus of continuity, which can simply be defined by 
+\[
+  \omega(r) := \sup_{x \neq y \in [a, b], |x - y| \leq r} |f(x) - f(y)|.
+\]
 
 \subsubsection{Integrable functions}
 %
@@ -238,13 +241,26 @@ and
     \|f\|_{L^\infty} := \|f\|_{L^\infty(D)} :=
     {\rm ess.}\sup_{x \in D} |f(x)|.
 \]
-Finally, we define the spaces
+We define the spaces
 \[
   L^p(D) := \big\{ f : D \to \R \bsep \text{$f$ is measureable
                   and $\|f\|_{L^p(D)} < \infty$} \b\}.
 \]
 
-% \alert{Introduce $\AC$??? Not if we can avoid it.}
+Finally, we recall the concept of absolutely continuous functions and weak derivatives. 
+If $g \in L^1(a,b)$ and 
+\[
+  f(x) = c + \int_a^x g(t) \,dt, 
+\]
+then we say that $f$ is absolutely continuous and write $f' = g$. Note that this derivative is now no longer defined in a pointwise sense, but it is normally defined via integration by parts, 
+\[
+  \int_a^b f(x) \varphi'(x) \,dx = - \int_a^b f'(x) \varphi(x) \,dx
+  \qquad \forall \varphi \in C^1(a,b), \varphi(a) = \varphi(b) = 0.
+\]
+If $f$ is absolutely continous, then we also write $f \in W^{1,1}(a,b)$. If $f$ is absolutely continuous and $f' \in L^p$, then we say $f \in W^{1,p}(a,b)$. These are the so-called Sobolev spaces. An immediate generalisation is that, if $f \in C^{m-1}(a,b)$, with $f^{(m-1)}$ absolutely continous and $f^{(m)} \in L^p$ then we write $f \in W^{m, p}$.
+
+We will only make {\em minimal} use of Lebesgue and Sobolev spaces, but it is occasionally convenient to use them. A student who is deeply uncomfortable with these spaces should feel confident to substitute technical rigour for intuition gained through examples and discuss this with the instructor.
+
 
 \subsubsection{Normed Spaces and Hilbert spaces}
 %
@@ -426,14 +442,14 @@ and call this a {\em contour integral}.
   to simply construct the best approximation operator explicitly, which also
   helps with (iii).}
 
-  \item {Bonus: } Now carry out (ii) for
+  \item {Bonus: } Now replace $X_0 = Y_0$ in (ii) with 
   \[
       X_1 = Y_1 = \{ x \mapsto a + bx | a,b \in \R \},
   \]
-  i.e., best approximation by affine functions.
-
-  {\it Hint: Assume some $b$ has been chosen, then what is the optimal $a$? Now work backwards and ask how to choose $b$ to minimize the error. Now prove that those choices are unique.
-  } \qedhere
+  i.e., best approximation by affine functions. First, construct explicitly a 
+  best approximant from that space. Try to prove it is unique. This should 
+  be difficult; at least I don't see an elementary proof. (Please share if 
+   you find one!)  We will return to this problem later in the course. \qedhere
   \end{enumerate}
 \end{exercise}
 

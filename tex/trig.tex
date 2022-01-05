@@ -47,7 +47,7 @@ Applications:
 Approximation by trigonometric polynomials is based on the idea of Fourier
 series representation of periodic functions. Talking about Fourier series
 becomes much more convenient if we extend the admissible range of all functions
-to $\C$. The following definition then becomes natural.
+to $\C$;, i.e. $f : \R \to \C$, still $2\pi$-periodic. The following definition then becomes natural.
 
 \begin{definition}
   A trigonometric polynomial of degree $N$ is any function of the form
@@ -99,8 +99,7 @@ Equipped with this inner product, $L^2(\TT)$ is a Hilbert space.
   \end{enumerate}
 \end{theorem}
 \begin{proof}
-  This is left as an exercise, to be completed after we
-  study kernel methods. The key point is that
+  This is left as an exercise. The key point is that
   \begin{equation}
     \mint_{-\pi}^\pi  e^{-ikx} e^{i\ell x} \,dx
     = \mint_{-\pi}^\pi e^{(\ell-i)x}
@@ -111,12 +110,12 @@ Equipped with this inner product, $L^2(\TT)$ is a Hilbert space.
   \end{equation}
 \end{proof}
 
-\begin{remark}
+\begin{exercise}
   There is a general theorem that all (separable) Hilbert spaces are
   isometrically isomorphic to $\ell^2(\N)$ or equivalently to $\ell^2(\Z)$.
   Explain why the Plancherel theorem simply shows that the Fourier series map
   $f \mapsto \hat{f}$ is an the explicit construction of this isometry.
-\end{remark}
+\end{exercise}
 
 
 \begin{proposition} \label{th:trig:PiNf-orthproj}
@@ -145,10 +144,9 @@ Equipped with this inner product, $L^2(\TT)$ is a Hilbert space.
   \end{align*}
 \end{proof}
 
-The main point of Lemma~\ref{th:trig:PiNf-orthproj} is that, as in the
+The main point of Lemma~\ref{th:trig:PiNf-orthproj} is that, exactly as in the
 introductory example, we can characterise the error in terms of the
-decay of the Fourier coefficients.
-
+decay of the Fourier coefficients, so we will study this next. 
 
 
 \subsection{Decay of Fourier Coefficients}
@@ -162,9 +160,9 @@ optimality, we will formulate them only for $C^p$ regularity.
 
 \begin{theorem} \label{th:trig:decay}
   \begin{enumerate} \ilist
-    \item Let $f \in C^{p}(\TT)$, then there exists $C > 0$ such that
+    \item Let $f \in C^{p-1}(\TT)$ and $f^{(p-1)}$ be absolutely continuous, then 
     \[
-        |\hat{f}_k| \lesssim C |k|^{-p}.
+        |\hat{f}_k| \leq \| f^{(p)} \|_{L^1(\TT)} |k|^{-p}.
     \]
     %
     \item {\it Paley--Wiener Theorem:} If $f \in A(\TT)$, then there exists
@@ -175,407 +173,137 @@ optimality, we will formulate them only for $C^p$ regularity.
   \end{enumerate}
 \end{theorem}
 \begin{proof}[Proof of Theorem~\ref{th:trig:decay}(1)]
-  Consider the case $p = 1$. Assume for the moment that we can exchange
-  summation and differentiation, then we simply have
-  \[
-    f'(x) = \sum_{k \in \Z} ik \hat{f}_k e^{ikx}.
-  \]
-  Since $f' \in C(\TT) \subset L^1(\TT)$, $\hat{(f')}_k = ik \hat{f}_k$ are
-  bounded and in particular, $|\hat{f}_k| \lesssim |k|^{-1}$. However, this
-  calculation requires that we justify the interchange of differentiation
-  and summation.
-
-  Instead, let $h > 0$ and consider the function $d_hf(x) :=
-  (f(x+h)-f(x)) / h$, then $d_h f(x) = f'(\xi)$ for some $\xi \in (x, x+h)$,
-  hence $\|d_h f(x)\|_{\infty}$ is bounded independently of $h$. In particular
-  the Fourier coefficients $\widehat{(d_h f)}_k$ are well-defined and bounded.
-  On the other hand, we can compute $\widehat{(d_h f)}_k$ explicitly,
+  Consider first the case $p = 1$, i.e., $f$ is absolutely continuous. This means that $f'$ exists almost everywhere and satisfies an integration by parts formula. We can utilize this as follows: 
   \begin{align*}
-    d_hf(x)
-      &= \frac{f(x+h)-f(x)}{h} \\
-      &= \sum_{k \in \Z} \hat{f}_k \bigg( \frac{e^{i k (x+h)} - e^{ikx}}{h} \bigg) \\
-      &= \sum_{k \in \Z} \Big[\smfrac{e^{ikh} - 1}{h} \hat{f}_k\Big] e^{ikx},
+    -i k \hat{f}_k &= \mint f(x) \big(- i k e^{-ikx}\big) \, dx \\
+    &= \mint f(x) \frac{d}{dx} e^{ikx}\, dx \\
+    &= - \mint f'(x) e^{ikx}\, dx.
   \end{align*}
-  that is,
+  Taking the modulus on the left-hand side we obtain 
   \[
-    \widehat{(d_h f)}_k = \Big[\smfrac{e^{ikh} - 1}{h} \hat{f}_k\Big].
+    |k \hat{f}_k| \leq \mint |f'| \,dx = \|f'\|_{L^1(\TT)}.
   \]
-  We know that $\widehat{(d_h f)}_k$ are uniformly bounded, hence we obtain
-  \[
-    C \geq \b|\widehat{(d_h f)}_k\b|
-      = \B| \smfrac{e^{ikh} - 1}{h} \hat{f}_k \B| \qquad \forall h > 0
-  \]
-  Let $h \to 0$ to obtain $|k \hat{f}_k| \leq C$. This completes the proof.
+  Since $f'$ is AC, the right-hand side is finite. This yields the claim.
+
+  For $p > 1$, we can simply apply the integration by parts argument multiple times. 
 \end{proof}
 
 We postpone the proof of the Paley--Wiener Theorem to
 Theorem~\ref{th:trig:pw-trefversion}, but instead first discuss the consequences
-of these results.
+of these results. First, we consider approximation in the max-norm even though this seems counter intuitive in the Hilbert space setting.
 
-A direct naive calculation shows that, if $f \in C^p(\TT)$, then
+We can also prove uniform convergence results using the decay of the Fourier coefficients established above:
+
+\begin{theorem} \label{th:trig:convergence_max}
+  \begin{enumerate} \ilist
+    \item Let $f \in W^{p,1}(\TT)$ then
+    \[
+        \|f - \Pi_N f \|_{\infty} \lesssim N^{1-p}
+    \]
+    \item Let $f \in C^\infty(\TT)$, then for each $p > 0$ there exists a
+    constant $C_p$ such that
+    \[
+        \|f - \Pi_N f \|_{\infty} \leq C_p N^{-p}.
+    \]
+    \item If $f \in A(\TT)$, then there exists $a > 0$ such that
+    \[
+         \| f - \Pi_N f \|_{\infty} \lesssim e^{-a N}.
+    \]
+    \end{enumerate}
+  \end{theorem}
+\begin{proof}
+  (1) This is a straightforward calculation: 
+  \begin{align*}
+    \big|f(x) - \Pi_N f(x)\big|
+    &= 
+    \bigg| \sum_{|k| > N} \hat{f}_k e^{i k x} \bigg| 
+    \\ &\leq
+    \sum_{|k| > N} |\hat{f}_k|
+    \\ &\lesssim
+    \sum_{k = N+1}^\infty |k|^{-p} \lesssim N^{-p}.
+  \end{align*}
+
+  (2) is an immediate consequence; (3) is proven analogously. 
+\end{proof}
+
+Returning to convergence in $L^2$, a direct naive calculation shows that, if $f \in W^{p,1}(\TT)$, then
 \[
     \|f - \Pi_N f \|_{L^2} \lesssim N^{1/2-p}.
 \]
-But we want to improve this a bit, by removing the $1/2$ factor. We can
-do this with the following slightly sharper result.
+Is this sharp? Depends really on whether $f$ is {\it exactly} in $W^{p,1}$ and no better. The tricky part is how one can really test this. In practice one actually rarely encounters functions of this kind (though in the theory of PDEs they are phenomenally important), and it is much more convenient and natural to consiter scales of continuous and H\"{o}lder continuous functions. In particular H\"{o}lder continuity connects very naturally to the kind of singularities one typically occurs in physical models. We will get to this soon. 
 
+For now, we will briefly look at two simple extensions that can be convenient sometimes and yield slightly sharper results. The proofs are left as exercises. 
+
+  
 \begin{lemma} \label{th:trig:fCp-coeffL2}
-  Let $f \in C^p(\TT)$, then $(\hat{f}_k |k|^p)_{k \in \Z} \in \ell^2(\Z)$
+  Let $f \in W^{p,2}(\TT)$, then $(\hat{f}_k |k|^p)_{k \in \Z} \in \ell^2(\Z)$. 
 \end{lemma}
-\begin{proof}
-  This is a relatively straightforward extension of the Proof of
-  Theorem~\ref{th:trig:decay}(1) and is left as an exercise.
-\end{proof}
-
+% \begin{proof}
+%   This is a relatively straightforward extension of the Proof of
+%   Theorem~\ref{th:trig:decay}(1) and is left as an exercise.
+% \end{proof}
 
 
 \begin{theorem} \label{th:trig:convergence_L2}
-  \begin{enumerate} \ilist
-  \item Let $f \in C^{p}(\TT)$ then
+  Let $f \in W^{p,2}(\TT)$ then
   \[
       \|f - \Pi_N f \|_{L^2} \lesssim N^{-p}
-  \]
-  \item Let $f \in C^\infty(\TT)$, then for each $p > 0$ there exists a
-  constant $C_p$ such that
-  \[
-      \|f - \Pi_N f \|_{L^2} \leq C_p N^{-p}.
-  \]
-  \item If $f \in A(\TT)$, then there exists $a > 0$ such that
-  \[
-       \| f - \Pi_N f \|_{L^2} \lesssim e^{-a N}.
-  \]
-  \end{enumerate}
+  \]  
 \end{theorem}
-\begin{proof}
-  We only prove (1); the results (2, 3) are left as an exercise.
+% \begin{proof}
+%   We only prove (1); the results (2, 3) are left as an exercise.
 
-  From Lemma~\ref{th:trig:PiNf-orthproj} we have
-  \begin{align*}
-    \|f-\Pi_N f \|_{L^2}^2
-    &= \sum_{|k| > N} |\hat{f}_k|^2 \\
-    &= \sum_{|k| > N} |\hat{f}_k|^2 |k|^{2p} |k|^{-2p} \\
-    &\lesssim N^{-2p},
-  \end{align*}
-  where we used Lemma~\ref{th:trig:fCp-coeffL2} in the last step.
-\end{proof}
+%   From Lemma~\ref{th:trig:PiNf-orthproj} we have
+%   \begin{align*}
+%     \|f-\Pi_N f \|_{L^2}^2
+%     &= \sum_{|k| > N} |\hat{f}_k|^2 \\
+%     &= \sum_{|k| > N} |\hat{f}_k|^2 |k|^{2p} |k|^{-2p} \\
+%     &\lesssim N^{-2p},
+%   \end{align*}
+%   where we used Lemma~\ref{th:trig:fCp-coeffL2} in the last step.
+% \end{proof}
 
-See explore convergence rates through numerical tests in \nbtrig, where we
-see that our theory is not quite sharp.
+
+
+
 
 \subsubsection{Remarks}
 \begin{enumerate}
-  \item The algebraic convergence rates are not really sharp. In particular, the
-    precise structure of $f^{(p)}$ is extremely relevant. For example, one can
-    show that, if $f^{(p-1)}$ is absolutely continuous (or even just of bounded variatin)
-    then the decay rate $|\hat{f}_k| \leq \|f^{(p)}\|_{L^1} N^{-p}$ still holds.
-    In particular, if $f^{(p)} \in C(\TT)$ as we have assumed here, this gives
-    additional structure that we have not exploited.
+  \item The algebraic convergence rates are rarely sharp, in the sense that taking an arbitrary function and showing that it is $W^{p,2}, W^{p,1}$ but no better in any way would be a rarity. The
+    precise structure of $f^{(p)}$ is extremely relevant. One could go into fractional Sobolev spaces, to give a finer control, but we will not pursue this for now. 
+  
+    % For example, one can
+    % show that, if $f^{(p-1)}$ is absolutely continuous (or even just of bounded variatin)
+    % then the decay rate $|\hat{f}_k| \leq \|f^{(p)}\|_{L^1} N^{-p}$ still holds.
+    % In particular, if $f^{(p)} \in C(\TT)$ as we have assumed here, this gives
+    % additional structure that we have not exploited.
 
-  \item The main message is still relevant: (1) $f \in C^p(\TT)$ regularity
+  \item The important main message take away from these results is this: (1) $f \in C^p(\TT)$ regularity
   gives algebraic decay of $\hat{f}_k$; (2) $f \in C^\infty(\TT)$ gives
   super-algebraic decay; (3) $f \in A(\TT)$ gives exponential decay.
 
-  \item We can also derive uniform approximation error estimates which further
-  highlight that our results are not sharp, e.g.,  if $f \in C^p(\TT)$, then
-  \[
-    |f(x) - \Pi_N f(x)| \leq \sum_{|k| > N} |\hat{f}_k|
-        \lesssim \sum_{|k| > N} |k|^{-p}
-        \lesssim N^{1-p}.
-  \]
-  In the next section we will show how to construct much better uniform
-  approximations with sharp rates. Using a similar trick as in the proof of
-  Theorem~\ref{th:trig:convergence_L2} we can improve this to $\|f-\Pi_N f
-  \|_\infty \lesssim N^{1/2-p}$. Getting a little deeper into harmonic analysis
-  we may even prove that $|\hat f_k| |k|^p \in \ell^p$ for all $p > 1$, which
-  indeed implies that $\|f - \Pi_N f \|_\infty \lesssim N^{\epsilon - p}$ for
-  all $\epsilon > 0$. This give us a hint that the best approximation error in
-  the max-norm is in fact $O(N^{-p})$ when $f \in C^p$. We will choose a very
-  different route in \S~\ref{sec:trig:jackson} to prove this result.
+  % \item We can also derive uniform approximation error estimates which further
+  % highlight that our results are not sharp, e.g.,  if $f \in C^p(\TT)$, then
+  % \[
+  %   |f(x) - \Pi_N f(x)| \leq \sum_{|k| > N} |\hat{f}_k|
+  %       \lesssim \sum_{|k| > N} |k|^{-p}
+  %       \lesssim N^{1-p}.
+  % \]
+  % In the next section we will show how to construct much better uniform
+  % approximations with sharp rates. Using a similar trick as in the proof of
+  % Theorem~\ref{th:trig:convergence_L2} we can improve this to $\|f-\Pi_N f
+  % \|_\infty \lesssim N^{1/2-p}$. Getting a little deeper into harmonic analysis
+  % we may even prove that $|\hat f_k| |k|^p \in \ell^p$ for all $p > 1$, which
+  % indeed implies that $\|f - \Pi_N f \|_\infty \lesssim N^{\epsilon - p}$ for
+  % all $\epsilon > 0$. This give us a hint that the best approximation error in
+  % the max-norm is in fact $O(N^{-p})$ when $f \in C^p$. We will choose a very
+  % different route in \S~\ref{sec:trig:jackson} to prove this result.
 
   \item The uniform convergence estimate for analytic functions arising from
-  the Paley--Wiener theorem is however qualitatively sharp,
-  \[
-       \|f - \Pi_N f \|_\infty \lesssim e^{- a' N} \qquad \forall a' < a.
-  \]
+  the Paley--Wiener theorem is however qualitatively sharp.
+
+  \item The condition $f \in W^{p,1}$ is not sharp. One can weaken it to require only that $f^{(p-1)}$ has finite total variation. We will not look at this in generality, but consider a special case of this generalisation in Exercise~\ref{exr:trig:gibbs}.
 \end{enumerate}
-
-
-
-
-\subsection{Approximation by convolution: Jackson's Theorem}
-%
-\label{sec:trig:jackson}
-%
-The overarching idea of kernel methods is, instead of using the
-$L^2$-projection $\Pi_N f$ to approximate $f$, we use a convolution operator,
-\[
-    (K_N \ast f)(x) := \int_{-\pi}^\pi K_N(t-x) f(t) \, dt.
-\]
-If $K_N(t)$ is a trigonometric polynomial, then $K_N \ast f$ will also be a trigonometric polynomial:
-
-\begin{lemma}
-  If $K_N \in \Trig_N$, then $K_N \ast f \in \Trig_N$ for
-  all $f \in L^1(\TT)$.
-\end{lemma}
-\begin{proof}
-  \begin{align*}
-    \mint_{-\pi}^\pi K_N(x-t) f(t) \,dt
-    &=
-    \sum_{k =  -N}^N \sum_{k' \in \Z}
-        \hat{K}_{N,k} \hat{f}_{k'} \mint_{-\pi}^\pi e^{ik(x-t)} e^{ik't}\,dt
-    \\ &=
-    \sum_{k = -N}^N \hat{K}_{N,k} \hat{f}_{k} e^{ikx}. \qedhere
-  \end{align*}
-\end{proof}
-
-
-The ``original'' kernel is the Dirichlet kernel,
-\[
-    D_N(x) = \frac{\sin\b( (N+1/2) x \b)}{ \sin(x/2) },
-\]
-which is interesting in that it represents the $L^2$-projection, i.e.,
-$\Pi_N f = D_N \ast f$; cf. Exercise~\ref{exr:trig:dirichlet}.
-
-But there is considerable freedom in the choice of kernel. A particularly
-``felicitious'' choice is the Jackson kernel,
-\[
-    J_M(x) := \gamma_M \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4,
-    \qquad
-    \int_\TT J_M(x) = 1,
-\]
-where the second condition determines the normalisation constant $\gamma_M$.
-Constructing approximates via the Jackson kernel leads to elegant and
-sharp approximation error estimates in the max-norm. We write $J_M$ instead of $J_N$ since the degree of $J_M$ is {\em not} equal to $M$:
-
-\begin{lemma}
-  $J_M \in \Trig_{2M-2}$.
-\end{lemma}
-\begin{proof}
-  Let $z = e^{ix/2}$, then
-  \[
-      J_M(x)
-      =
-      \left((z^M - z^{-M}) / (z - z^{-1})\right)^4.
-  \]
-  Further, we have
-  \begin{align*}
-    % J_M(x)
-    % &=
-    \frac{z^M - z^{-M}}{z - z^{-1}}
-    &= z^{M-1} + z^{M-3} z^{-1} + z^{M-3} z^{-2} + \dots
-      + z z^{-M+2} + z^{-M+1} \\
-    &= z^{M-1} + z^{M-3} + z^{M-5} + \dots + z^{-M+1}
-    = \sum_{\alpha \in \mathcal{A}} z^\alpha,
-  \end{align*}
-  where $\mathcal{A} := \{-M+1, -M+3, -M+5, \dots, M-1\}$. Squaring yields
-  \begin{align*}
-     \left(\frac{z^M - z^{-M}}{z - z^{-1}} \right)^2
-     &=
-     \sum_{\alpha, \beta \in \mathcal{A}}
-     z^\alpha z^{\beta} \\
-     &= \sum_{\alpha, \beta \in \mathcal{A}}
-     \frac{z^{\alpha +\beta} + z^{-\alpha-\beta}}{2} \\
-     &= \sum_{\alpha, \beta \in \mathcal{A}} \cos\b( \smfrac{\alpha+\beta}{2} x \b).
-   \end{align*}
-   Since $\alpha+\beta$ is always even, it follows that
-   $(\frac{z^M - z^{-M}}{z - z^{-1}} )^2 \in \Trig_{M-1}$ and in particular
-   $J_M \in \Trig_{2M-2}$.
-\end{proof}
-
-
-
-\begin{lemma} \label{th:trig:gammaM_bound}
-  There exist $C_1, C_2 > 0$, independent of $M$ such that
-  \[
-    C_1 M^{-3} \leq  \gamma_M \leq C_2 M^3
-  \]
-\end{lemma}
-\begin{proof}
-  Using the geometrically evident fact that
-  \[
-    x/\pi \leq \sin(x/2) \leq x/2
-  \]
-  we can estimate
-  \begin{align*}
-    \gamma_M^{-1}
-    &= 2 \int_0^\pi  \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 \, dx  \\
-    &\geq 2 \int_0^{\pi/M} \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 \, dx \\
-    &\geq 2c \int_0^{\pi/M} \left( \frac{Mx/2}{x/2} \right)^4 \, dx \\
-    &= C M^4 \int_0^{\pi/M} 1 \,dx = C M^3.
-  \end{align*}
-
-  Conversely,
-  \begin{align*}
-    1 &= \int_0^\pi J_M(x) dx \\
-    &= \gamma_M \sum_{j = 0}^{M-1} \int_{j\pi/M}^{(j+1)\pi/M} J_M \, dx \\
-    &\lesssim
-        \gamma_M \bg[ \int_0^{\pi/M} M^4 \, dx
-        + \int_{\pi/M}^{\pi}
-             \bg( \frac{1}{x} \bg)^4 \, dx \bg] \\
-    &\lesssim \gamma_M M^3  \qedhere
-  \end{align*}
-\end{proof}
-
-\begin{lemma} \label{th:trig:jackson_moments}
-  \[
-    \int_0^\pi x^m J_M(x) \,dx \leq
-      \cases{C, & m = 0, \\
-            C M^{-1}, & m = 1.
-          }
-  \]
-\end{lemma}
-\begin{proof}
-  The case $m = 0$ follows immediately  from the normalisation of the
-  Jackson kernel, $\int_{-\pi}^\pi J_M(x)\,dx = 1$.
-
-  The case $m = 1$ can be seen by a variation of the proof of
-  Lemma~\ref{th:trig:gammaM_bound}:
-  \begin{align*}
-    \int_0^\pi x J_M(x) \, dx
-    &= \sum_{j = 0}^{M-1} \int_{j\pi/M}^{(j+1)\pi/M} x J_M(x) \, dx \\
-    &\lesssim
-        \gamma_M \bg[ \int_0^{\pi/M} x M^4 \, dx
-        + \int_{\pi/M}^{\pi}
-             x \bg( \frac{1}{x} \bg)^4 \, dx \bg] \\
-    &\lesssim
-      M^{-3} \b[ M^{2} + M^{2} \b]
-      \lesssim M^{-1}.
-      \qedhere
-  \end{align*}
-\end{proof}
-
-
-\begin{theorem}[Jackson's Theorem] \label{th:trig:jackson}
-  \begin{enumerate}
-  \item Let $f \in C(\TT)$ with modulus of continuity $\omega$, then
-  \[
-      \| f - J_M \ast f \|_\infty \lesssim \omega(M^{-1}).
-  \]
-  In particular, if $f \in C^{0,\sigma}(\TT)$, then
-  \[
-      \|f - J_M \ast f \|_\infty \lesssim M^{-\sigma},
-  \]
-  and if $f \in C^1(\TT)$, then
-  \begin{equation} \label{eq:trig:jackson:C1-version}
-    \|f - J_M \ast f \|_\infty \lesssim M^{-1} \|f'\|_\infty.
-  \end{equation}
-  \item Let $f \in C^p(\TT)$ and $f^{(p)}$ have modulus of continuity $\omega$,
-  then
-  \[
-      \inf_{t_N \in \Trig_N} \| f - t_N \|_\infty
-        \lesssim N^{-p} \omega(N^{-1}).
-  \]
-  % \[
-  %     \| f - J_N\ast f \|_\infty \lesssim N^{-p} \omega(N^{-1}).
-  % \]
-  \end{enumerate}
-\end{theorem}
-\begin{proof}[Proof of Theorem~\ref{th:trig:jackson}(1)]
-  \begin{align*}
-    \b| J_N \ast f(x) - f(x) \b|
-    &=
-    \bg| \int_{-\pi}^\pi \B( f(x-t) - f(x) \B) J_N(t) \, dt \bg| \\
-    &\leq
-    \int_{-\pi}^\pi \b|f(x-t) - f(x) \b| J_N(t) \, dt.
-  \end{align*}
-  Next, we can use the modulus of continuity to estimate
-  \[
-    \b|f(x-t) - f(x) \b| \leq \sum_{m = 1}^M
-      \b| f(x - mt/M) - f(x - (m-1)t/M) \b|
-    \lesssim M \omega(t/M)
-  \]
-  Choosing $M = \lceil tN \rceil$ we obtain
-  \[
-    \b|f(x-t) - f(x) \b| \lesssim
-      \cases{
-        \omega(N^{-1}), & 0 \leq |t| \leq N^{-1}, \\
-        t N \omega(N^{-1}), & |t| > N^{-1}.
-      }
-  \]
-  Using Lemma~\ref{th:trig:jackson_moments} we conclude
-  \[
-    \b| J_N \ast f(x) - f(x) \b|
-    \lesssim
-      \omega(N^{-1}) \int_0^{1/N} J_N(t) \, dt
-      + N \omega(N^{-1}) \int_{1/N}^{\pi} t J_N(t)\, dt
-    \lesssim \omega(N^{-1}). \qedhere
-  \]
-\end{proof}
-
-
-To prove Theorem~\ref{th:trig:jackson} (2), we need another auxiliary
-results that is also of independent interest.
-
-\begin{lemma} \label{th:trig:jackson-auxEN}
-  Let $E_N(f) := \inf_{t_N \in \Trig_N} \|f - t_N \|_\infty$, then for
-  $f \in C^1(\TT)$ we have
-  \[
-    E_N(f) \lesssim N^{-1} E_N(f').
-  \]
-\end{lemma}
-\begin{proof}
-  Let $q \in \Trig_N$ such that
-  \[
-    \|f' - q\|_\infty = E_N(f').
-  \]
-  (Because $\Trig_N$ is finite-dimensional, we know the best approximation
-  error is attained.) Then we can write
-  \[
-    q(x) = \sum_{k = -N}^N \hat{q}_{k} e^{ikx}.
-  \]
-  We wish to write $q =  t_N'$, but this is in general false if $\hat{q}_0 \neq 0$. Instead, we split
-  \[
-    q(x) = \hat{q}_0 + r(x),
-  \]
-  then $\hat{r}_0 = 0$ and hence there exists $t \in \Trig_N$ such  that $t' =  r$. Moreover, we can estimate
-  \[
-    |\hat{q}_0| = \bg| \mint_{-\pi}^\pi q \,dx \bg|
-      = \bg| \mint_{-\pi}^\pi (q-f') \,dx \bg|
-      \leq E_N(f').
-  \]
-  Combining these manipulations we obtain
-  \[
-    \| f' - t'\|_\infty
-    \leq
-    \| f' - q \|_\infty + |\hat{q}_0|
-    \lesssim 2 E_N(f').
-  \]
-
-  Finally, since $t \in \Trig_N$ we $E_N(f) = E_N(f - t)$ and can therefore conclude, using Jackson's first theorem,
-  \[
-    E_N(f) = E_N(f - t)
-    \lesssim N^{-1} \|f' - t'\|_\infty
-    \lesssim N^{-1} E_N(f').
-  \]
-  where we also used that $r \mapsto \|f'-t'\|_\infty r$ is the modulus of continuity for $f - t$.
-\end{proof}
-
-
-\begin{proof}[Proof of Theorem~\ref{th:trig:jackson} (2)]
-  According to Lemma~\ref{th:trig:jackson-auxEN},
-  \[
-    E_N(f) \lesssim N^{-1} E_N(f') \lesssim \dots
-    N^{-p} E_N(f^{(p)}),
-  \]
-  and according to Jackson's first theorem, for some $M \sim N$,
-  \[
-    E_N(f^{(p)}) \leq \| f^{(p)} - J_M \ast f^{(p)} \|_\infty
-      \leq \omega(M^{-1}) \lesssim \omega(N^{-1}),
-  \]
-  that is, $E_N(f) \lesssim N^{-p} \omega(N^{-1})$.
-  %
-  % Note that this does not yet prove our statement. To prove
-  % Theorem~\ref{th:trig:jackson} (2), let $t_N \in \Trig_N$ such that
-  % $\|f - t_N \|_\infty \leq C N^{-p} \omega(N^{-1})$, then we have
-  % \[
-  %   \| f - J_M \ast f \|_\infty
-  %     \leq \| f - t_N \|_\infty + \| J_M \ast (f - t_N) \|_\infty
-  %         + \|t_N - J_M \ast t_N \|_\infty
-  % \]
-\end{proof}
-
-
-
 
 
 \subsection{The Paley--Wiener Theorem}
@@ -723,11 +451,326 @@ obtain \Cref{th:trig:pw-sharp} with $\alpha = \infty$:
 
 
 
+
+\subsection{Approximation by convolution: Jackson's Theorem}
+%
+\label{sec:trig:jackson}
+%
+The $L^2$-projection operator $\Pi_N$ can be written in terms of the {\em Dirichlet Kernel}, 
+\[
+    D_N(x) = \frac{\sin\b( (N+1/2) x \b)}{ \sin(x/2) }.
+\]
+That is, 
+\[
+  \Pi_N f(x) = D_N \ast f(x) := \mint_{-\pi}^\pi D_N(x-t) f(t) \, dt. 
+\]
+See Exercise~\ref{exr:trig:dirichlet} for the details. An analysis of the fine properties of the kernel $D_N$ leads to more precise convergence estimates, in particular in norms other than $L^2$. 
+
+Suppose, for example that we wanted to get an optimal estimate for $\| f - \Pi_N f \|_\infty$, then we can estimate (similar as we do for estimating the interpolation error!)
+\[
+  \| f - \Pi_N f \|_\infty
+  \leq 
+  \| f - t_N \|_\infty + \| \Pi_N (t_N - f) \|_\infty. 
+\]
+Moreover, 
+\[
+  | \Pi_N g(x) | = \bigg| \mint D_N(x - t) g(t) \,dt \bigg| 
+    \leq \| D_N \|_{L^2(\TT)} \|g \|_\infty, 
+\]
+and hence, 
+\[
+  \| f - \Pi_N f \|_\infty \leq (1 + \|D_N\|_{L^1}) \| t_N - f \|_\infty,
+\]
+i.e. the $L^2$ projection $\Pi_N f$ is optimal up to a constant factor $C_N = 1 + \|D_N\|_{L^1}$. It turns out that $\|D_N\|_{L^1} \approx \log N$, which means we are really {\em very close} to optimal (again, see Exercise~\ref{exr:trig:dirichlet}). But it is still interesting to ask whether this log-factor can be removed!
+
+In general, we can ask whether alternative kernels could be employed to construct approximations via convolutions, 
+\[
+    (K_N \ast f)(x) := \mint_{-\pi}^\pi K_N(x-t) f(t) \, dt,
+\]
+and what advantages those different kernels might have. 
+If $K_N(t)$ is a trigonometric polynomial, then $K_N \ast f$ will also be a trigonometric polynomial:
+
+\begin{lemma}
+  If $K_N \in \Trig_N$, then $K_N \ast f \in \Trig_N$ for
+  all $f \in L^1(\TT)$.
+\end{lemma}
+\begin{proof}
+  \begin{align*}
+    \mint_{-\pi}^\pi K_N(x-t) f(t) \,dt
+    &=
+    \sum_{k =  -N}^N \sum_{k' \in \Z}
+        \hat{K}_{N,k} \hat{f}_{k'} \mint_{-\pi}^\pi e^{ik(x-t)} e^{ik't}\,dt
+    \\ &=
+    \sum_{k =  -N}^N \sum_{k' \in \Z}
+       \hat{K}_{N,k} \hat{f}_{k'} e^{ikx} \delta_{kk'}
+    \\ &=
+    \sum_{k = -N}^N \hat{K}_{N,k} \hat{f}_{k} e^{ikx}. \qedhere
+  \end{align*}
+\end{proof}
+
+
+There is considerable freedom in the choice of kernel; the only thing they all have in common is that they must approximate the Dirichlet-delta function in a suitable sense. Purely for the purpose of theoretical analysis, a great choice is the Jackson kernel,
+\[
+    J_M(x) := \gamma_M \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4,
+    \qquad
+    \mint_\TT J_M(x) = 1,
+\]
+where the second condition determines the normalisation constant $\gamma_M$.
+Constructing approximates via the Jackson kernel leads to elegant and
+sharp approximation error estimates in the max-norm in particular for H\"{o}lder continuous functions. Note already that we now have $\| J_M \|_{L^1} = 1$, i.e. we no longer have the growth of the operator norm as in the Dirichlet kernel!
+
+We write $J_M$ instead of $J_N$ since the degree of $J_M$ is {\em not} equal to $M$:
+
+\begin{lemma}
+  $J_M \in \Trig_{2M-2}$.
+\end{lemma}
+\begin{proof}
+  Let $z = e^{ix/2}$, then
+  \[
+      J_M(x)
+      =
+      \left((z^M - z^{-M}) / (z - z^{-1})\right)^4.
+  \]
+  Further, we have
+  \begin{align*}
+    % J_M(x)
+    % &=
+    \frac{z^M - z^{-M}}{z - z^{-1}}
+    &= z^{M-1} + z^{M-3} z^{-1} + z^{M-3} z^{-2} + \dots
+      + z z^{-M+2} + z^{-M+1} \\
+    &= z^{M-1} + z^{M-3} + z^{M-5} + \dots + z^{-M+1}
+    = \sum_{\alpha \in \mathcal{A}} z^\alpha,
+  \end{align*}
+  where $\mathcal{A} := \{-M+1, -M+3, -M+5, \dots, M-1\}$. Squaring yields
+  \begin{align*}
+     \left(\frac{z^M - z^{-M}}{z - z^{-1}} \right)^2
+     &=
+     \sum_{\alpha, \beta \in \mathcal{A}}
+     z^\alpha z^{\beta} \\
+     &= \sum_{\alpha, \beta \in \mathcal{A}}
+     \frac{z^{\alpha +\beta} + z^{-\alpha-\beta}}{2} \\
+     &= \sum_{\alpha, \beta \in \mathcal{A}} \cos\b( \smfrac{\alpha+\beta}{2} x \b).
+   \end{align*}
+   Since $\alpha+\beta$ is always even, it follows that
+   $(\frac{z^M - z^{-M}}{z - z^{-1}} )^2 \in \Trig_{M-1}$ and in particular
+   $J_M \in \Trig_{2M-2}$.
+\end{proof}
+
+
+
+\begin{lemma} \label{th:trig:gammaM_bound}
+  There exist $C_1, C_2 > 0$, independent of $M$ such that
+  \[
+    C_1 M^{-3} \leq  \gamma_M \leq C_2 M^{-3}
+  \]
+\end{lemma}
+\begin{proof}
+  First note the geometrically evident fact that
+  \[
+    x/\pi \leq \sin(x/2) \leq x/2.
+  \]
+
+  To obtain a lower bound, we estimate 
+  \begin{align*}
+    \pi/\gamma_m &= \int_0^\pi \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 dx \\
+    &= \int_0^{\pi/M} \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 dx  
+        + \int_{\pi/M}^\pi \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 dx  \\
+        %
+    &\lesssim
+        \bg[ \int_0^{\pi/M} \left( \frac{Mx/2}{x/2} \right)^4 \, dx
+        + \int_{\pi/M}^{\pi}
+             \bg( \frac{1}{x} \bg)^4 \, dx \bg] \\
+    &= c_1 M^3.
+  \end{align*}
+  Note in particular that this calculation shows that for the opposite bound 
+  we only need to consider the interval $(0, \pi/M)$. Thus, we calculate
+  \begin{align*}
+    \pi/\gamma_M
+    % &= \int_0^\pi  \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 \, dx  \\
+    &\geq \int_0^{\pi/M} \left( \frac{\sin( Mx/2)}{\sin(x/2)} \right)^4 \, dx \\
+    &\gtrsim \int_0^{\pi/M} \left( \frac{Mx/2}{x/2} \right)^4 \, dx \\
+    &=c_2 M^3. \qedhere
+  \end{align*}
+\end{proof}
+
+The next Lemma is key, and hidden in its proof is the reason that we used the fourth power to define the Jackson kernel. It quantifies the fact (already exploited above) that $J_M$ is concentrated near the origin. 
+
+\begin{lemma} \label{th:trig:jackson_moments}
+  There exists a constant $C > 0$ such that 
+  \begin{align*}
+    \mint J_M(x) \,dx &= 1, \qquad \text{and}
+    \\
+    \mint |x| J_M(x) \, dx &\leq C M^{-1}.
+  \end{align*}
+\end{lemma}
+\begin{proof}
+  The case $m = 0$ follows immediately  from the normalisation of the
+  Jackson kernel, $\int_{-\pi}^\pi J_M(x)\,dx = 1$.
+
+  The case $m = 1$ can be seen by a variation of the proof of
+  Lemma~\ref{th:trig:gammaM_bound}:
+  \begin{align*}
+    \int_0^\pi x J_M(x) \, dx
+    &= 
+    \int_0^{\pi/M} x J_M(x) \, dx
+        + \int_{\pi/M}^{\pi}
+             x J_M(x) \, dx \\
+    &\lesssim
+        \gamma_M \bg[ \int_0^{\pi/M} x M^4 \, dx
+        + \int_{\pi/M}^{\pi}
+             x \bg( \frac{1}{x} \bg)^4 \, dx \bg] \\
+    &\lesssim
+      M^{-3} \b[ M^{2} + M^{2} \b]
+      \lesssim M^{-1}.
+      \qedhere
+  \end{align*}
+\end{proof}
+
+To state the Jackson theorems we first need to adapt the notion of modulus of continuity to the torus: Namely, we require that $\omega$ is a modulus of continuous for $f$ on all of $\mathbb{R}$. It is clear that all properties of the modulus of continuity survive, including the fact that any $f \in C(\TT)$ has such a m.o.c.
+
+\begin{theorem}[Jackson's Theorem] \label{th:trig:jackson}
+  \begin{enumerate}
+  \item Let $f \in C(\TT)$ with modulus of continuity $\omega$, then
+  \[
+      \| f - J_M \ast f \|_\infty \lesssim \omega(M^{-1})
+  \]
+  In particular, if $f \in C^{0,\sigma}(\TT)$, then
+  \[
+      \|f - J_M \ast f \|_\infty \lesssim N^{-\sigma},
+  \]
+  and if $f \in C^1(\TT)$, then
+  \begin{equation} \label{eq:trig:jackson:C1-version}
+    \|f - J_M \ast f \|_\infty \lesssim M^{-1} \|f'\|_\infty.
+  \end{equation}
+  \item Let $f \in C^p(\TT)$ and $f^{(p)}$ have modulus of continuity $\omega$,
+  then
+  \[
+      \inf_{t_N \in \Trig_N} \| f - t_N \|_\infty
+        \lesssim N^{-p} \omega(N^{-1}).
+  \]
+  % \[
+  %     \| f - J_N\ast f \|_\infty \lesssim N^{-p} \omega(N^{-1}).
+  % \]
+  \end{enumerate}
+\end{theorem}
+\begin{proof}[Proof of Theorem~\ref{th:trig:jackson}(1)]
+  Recall that the polynomial degree of $J_M \ast f$ is $N = 2M-2$. For $N$ even we take $M = N/2+1$ while for $N$ odd we take $M = (N+1)/2+1$. Either way, $N \geq 2M-2$.
+
+  \begin{align*}
+    \b| J_M \ast f(x) - f(x) \b|
+    &=
+    \bg| \int_{-\pi}^\pi \B( f(x-t) - f(x) \B) J_M(t) \, dt \bg| \\
+    &\leq
+    \int_{-\pi}^\pi \b|f(x-t) - f(x) \b| J_M(t) \, dt.
+  \end{align*}
+  Next, we can use the modulus of continuity to estimate
+  \[
+    \b|f(x-t) - f(x) \b| \leq \sum_{k = 1}^K
+      \b| f(x - kt/K) - f(x - (k-1)t/K) \b|
+    \leq K \omega(t/K) 
+    % \leq K \omega(\pi/K).
+  \]
+  Choosing $K$ minimal such that $t/K \leq 1/N$ (i.e. $K = \lceil t N \rceil$) yields 
+  \[
+    \b|f(x-t) - f(x) \b| \leq
+      \cases{
+        \omega(N^{-1}), & 0 \leq |t| \leq N^{-1}, \\
+        2 t N \omega(N^{-1}), & |t| > N^{-1}.
+      }
+  \]
+  Using Lemma~\ref{th:trig:jackson_moments} we conclude
+  \begin{equation} \label{eq:trig:jackson1_proof_result}
+    \b| J_N \ast f(x) - f(x) \b|
+    \leq
+      \omega(N^{-1}) \int_0^{1/N} J_N(t) \, dt
+      + 2 N \omega(N^{-1}) \int_{1/N}^{\pi} t J_N(t)\, dt
+    \lesssim \omega(N^{-1}). 
+  \end{equation}
+  The stated results follow immediately from the fact that $\omega(N^{-1}) \leq \omega(M^{-1})$. For later reference though we will also need \eqref{eq:trig:jackson1_proof_result}.
+\end{proof}
+
+
+To prove Theorem~\ref{th:trig:jackson} (2), we need another auxiliary
+results that is also of independent interest.
+
+\begin{lemma} \label{th:trig:jackson-auxEN}
+  Let $E_N(f) := \inf_{t_N \in \Trig_N} \|f - t_N \|_\infty$, then for
+  $f \in C^1(\TT)$ we have
+  \[
+    E_N(f) \lesssim N^{-1} E_N(f').
+  \]
+\end{lemma}
+\begin{proof}
+  Let $q \in \Trig_N$ such that
+  \[
+    \|f' - q\|_\infty = E_N(f').
+  \]
+  (Because $\Trig_N$ is finite-dimensional, we know the best approximation
+  error is attained.) Then we can write
+  \[
+    q(x) = \sum_{k = -N}^N \hat{q}_{k} e^{ikx}.
+  \]
+  We wish to write $q =  t_N'$, but this is in general false if $\hat{q}_0 \neq 0$. Instead, we split
+  \[
+    q(x) = \hat{q}_0 + r(x),
+  \]
+  then $\hat{r}_0 = 0$ and hence there exists $t \in \Trig_N$ such  that $t' =  r$. Moreover, we can estimate
+  \[
+    |\hat{q}_0| = \bg| \mint_{-\pi}^\pi q \,dx \bg|
+      = \bg| \mint_{-\pi}^\pi (q-f') \,dx \bg|
+      \leq E_N(f').
+  \]
+  Combining these manipulations we obtain
+  \[
+    \| f' - t'\|_\infty
+    \leq
+    \| f' - q \|_\infty + |\hat{q}_0|
+    \lesssim 2 E_N(f').
+  \]
+
+  Finally, since $t \in \Trig_N$ we have $E_N(f) = E_N(f - t)$ and can therefore conclude, using Jackson's first theorem,
+  \[
+    E_N(f) = E_N(f - t)
+    \lesssim N^{-1} \|f' - t'\|_\infty
+    \lesssim N^{-1} E_N(f').
+  \]
+  where we also used that $r \mapsto \|f'-t'\|_\infty r$ is the modulus of continuity for $f - t$.
+\end{proof}
+
+
+\begin{proof}[Proof of Theorem~\ref{th:trig:jackson} (2)]
+  According to Lemma~\ref{th:trig:jackson-auxEN},
+  \[
+    E_N(f) \lesssim N^{-1} E_N(f') \lesssim \dots \lesssim 
+    N^{-p} E_N(f^{(p)}),
+  \]
+  and according to Jackson's first theorem, for some $M \sim N$,
+  \[
+    E_N(f^{(p)}) \leq \| f^{(p)} - J_M \ast f^{(p)} \|_\infty
+      \leq \omega(M^{-1}) \lesssim \omega(N^{-1}),
+  \]
+  that is, $E_N(f) \lesssim N^{-p} \omega(N^{-1})$.
+  %
+  % Note that this does not yet prove our statement. To prove
+  % Theorem~\ref{th:trig:jackson} (2), let $t_N \in \Trig_N$ such that
+  % $\|f - t_N \|_\infty \leq C N^{-p} \omega(N^{-1})$, then we have
+  % \[
+  %   \| f - J_M \ast f \|_\infty
+  %     \leq \| f - t_N \|_\infty + \| J_M \ast (f - t_N) \|_\infty
+  %         + \|t_N - J_M \ast t_N \|_\infty
+  % \]
+\end{proof}
+
+
+
+
+
+
 \subsection{Interpolation}
 %
 \label{sec:trig:interp}
 %
-We have discussed two strategies to construct approximations of functions by
+\alert{+++CONTINUE HERE+++} We have discussed two strategies to construct approximations of functions by
 trigonometric polynomials: $L^2$-projection and convolution (e.g., with the
 Jackson kernel). While both are constructive, they both require additional
 computational effort to evalute the relevant integrals. Since this is normally
@@ -1253,13 +1296,10 @@ These examples may be found in \nbtrig.
   see e.g. {\tt https://en.wikipedia.org/wiki/Ringing\_artifacts}.}
 
   \item {Piecewise smooth functions: } Make an educated guess what the
-  rate of convergence is for $\|\Pi_N f - f \|_{L^2}$ when $f$ is piecewise
-  $C^\infty(\TT)$, all derivatives up to $f^{(p-1)}$ are continuous and
-  $f^{(p)}$ has jump discontinuities at finite many points. This includes
+  rate of convergence is for $\|\Pi_N f - f \|_{L^2}$ when all derivatives up to $f^{(p-2)}$ are continuous, $f^{(p-2)}$ is Lipschitz (and in particular absolutely continuous) and $f^{(p-1)}$ is piecewise absolutely continuous with jump discontinuities at finite many points. This includes
   functions such as $|\sin(nx)|, |\sin(nx)|^q$ for $q$ odd.
 
-  {\it Hint: A rigorous derivation of this convergence rate is quite
-  possible; consider the function $g(x) = \sin(x/2)$, continued periodically.}
+  Adapt the proof of Theorem~\ref{th:trig:decay} to rigorously prove this.
   %
   \qedhere
   \end{enumerate}
