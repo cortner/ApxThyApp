@@ -999,7 +999,7 @@ numerical experiments shown there suggest that the following theorem holds.
   The Lebesgue constant for trigonometric interpolation with respect to the
   $L^\infty$-norm is bounded by
   \[
-    \|I_N\| \leq \smfrac{2}{\pi} \log (N+1) + 1.
+    \|I_N\| \leq \smfrac{2}{\pi} \log (N+1) + 2.
   \]
 
   In particular, if $f \in C(\TT)$, then
@@ -1010,9 +1010,15 @@ numerical experiments shown there suggest that the following theorem holds.
   If $f$ is real we can replace $\Trig_N'$ with $\Trig_N$ in \eqref{eq:trig:almost_best_approx_IN}.
 \end{theorem}
 
+\begin{remark}
+  This bound is close to sharp. Erd\"{o}s (1961) proved  that 
+  \[
+      \frac{2}{\pi} \log N - c_1 \leq \Lambda_N \leq \frac{2}{\pi} \log N + c_2.  \qedhere
+  \]
+\end{remark}
 
 \begin{proof}
-  We will only prove a slightly weaker upper bound $\|I_N\| \leq \frac{2}{\pi} \log N + 2$. Recall
+  Recall
 \eqref{eq:trig:LamNbound}, then we need to bound
   \begin{align*}
     \Lambda_N
@@ -1044,6 +1050,7 @@ numerical experiments shown there suggest that the following theorem holds.
     2\Big( 1 + \smfrac{1}{\pi} \log(N+1) \Big)
     \leq 2 + \smfrac{2}{\pi} \log(N+1).
   \end{align*}
+  (Or, we could use $\sum_{j = 1}^N \frac{1}{j} \sim \log N + \gamma + O(1/N)$ to sharpen this a bit more.)
 
   The last statement is left as an exercise.
 \end{proof}
@@ -1053,16 +1060,12 @@ numerical experiments shown there suggest that the following theorem holds.
 %
 \label{sec:trig:fft}
 %
-\alert{+++CONTINUE HERE+++}
-%
 As a final topic on the theme of trigonometric polynomial approximation we will
-study how to work efficiently with trigonometric interpolants. This is acieved
+study how to work efficiently with trigonometric interpolants. This is achieved
 via the discrete Fourier transform and its fast implementation, the {\it Fast
 Fourier Transform}, likely one of the most important and most widely used
-numerical algorithms.
-
-For the following discussion it is best to assume that the number of grid points
-is even, in particular we will discuss the FFT only for this case.
+numerical algorithms. We will assume from here on that the number of grid points
+is even. 
 
 Given a function $f \in C(\TT)$ we can evaluate it at grid points $x_j$ which
 leads to a grid function $F_j = (f(x_j))_{j=0}^{M-1}$. Given $M \in 2\N$ it is
@@ -1073,22 +1076,52 @@ common to define the DFT and FFT for the grid
 \]
 %
 The assumption that $M = 2N$ is even is consistent with
-\S~\ref{sec:trig:interp}. In our notation up to now it would have been more
-natural to write $x_j = -\pi + \pi j/N$ instead, but since we are considering
-periodic functions we just need to shift them into a new domain $[0, 2\pi)$.
-Although we could initially avoid some inconveniences we want to eventually be
-able to use the FFT algorithms, so we may as well learn now how to convert
-between the two representations.
+\S~\ref{sec:trig:interp}. 
+% In our notation up to now it would have been more
+% natural to write $x_j = -\pi + \pi j/N$ instead, but since we are considering
+% periodic functions we just need to shift them into a new domain $[0, 2\pi)$.
+% Although we could initially avoid some inconveniences we want to eventually be
+% able to use the FFT algorithms, so we may as well learn now how to convert
+% between the two representations.
 
-We then ask, what are the coefficients of the trigonometric polynomial $t \in
+We then ask, what are the coefficients of the trigonometric polynomial $t_N \in
 \Trig_{N}' = \Trig_{M/2}'$ such that
 %
 \[
-  t(x_j) = F_j \qquad \text{for } j = 0, \dots, M-1.
+  t_N(x_j) = F_j \qquad \text{for } j = 0, \dots, M-1, 
 \]
 %
-We have already seen in \eqref{eq:trig:pre-dft} that these are provided by the
-DFT operator: for $F \in \C^{M}$, $k = 0, \dots, M-1$,
+or, written as a linear system, 
+\begin{equation} \label{eq:trig:pre-dft-equi}
+  \sum_{k = -N+1}^N \hat{F}_k e^{i \pi j k / N} = F_j, \qquad j = 0, \dots, 2N-1. 
+\end{equation}
+The first important observation is that the system matrix is orthogonal up to a constant factor; that is, the explicit inversion formula is given by 
+\begin{equation} \label{eq:trig:pre-idft}
+    \hat{F}_k = \frac{1}{2N} \sum_{j = -N+1}^N F_j e^{-i\pi k j /N},
+\end{equation}
+This is not at all surprising given that close analogy of the sums with the integrals in the definition of the Fourier coefficients. 
+
+\begin{exercise}
+  Prove \eqref{eq:trig:pre-idft}. The key intermediate result you should extract is 
+  \begin{equation} \label{eq:trig:orth-dft}
+    \sum_{j = 0}^{2N-1} 
+    e^{i \pi j k' / N} e^{- i \pi j k / N} = 2 N \delta_{kk'},
+  \end{equation}
+  which is precisely the orthogonality of the system matrix. 
+\end{exercise} 
+
+
+% that is, the linear system \eqref{eq:trig:pre-dft}  has an orthogonal (up to
+% scaling) which reduces the solution of the linear system matrix reduces the
+% solution of \eqref{eq:trig:pre-dft} to a matrix-vector multiplication
+% \eqref{eq:trig:pre-idft} and hence $O(N^2)$ cost. But it turns out that there is
+% even an $O(N \log N)$ algorithm - the Fast Fourier Transform. To present this
+% important algorithm it is more convenient if we work with $2N$ interpolation
+% nodes, instead of $2N+1$ nodes. This makes the theory of interpolation subtly
+% different, since with $2N$ conditions we can no longer hope to determing $2N+1$
+% coefficients.
+
+We will call the mapping $F \mapsto \hat{F}$ the discrete Fourier transform (DFT) and its inverse the IDFT: for $F \in \C^{M}$, $k = 0, \dots, M-1$,
 %
 \begin{align}
   \label{eq:trig:dft}
@@ -1109,8 +1142,9 @@ Note in particular that this is a trapezoidal rule approximation of
   and hence the $k$-grid $\{0, \dots, M-1\}$ can alternatively be interpreted
   as, with $N = M/2$,
   \[
-    \{ 0, \dots, N, -N+1, -N+2, \dots, -1 \}. \qquad \qedhere
+    \{ 0, \dots, N, -N+1, -N+2, \dots, -1 \}. 
   \]
+  This is the ordering normally adopted in implementations of the DFT and IDFT. 
 \end{remark}
 
 
@@ -1147,7 +1181,7 @@ $O(N^2)$. Indeed, this is the cost of a generic matrix-vector multiplication,
 i.e., applying a linear operation in $\R^N \to \R^N$ that has no special
 structure. Luckily the ${\rm DFT}$ has plenty of structure to exploit, which
 finally brings us to the FFT algorithm (specifically the radix-2 variant of
-Cooley--Tukey's algorithm, though the idea famously goes back to Gaussz).
+Cooley--Tukey's algorithm, though the idea famously goes back to Gauss).
 
 We begin by rewriting
 \[
@@ -1206,16 +1240,16 @@ is $O(M \log M)$. Algorithms that use some variant of this strategy are called
 
 
 
-\subsection{Examples}
-%
-We are now fully equipped to applying trigonometric polynomial approximation for
-numerical simulation. We will consider
-\begin{itemize}
-  \item a linear, homogeneous boundary value problem
-  \item a transport equation with variable coefficients
-  \item a filtering problem
-\end{itemize}
-These examples may be found in \nbtrig.
+% \subsection{Examples}
+% %
+% We are now fully equipped to applying trigonometric polynomial approximation for
+% numerical simulation. We will consider
+% \begin{itemize}
+%   \item a linear, homogeneous boundary value problem
+%   \item a transport equation with variable coefficients
+%   \item a filtering problem
+% \end{itemize}
+% These examples may be found in \nbtrig.
 
 
 
@@ -1431,6 +1465,4 @@ These examples may be found in \nbtrig.
   trigonometric interpolation, but this is not really relevant here). Generalise
   the FFT to this case, i.e., derive the analogues of \eqref{eq:trig:fft_split}
   and \eqref{eq:trig:fft_trick}.
-
-  (Bonus: Can you also generalise to $M = n M'$?)
 \end{exercise}
