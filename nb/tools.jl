@@ -3,7 +3,8 @@ using Pkg
 Pkg.activate(".")
 
 using Plots, LaTeXStrings, PrettyTables, DataFrames, LinearAlgebra,
-		  BenchmarkTools, ForwardDiff, Printf, Interact 
+		  BenchmarkTools, ForwardDiff, Printf, Interact, Markdown, 
+          Logging
 
 import SIAMFANLEquations
 
