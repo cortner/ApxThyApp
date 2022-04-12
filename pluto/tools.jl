@@ -2,7 +2,7 @@
 using Plots, LaTeXStrings, PrettyTables, DataFrames, LinearAlgebra,
 		  PlutoUI, BenchmarkTools, ForwardDiff, Printf
 
-import SIAMFANLEquations
+# import SIAMFANLEquations
 
 function ata_table(data::AbstractMatrix, labels::AbstractVector;
 							format = :md, kwargs...)
@@ -55,13 +55,13 @@ function ata_table(args...; T = Float64, format = :md, kwargs...)
 	end
 end
 
-function SIAMFANLEquations.nsoli(f, x0; kwargs...)
-	f!(FV, x) = (FV[:] .= f(x); return nothing)
-	FS = similar(x0)
-	FPS = similar(x0, (length(x0), length(x0)))
-	result = nsoli(f!, x0, FS, FPS; kwargs...)
-	return result.solution
-end
+# function SIAMFANLEquations.nsoli(f, x0; kwargs...)
+# 	f!(FV, x) = (FV[:] .= f(x); return nothing)
+# 	FS = similar(x0)
+# 	FPS = similar(x0, (length(x0), length(x0)))
+# 	result = nsoli(f!, x0, FS, FPS; kwargs...)
+# 	return result.solution
+# end
 
 
 function chebbasis(x, N, a=-1, b=1)
